@@ -18,7 +18,7 @@ from classes import PackageSpec, Package, Tag
     help='Package name to include. Can be specified multiple times.'
 )
 @click.command()
-def main(tag, package):
+def get_data(tag, package):
     include_tags = list(tag)
     include_packages = list(package)
 
@@ -73,4 +73,4 @@ def main(tag, package):
 
 
 if __name__ == '__main__':
-    main()
+    get_data()

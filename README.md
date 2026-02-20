@@ -10,26 +10,26 @@ When you dig into a particular build cache package, you'll be presented with ano
 
 TODO: add screenshot here
 
-## Usage
+## Get Data
 
-This Python package will parse data from (https://binaries.spack.io/)[https://binaries.spack.io/] to generate static webpages.
+This Python script will parse data from (https://binaries.spack.io/)[https://binaries.spack.io/].
 
 Recommended: Run with `uv`
 
 ```
-uv run main.py
+uv run data.py
 ```
 
 Alternative: Install with `pip` and run with `python`
 
 ```
 pip install .
-python main.py
+python data.py
 ```
 
 ### Arguments
 
-By default, the main script will parse data for all build tags and all packages. To reduce data size, you may pass in optional arguments to filter by tag name and/or package name.
+By default, the data script will parse data for all build tags and all packages. To reduce data size, you may pass in optional arguments to filter by tag name and/or package name.
 
 | Shorthand | Longhand  | Description                                               |
 | --------- | --------- | --------------------------------------------------------- |
