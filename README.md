@@ -35,3 +35,38 @@ By default, the data script will parse data for all build tags and all packages.
 | --------- | --------- | --------------------------------------------------------- |
 | -p        | --package | Package name to include. Can be specified multiple times. |
 | -t        | --tag     | Build tag to include. Can be specified multiple times.    |
+
+## Build Web Pages
+
+After obtaining data via the data script, you can build static web pages with the build script. The build script loads the data into a set of HTML templates and saves the populated pages to the build directory.
+
+Recommended: Run with `uv`
+
+```
+uv run build.py
+```
+
+Alternative: Install with `pip` and run with `python`
+
+```
+pip install -e .
+python build.py
+```
+
+## Serve Web Pages
+
+After building the static web pages with the build script, you can serve them locally with the builtin python package `http.server`.
+
+Recommended: Run with `uv`
+
+```
+uv run python -m http.server 8000 -d _build
+```
+
+Alternative: Run with `python`
+
+```
+python -m http.server 8000 -d _build
+```
+
+**Note:** You may chose to replace `8000` with any other available port number.
