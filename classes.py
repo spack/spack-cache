@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+import itertools
 
 @dataclass(frozen=True)
 class PackageSpec:
@@ -13,6 +13,20 @@ class PackageSpec:
     variants: list[str]
     versions: list[str]
     tarball: str
+
+    def to_dict(self) -> dict:
+        return dict(
+            compiler=self.compiler,
+            hash=self.hash,
+            os=self.os,
+            platform=self.platform,
+            size=self.size,
+            stacks=self.stacks,
+            target=self.target,
+            variants=self.variants,
+            versions=self.versions,
+            tarball=self.tarball
+        )
 
 
 @dataclass(frozen=True)
@@ -41,3 +55,25 @@ class Package:
             targets=targets,
             versions=versions,
         )
+
+    def to_dict(self) -> dict:
+        return dict(
+            title=self.title,
+            categories=self.categories,
+            meta=self.get_metadata(),
+            specs=[spec.to_dict() for spec in self.specs]
+        )
+
+@dataclass(frozen=True)
+class Tag:
+    title: str
+    packages: list[Package]
+
+    def to_dict(self) -> dict:
+        return dict(
+            title=self.title,
+            packages=[package.to_dict() for package in self.packages]
+        )
+
+    title: str
+    packages: list[Package]

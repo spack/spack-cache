@@ -1,8 +1,8 @@
 import click
 import requests
 
-from utils import get_build_cache_index, get_s3_response
-from classes import PackageSpec, Package
+from utils import get_build_cache_index, get_s3_response, save_data
+from classes import PackageSpec, Package, Tag
 
 
 @click.option(
@@ -22,6 +22,7 @@ def main(tag, package):
     include_tags = list(tag)
     include_packages = list(package)
 
+    tags = []
     for tag_name, package_info in get_build_cache_index().items():
         if len(include_tags) > 0 and tag_name not in include_tags:
             continue
@@ -64,6 +65,11 @@ def main(tag, package):
                 categories=['-'],
                 specs=specs
             ))
+        tags.append(Tag(
+            title=tag_name,
+            packages=packages
+        ))
+    save_data(tags)
 
 
 if __name__ == '__main__':

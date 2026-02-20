@@ -1,9 +1,11 @@
 import requests
+import json
 from functools import lru_cache
 from pathlib import Path
 
 BUCKET_URL = "https://binaries.spack.io/"
 INDEX_URL = f"{BUCKET_URL}cache_spack_io_index.json"
+DATA_PATH = Path(__file__).parent / '_data' / 'cache.json'
 
 
 def get_s3_response(url: str) -> dict:
@@ -16,3 +18,9 @@ def get_s3_response(url: str) -> dict:
 @lru_cache
 def get_build_cache_index() -> dict[str, list[dict]]:
     return get_s3_response(INDEX_URL)
+
+
+def save_data(tags):
+    DATA_PATH.parent.mkdir(exist_ok=True)
+    with open(DATA_PATH, 'w') as f:
+        json.dump([tag.to_dict() for tag in tags], f, indent=4)
