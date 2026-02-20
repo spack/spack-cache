@@ -24,3 +24,10 @@ def save_data(tags):
     DATA_PATH.parent.mkdir(exist_ok=True)
     with open(DATA_PATH, 'w') as f:
         json.dump([tag.to_dict() for tag in tags], f, indent=4)
+
+
+def load_data():
+    if not DATA_PATH.exists():
+        return []
+    with open(DATA_PATH, 'r') as f:
+        return json.load(f)
