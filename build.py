@@ -1,28 +1,64 @@
 from utils import load_data
-from jinja2 import Template
+from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
+import shutil
+import itertools
 
 
 TEMPLATE_DIR = Path(__file__).parent / 'templates'
+TEMPLATE_STATIC_DIR = TEMPLATE_DIR / 'static'
 BUILD_DIR = Path(__file__).parent / '_build'
+BUILD_STATIC_DIR = BUILD_DIR / 'static'
 
-
-def load_template(template_name):
-    template_path = TEMPLATE_DIR / template_name
-    with open(template_path, 'r') as f:
-        return Template(f.read())
 
 def save_rendered(rendered, output_name):
-    BUILD_DIR.mkdir(exist_ok=True)
+    BUILD_DIR.mkdir(exist_ok=True, parents=True)
     output_path = BUILD_DIR / output_name
     with open(output_path, 'w') as f:
         f.write(rendered)
 
+def copy_static():
+    BUILD_STATIC_DIR.mkdir(exist_ok=True, parents=True)
+    for item in TEMPLATE_STATIC_DIR.iterdir():
+        if item.is_file():
+            dest = BUILD_STATIC_DIR / item.name
+            if item.name == 'favicon.ico':
+                # Favicon must be in the root for browsers to find it
+                dest = BUILD_DIR / item.name
+            shutil.copy(item, dest)
+
 def build():
+    # Clear previous build
+    if BUILD_DIR.exists():
+        shutil.rmtree(BUILD_DIR)
+    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+
     tags = load_data()
-    template = load_template('test.html')
-    rendered = template.render(tags=tags)
-    save_rendered(rendered, 'test.html')
+    package_titles = []
+    for tag in tags:
+        for package in tag['packages']:
+            package_titles.append(package['title'])
+
+    pages = [
+        dict(template='index.html', context=dict(
+            layout='home',
+            tags=tags,
+            package_titles=package_titles,
+        )),
+        dict(template='test.html', context=dict(
+            layout='test',
+            tags=tags,
+            package_titles=package_titles,
+        )),
+    ]
+
+    for page in pages:
+        template = env.get_template(page['template'])
+        rendered = template.render(**page['context'])
+        save_rendered(rendered, page['template'])
+
+    copy_static()
+    print('Build complete!')
 
 if __name__ == '__main__':
     build()

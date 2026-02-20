@@ -1,0 +1,92 @@
+<header class="drop-shadow-xl relative z-[100]">
+    <div class="navbar bg-base-100 rounded">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
+                <img src="/static/spack-logo.svg" class="max-h-full w-auto">
+                Spack Build Cache <small class="text-gray-600">{{ tag }}</small>
+            </a>
+        </div>
+
+        <div class="flex justify-end flex-1 px-2">
+            {% if layout != 'home' %}
+            <div class="flex gap-4 pr-5 border-r border-base-200">
+                <div class="form-control py-2" onclick="toggleMenu('tag-options-menu')">
+                    <label class="label floating">
+                        <span class="label-text-alt text-gray-400 text-[10px]">Build Cache Version</span>
+                    </label>
+                    <button class="custom-select !select-sm w-48">
+                        <span class="selected">{{ tag }}</span>
+                    </button>
+
+                    <div class="custom-select-options" id="tag-options-menu" style="display: none;">
+                        <div class="menu-wrap">
+                            <ul>
+                                <li class="selected">
+                                    <a>-- choose version --</a>
+                                </li>
+                                {% for tag in tags %}
+                                <li>
+                                    <a>{{ tag['title'] }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-control py-2" onclick="toggleMenu('package-options-menu')">
+                    <label class="label floating">
+                        <span class="label-text-alt text-gray-400 text-[10px]">Stack</span>
+                    </label>
+                    <button class="custom-select !select-sm w-48">
+                        {% if package is defined %}
+                        <span class="selected">{{ package['title'] }}</span>
+                        {% endif %}
+                    </button>
+
+                    <div class="custom-select-options" id="package-options-menu" style="display: none;">
+                        <div class="menu-wrap">
+                            <ul>
+                                <li class="selected">
+                                    <a>-- choose stack --</a>
+                                </li>
+                                {% for package_title in package_titles %}
+                                <li>
+                                    <a>{{ package_title }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="flex items-stretch pl-3">
+                <div class="tooltip tooltip-bottom" data-tip="Spack Packages">
+                    <a href="https://packages.spack.io/" class="btn btn-ghost btn-square rounded-btn" target="_blank" alt="Spack Packages">
+                        <i class="ri-box-3-line text-xl"></i>
+                    </a>
+                </div>
+                <div class="dropdown dropdown-end">
+                    <label tabindex="0" class="btn btn-ghost btn-square rounded-btn">
+                        <i class="ri-github-fill text-xl"></i>
+                    </label>
+                    <ul tabindex="0" class="menu dropdown-content p-2 shadow bg-base-100 rounded-box mt-4">
+                        <li>
+                            <a href="https://github.com/spack/packages.spack.io" class="nolink" target="_blank">
+                                <i class="ri-git-repository-fill text-xl"></i>
+                                packages.spack.io
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/spack/cache.spack.io" class="nolink" target="_blank">
+                                <i class="ri-git-repository-fill text-xl"></i>
+                                cache.spack.io
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
