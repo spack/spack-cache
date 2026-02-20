@@ -3,6 +3,7 @@ from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
 import itertools
+import time
 
 
 TEMPLATE_DIR = Path(__file__).parent / 'templates'
@@ -28,6 +29,8 @@ def copy_static():
             shutil.copy(item, dest)
 
 def build():
+    start = time.perf_counter()
+
     # Clear previous build
     if BUILD_DIR.exists():
         shutil.rmtree(BUILD_DIR)
@@ -58,7 +61,9 @@ def build():
         save_rendered(rendered, page['template'])
 
     copy_static()
-    print('Build complete!')
+
+    end = time.perf_counter()
+    print(f'Build completed in {end - start:.2f} seconds.')
 
 if __name__ == '__main__':
     build()

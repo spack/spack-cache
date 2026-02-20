@@ -1,5 +1,6 @@
 import click
 import requests
+import time
 
 from utils import get_build_cache_index, get_s3_response, save_data
 from classes import PackageSpec, Package, Tag
@@ -19,6 +20,7 @@ from classes import PackageSpec, Package, Tag
 )
 @click.command()
 def get_data(tag, package):
+    start = time.perf_counter()
     include_tags = list(tag)
     include_packages = list(package)
 
@@ -46,6 +48,9 @@ def get_data(tag, package):
             for install in installs.values():
                 spec = install['spec']
                 arch = spec['arch']
+                target = arch['target']
+                if isinstance(target, dict):
+                    target = target.get('name', '-')
                 specs.append(PackageSpec(
                     compiler='-',
                     hash=spec['hash'],
@@ -53,7 +58,7 @@ def get_data(tag, package):
                     platform=arch['platform'],
                     size='-',
                     stacks=['-'],
-                    target=arch['target'],
+                    target=target,
                     variants=['-'],
                     versions=[spec['version']],
                     tarball='-'
@@ -70,6 +75,9 @@ def get_data(tag, package):
             packages=packages
         ))
     save_data(tags)
+
+    end = time.perf_counter()
+    print(f'Data retrieval completed in {end - start:.2f} seconds.')
 
 
 if __name__ == '__main__':
