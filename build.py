@@ -28,33 +28,45 @@ def copy_static():
                 dest = BUILD_DIR / item.name
             shutil.copy(item, dest)
 
-def build():
-    start = time.perf_counter()
 
-    # Clear previous build
-    if BUILD_DIR.exists():
-        shutil.rmtree(BUILD_DIR)
-    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-
+def get_pages():
     tags = load_data()
     package_titles = []
     for tag in tags:
         for package in tag['packages']:
             package_titles.append(package['title'])
 
-    pages = [
-        dict(template='index.html', context=dict(
-            layout='home',
-            tags=tags,
-            package_titles=package_titles,
-        )),
-        dict(template='test.html', context=dict(
-            layout='test',
-            tags=tags,
-            package_titles=package_titles,
-        )),
+    return [
+        dict(
+            template='index.html',
+            path='/',
+            context=dict(
+                layout='home',
+                tags=tags,
+                package_titles=package_titles,
+            ),
+        ),
+        dict(
+            template='test.html',
+            path='/test.html',
+            context=dict(
+                layout='test',
+                tags=tags,
+                package_titles=package_titles,
+            ),
+        ),
     ]
 
+
+def build():
+    start = time.perf_counter()
+
+    # Clear previous build
+    if BUILD_DIR.exists():
+        shutil.rmtree(BUILD_DIR)
+
+    env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+    pages = get_pages()
     for page in pages:
         template = env.get_template(page['template'])
         rendered = template.render(**page['context'])

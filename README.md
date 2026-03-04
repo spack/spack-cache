@@ -10,24 +10,17 @@ When you dig into a particular build cache package, you'll be presented with ano
 
 TODO: add screenshot here
 
+# Usage
+
+> **Note:** This usage guide recommends running these scripts via [uv](https://docs.astral.sh/uv/), so most commands are prefixed with `uv run`. You may also elect to run these scripts with native python instead, but you will need to run `pip install -e .` first.
+
 ## Get Data
 
 This Python script will parse data from (https://binaries.spack.io/)[https://binaries.spack.io/].
 
-Recommended: Run with `uv`
-
 ```
 uv run data.py
 ```
-
-Alternative: Install with `pip` and run with `python`
-
-```
-pip install .
-python data.py
-```
-
-### Arguments
 
 By default, the data script will parse data for all build tags and all packages. To reduce data size, you may pass in optional arguments to filter by tag name and/or package name.
 
@@ -38,35 +31,42 @@ By default, the data script will parse data for all build tags and all packages.
 
 ## Build Web Pages
 
-After obtaining data via the data script, you can build static web pages with the build script. The build script loads the data into a set of HTML templates and saves the populated pages to the build directory.
-
-Recommended: Run with `uv`
+After obtaining data via the data script, you can build static web pages with the build script. The build script leverages [Jinja2](https://jinja.palletsprojects.com/en/stable/) to load the data into a set of HTML templates and saves the populated pages to the build directory.
 
 ```
 uv run build.py
 ```
 
-Alternative: Install with `pip` and run with `python`
-
-```
-pip install -e .
-python build.py
-```
-
-## Serve Web Pages
+## Serve Static Web Pages
 
 After building the static web pages with the build script, you can serve them locally with the builtin python package `http.server`.
-
-Recommended: Run with `uv`
 
 ```
 uv run python -m http.server 8000 -d _build
 ```
 
-Alternative: Run with `python`
+> **Note:** You may chose to replace 8000 with any other available port number.
+
+## Development Mode
+
+### Run the local development server
+
+When developing templates, it can be burdensome to rebuild after every change. Instead, you may launch a local development server that will reload after every change to the template files. This local development server leverages [Uvicorn](https://uvicorn.dev/) and [FastAPI](https://fastapi.tiangolo.com/). Visit `localhost:8000` in your browser to view the local development server.
 
 ```
-python -m http.server 8000 -d _build
+uv run serve_dev.py
 ```
 
-**Note:** You may chose to replace `8000` with any other available port number.
+> **Note:** Ensure that your browser has disabled caching of static files.
+
+### Run a proxy for refreshing the browser
+
+This step is optional. If you choose not to do this step, you will need to refresh the page in your browser whenever the local development server reloads.
+
+In a separate terminal, run the proxy command. The command below will leverage [Browsersync](https://browsersync.io/) to run a proxy server on port 8080 that will automatically refresh the browser when changes are made. Visit `localhost:8080` in your browser and start making changes to templates.
+
+```
+cd sync
+npm i
+npm run sync
+```

@@ -1,0 +1,15 @@
+{
+  "name": "spack_cache_dev_proxy",
+  "version": "1.0.0",
+  "description": "Run a proxy server with browser-sync",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "sync": "browser-sync start --proxy 'http://localhost:8000' --no-open --port 8080 --watch --files ../templates/**"
+  },
+  "dependencies": {
+    "browser-sync": "^3.0.4"
+  }
+}
