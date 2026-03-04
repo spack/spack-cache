@@ -39,10 +39,10 @@ uv run build.py
 
 ## Serve Static Web Pages
 
-After building the static web pages with the build script, you can serve them locally with the builtin python package `http.server`.
+After building the static web pages with the build script, you can serve them locally with the serve static script, which leverages the builtin python package `http.server`.
 
 ```
-uv run python -m http.server 8000 -d _build
+uv run serve_static.py --port 8000
 ```
 
 > **Note:** You may chose to replace 8000 with any other available port number.

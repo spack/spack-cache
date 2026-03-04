@@ -27,8 +27,6 @@ def get_favicon():
             filename='favicon.ico',
         )
 
-
-
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):
     def endpoint(request: Request):
@@ -45,6 +43,12 @@ for page in get_pages():
         methods=['GET'],
     )
 
+@app.exception_handler(404)
+async def custom_404(request: Request, exc):
+    return templates.TemplateResponse(
+        '404.html',
+        context=dict(request=request),
+    )
 
 if __name__ == '__main__':
     uvicorn.run("serve_dev:app", port=8000)

@@ -3,29 +3,26 @@
         <div class="flex-1">
             <a href="/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
                 <img src="/static/spack-logo.svg" class="max-h-full w-auto">
-                Spack Build Cache <small class="text-gray-600">{{ tag }}</small>
+                Spack Build Cache
+                <small class="tag-name text-gray-600"></small>
             </a>
         </div>
 
         <div class="flex justify-end flex-1 px-2">
-            {% if layout != 'home' %}
-            <div class="flex gap-4 pr-5 border-r border-base-200">
+            <div id="header-selections" class="flex gap-4 pr-5 border-r border-base-200">
                 <div class="form-control py-2" onclick="toggleMenu('tag-options-menu')">
                     <label class="label floating">
                         <span class="label-text-alt text-gray-400 text-[10px]">Build Cache Version</span>
                     </label>
                     <button class="custom-select !select-sm w-48">
-                        <span class="selected">{{ tag }}</span>
+                        <span class="tag-name">{{ tag }}</span>
                     </button>
 
                     <div class="custom-select-options" id="tag-options-menu" style="display: none;">
                         <div class="menu-wrap">
                             <ul>
-                                <li class="selected">
-                                    <a>-- choose version --</a>
-                                </li>
                                 {% for tag in tags %}
-                                <li>
+                                <li onclick="selectTag('{{ tag.title }}')">
                                     <a>{{ tag['title'] }}</a>
                                 </li>
                                 {% endfor %}
@@ -47,11 +44,8 @@
                     <div class="custom-select-options" id="package-options-menu" style="display: none;">
                         <div class="menu-wrap">
                             <ul>
-                                <li class="selected">
-                                    <a>-- choose stack --</a>
-                                </li>
                                 {% for package_title in package_titles %}
-                                <li>
+                                <li onclick="selectStack('{{ package_title }}')">
                                     <a>{{ package_title }}</a>
                                 </li>
                                 {% endfor %}
@@ -60,7 +54,6 @@
                     </div>
                 </div>
             </div>
-            {% endif %}
             <div class="flex items-stretch pl-3">
                 <div class="tooltip tooltip-bottom" data-tip="Spack Packages">
                     <a href="https://packages.spack.io/" class="btn btn-ghost btn-square rounded-btn" target="_blank" alt="Spack Packages">

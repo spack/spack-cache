@@ -47,14 +47,12 @@ def get_pages():
             ),
         ),
         dict(
-            template='test.html',
-            path='/test.html',
+            template='404.html',
+            path='/redirect',
             context=dict(
-                layout='test',
-                tags=tags,
-                package_titles=package_titles,
-            ),
-        ),
+                layout='redirect',
+            )
+        )
     ]
 
 
