@@ -38,7 +38,7 @@ def serve_template(template_name, context):
 
 for page in get_pages():
     app.add_api_route(
-        path=page.get('path'),
+        path='/' + page.get('path'),
         endpoint=serve_template(page.get('template'), page.get('context')),
         methods=['GET'],
     )

@@ -4,7 +4,7 @@
             <a href="/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
                 <img src="/static/spack-logo.svg" class="max-h-full w-auto">
                 Spack Build Cache
-                <small class="tag-name text-gray-600"></small>
+                <small class="tag-name text-gray-600">{{ tag.title if tag else '' }}</small>
             </a>
         </div>
 
@@ -15,15 +15,15 @@
                         <span class="label-text-alt text-gray-400 text-[10px]">Build Cache Version</span>
                     </label>
                     <button class="custom-select !select-sm w-48">
-                        <span class="tag-name">{{ tag }}</span>
+                        <span class="tag-name">{{ tag.title if tag else '' }}</span>
                     </button>
 
                     <div class="custom-select-options" id="tag-options-menu" style="display: none;">
                         <div class="menu-wrap">
                             <ul>
-                                {% for tag in tags %}
-                                <li onclick="selectTag('{{ tag.title }}')">
-                                    <a>{{ tag['title'] }}</a>
+                                {% for tag_item in tags %}
+                                <li onclick="selectTag('{{ tag_item.title }}')">
+                                    <a>{{ tag_item['title'] }}</a>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -36,9 +36,7 @@
                         <span class="label-text-alt text-gray-400 text-[10px]">Stack</span>
                     </label>
                     <button class="custom-select !select-sm w-48">
-                        {% if package is defined %}
-                        <span class="selected stack-name">{{ package['title'] }}</span>
-                        {% endif %}
+                        <span class="selected stack-name"></span>
                     </button>
 
                     <div class="custom-select-options" id="package-options-menu" style="display: none;">

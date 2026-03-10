@@ -29,6 +29,15 @@
 </html>
 
 <script>
+  function applyQuery() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    if (urlParams.get('stack')) {
+      setText('stack-name', urlParams.get('stack'))
+    }
+  }
+  applyQuery()
+
   function toggleMenu(menuId) {
     const menu = document.getElementById(menuId);
     if (menu.style.display === "block") {

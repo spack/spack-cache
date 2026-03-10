@@ -36,17 +36,27 @@ def get_pages():
         for package in tag['packages']:
             package_titles.append(package['title'])
 
-    return [
+    pages = [
         dict(
             template='index.html',
-            path='/',
+            path='',
             context=dict(
-                layout='home',
                 tags=tags,
                 package_titles=package_titles,
             ),
         ),
     ]
+    for tag in tags:
+        pages.append(dict(
+            template='tag.html',
+            path=f"tag/{tag['title']}",
+            context=dict(
+                tag=tag,
+                tags=tags,
+                package_titles=package_titles,
+            ),
+        ))
+    return pages
 
 
 def build():
@@ -61,7 +71,11 @@ def build():
     for page in pages:
         template = env.get_template(page['template'])
         rendered = template.render(**page['context'])
-        save_rendered(rendered, page['template'])
+        path = page['path']
+        if not path:
+            path = 'index.html'
+        (BUILD_DIR / path).parent.mkdir(exist_ok=True, parents=True)
+        save_rendered(rendered, path)
 
     copy_static()
 

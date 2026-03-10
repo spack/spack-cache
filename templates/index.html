@@ -21,9 +21,9 @@
                         <div class="custom-select-options" id="home-options-menu" style="display: none">
                             <div class="menu-wrap">
                                 <ul>
-                                    {% for tag in tags %}
-                                    <li onclick="document.getElementById('tag-selection').innerHTML = '{{ tag.title }}'">
-                                        <a>{{ tag.title }}</a>
+                                    {% for tag_item in tags %}
+                                    <li onclick="document.getElementById('tag-selection').innerHTML = '{{ tag_item.title }}'">
+                                        <a>{{ tag_item.title }}</a>
                                     </li>
                                     {% endfor %}
                                 </ul>
