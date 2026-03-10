@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Source+Sans+Pro:300,300i,600">
 
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ base_path }}/static/style.css">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ base_path }}/favicon.ico">
+
   </head>
 
   <body class="bg-gray-100">
@@ -55,7 +57,7 @@
 
   function selectTag(tag) {
     setText('tag-name', tag)
-    window.location.assign('/tag/' + tag);
+    window.location.assign('{{ base_path }}/tag/' + tag);
   }
 
   function selectStack(stack) {

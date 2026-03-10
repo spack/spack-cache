@@ -1,8 +1,8 @@
 <header class="drop-shadow-xl relative z-[100]">
     <div class="navbar bg-base-100 rounded">
         <div class="flex-1">
-            <a href="/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
-                <img src="/static/spack-logo.svg" class="max-h-full w-auto">
+            <a href="{{ base_path }}/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
+                <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-auto">
                 Spack Build Cache
                 <small class="tag-name text-gray-600">{{ tag.title if tag else '' }}</small>
             </a>

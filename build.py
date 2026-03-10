@@ -4,7 +4,7 @@ from pathlib import Path
 import shutil
 import itertools
 import time
-
+import os
 
 TEMPLATE_DIR = Path(__file__).parent / 'templates'
 TEMPLATE_STATIC_DIR = TEMPLATE_DIR / 'static'
@@ -36,25 +36,24 @@ def get_pages():
         for package in tag['packages']:
             package_titles.append(package['title'])
 
+    base_context = dict(
+        base_path=os.environ.get('BASE_PATH', ''),
+        tags=tags,
+        package_titles=package_titles,
+    )
+
     pages = [
         dict(
             template='index.html',
             path='',
-            context=dict(
-                tags=tags,
-                package_titles=package_titles,
-            ),
+            context=base_context,
         ),
     ]
     for tag in tags:
         pages.append(dict(
             template='tag.html',
             path=f"tag/{tag['title']}",
-            context=dict(
-                tag=tag,
-                tags=tags,
-                package_titles=package_titles,
-            ),
+            context=base_context | dict(tag=tag),
         ))
     return pages
 
