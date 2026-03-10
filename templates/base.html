@@ -38,11 +38,19 @@
     }
   }
 
+  function setText(className, text) {
+    Array.from(document.getElementsByClassName(className)).forEach(
+      (elem) => elem.innerHTML = text
+    )
+  }
+
   function selectTag(tag) {
+    setText('tag-name', tag)
     window.location.assign('/tag/' + tag);
   }
 
   function selectStack(stack) {
+    setText('stack-name', stack)
     window.location.assign(window.location.pathname + '?stack=' + stack);
   }
 </script>

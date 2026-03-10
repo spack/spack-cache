@@ -15,14 +15,14 @@
                             <span class="label-text-alt text-gray-400 text-[10px]">Build Cache Version</span>
                         </label>
                         <button class="custom-select w-full">
-                            <span class="selected">-- choose tag--</span>
+                            <span id="tag-selection" class="selected">-- choose tag--</span>
                         </button>
 
                         <div class="custom-select-options" id="home-options-menu" style="display: none">
                             <div class="menu-wrap">
                                 <ul>
                                     {% for tag in tags %}
-                                    <li onclick="selectTag('{{ tag.title }}')">
+                                    <li onclick="document.getElementById('tag-selection').innerHTML = '{{ tag.title }}'">
                                         <a>{{ tag.title }}</a>
                                     </li>
                                     {% endfor %}
@@ -31,7 +31,11 @@
                         </div>
                     </div>
                     <div class="form-control mt-6">
-                        <button id="hero-browse-build-cache" class="btn btn-secondary">
+                        <button
+                            id="hero-browse-build-cache"
+                            class="btn btn-secondary"
+                            onclick="selectTag(document.getElementById('tag-selection').innerHTML)"
+                        >
                             Browse the Build Cache
                         </button>
                     </div>
