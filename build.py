@@ -46,13 +46,6 @@ def get_pages():
                 package_titles=package_titles,
             ),
         ),
-        dict(
-            template='404.html',
-            path='/redirect',
-            context=dict(
-                layout='redirect',
-            )
-        )
     ]
 
 
