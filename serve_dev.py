@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from build import DATA_PATH, TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
+from build import PACKAGE_DATA_PATH, SPECS_DATA_PATH, TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
 
 
 app = FastAPI()
@@ -29,12 +29,19 @@ def get_favicon():
 
 @app.get('/api/data.json')
 def get_data():
-    if DATA_PATH.exists():
+    if PACKAGE_DATA_PATH.exists():
         return FileResponse(
-            path=DATA_PATH,
+            path=PACKAGE_DATA_PATH,
             filename='data.json',
         )
 
+@app.get('/api/specs_data.json')
+def get_data():
+    if SPECS_DATA_PATH.exists():
+        return FileResponse(
+            path=SPECS_DATA_PATH,
+            filename='data.json',
+        )
 
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):

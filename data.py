@@ -9,7 +9,10 @@ from pathlib import Path
 
 BUCKET_URL = "https://binaries.spack.io/"
 INDEX_URL = f"{BUCKET_URL}cache_spack_io_index.json"
-DATA_PATH = Path(__file__).parent / '_data' / 'cache.json'
+DATA_DIR = Path(__file__).parent / '_data'
+PACKAGE_DATA_PATH = DATA_DIR / 'package_data.json'
+SPECS_DATA_PATH = DATA_DIR / 'specs_data.json'
+
 
 
 def get_s3_response(url: str) -> dict:
@@ -24,16 +27,16 @@ def get_build_cache_index() -> dict[str, list[dict]]:
     return get_s3_response(INDEX_URL)
 
 
-def save_data(data):
-    DATA_PATH.parent.mkdir(exist_ok=True)
-    with open(DATA_PATH, 'w') as f:
+def save_data(data, path):
+    path.parent.mkdir(exist_ok=True)
+    with open(path, 'w') as f:
         json.dump(data, f, indent=4)
 
 
-def load_data():
-    if not DATA_PATH.exists():
+def load_data(path):
+    if not path.exists():
         return []
-    with open(DATA_PATH, 'r') as f:
+    with open(path, 'r') as f:
         return json.load(f)
 
 @click.option(
@@ -62,11 +65,15 @@ def get_data(tag, stack, package):
     include_packages = list(package)
 
     all_packages = []
+    all_specs = {}
     for tag_name, stack_info in get_build_cache_index().items():
         if len(include_tags) > 0 and tag_name not in include_tags:
             continue
-        tag_packages = {}
+
         print(f'Tag: {tag_name}')
+        if tag_name not in all_specs:
+            all_specs[tag_name] = {}
+        tag_packages = {}
         for s in stack_info:
             stack_name = s.get('label', None)
             url = s.get('url', None)
@@ -85,6 +92,9 @@ def get_data(tag, stack, package):
 
                 if len(include_packages) > 0 and package_name not in include_packages:
                     continue
+
+                if package_name not in all_specs[tag_name]:
+                    all_specs[tag_name][package_name] = []
 
                 if package_name not in tag_packages:
                     print(f'    - Package: {package_name}')
@@ -120,11 +130,24 @@ def get_data(tag, stack, package):
                 if stack_name not in tag_packages[package_name]['num_specs_by_stack']:
                     tag_packages[package_name]['num_specs_by_stack'][stack_name] = 0
                 tag_packages[package_name]['num_specs_by_stack'][stack_name] += 1
+
+                all_specs[tag_name][package_name].append(dict(
+                    hash=spec['hash'],
+                    versions=[spec['version']],
+                    variants=[],  # TODO: where do variants come from?
+                    platform=arch['platform'],
+                    os=arch['platform_os'],
+                    target=target,
+                    compiler=list(compilers)[0] if len(compilers) else '' # TODO: select single compiler for spec?
+                ))
+
         all_packages += [
             {k: list(v) if isinstance(v, set) else v for k, v in package.items()}
             for package in tag_packages.values()
         ]
-    save_data(all_packages)
+
+    save_data(all_packages, PACKAGE_DATA_PATH)
+    save_data(all_specs, SPECS_DATA_PATH)
 
     end = time.perf_counter()
     print(f'Data retrieval completed in {end - start:.2f} seconds.')

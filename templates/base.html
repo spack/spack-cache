@@ -36,11 +36,17 @@
 <script>
   let tagName = undefined;
   let stackName = undefined;
+  let packageName = undefined;
 
   function applyRoute() {
     const path = window.location.pathname.slice(1).split('/')
     if (path.length == 2 && path[0] == 'tag') {
       tagName = path[1]
+    }
+
+    if (path.length == 4 && path[0] == 'package') {
+      tagName = path[1]
+      packageName = path[2]
     }
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -50,6 +56,7 @@
     }
 
     if (tagName) {
+      setText('tag-name', tagName)
       setText(
         'mirror-code',
         `spack mirror add ${tagName}${stackName ? '-' + stackName : ''} https://binaries.spack.io/${tagName}${stackName ? '/' + stackName : ''}`,

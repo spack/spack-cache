@@ -1,4 +1,4 @@
-from data import load_data, DATA_PATH
+from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, load_data
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -32,11 +32,13 @@ def copy_static():
 
 def copy_data():
     BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
-    shutil.copy(DATA_PATH, BUILD_DATA_DIR / 'data.json')
+    shutil.copy(PACKAGE_DATA_PATH, BUILD_DATA_DIR / 'data.json')
+    shutil.copy(SPECS_DATA_PATH, BUILD_DATA_DIR / 'specs_data.json')
 
 
 def get_pages():
-    packages = load_data()
+    packages = load_data(PACKAGE_DATA_PATH)
+    specs = load_data(SPECS_DATA_PATH)
     tag_names = list(set([p['tag'] for p in packages]))
     stack_names = list(set(itertools.chain.from_iterable([p['stacks'] for p in packages])))
 
@@ -60,10 +62,13 @@ def get_pages():
             context=base_context | dict(tag_name=tag_name),
         ))
     for package in packages:
+        package_tag = package['tag']
+        package_name = package['uid']
+        package_specs = specs[package_tag][package_name]
         pages.append(dict(
             template='package.html',
-            path=f"package/{package['tag']}/{package['uid']}/specs",
-            context=base_context | dict(package=package)
+            path=f'package/{package_tag}/{package_name}/specs',
+            context=base_context | dict(package=package, specs=package_specs)
         ))
     return pages
 
