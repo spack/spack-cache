@@ -36,16 +36,14 @@ def copy_data():
 
 
 def get_pages():
-    tags = load_data()
-    package_titles = []
-    for tag in tags:
-        for package in tag['packages']:
-            package_titles.append(package['title'])
+    packages = load_data()
+    tag_names = [p['tag'] for p in packages]
+    stack_names = list(set(itertools.chain.from_iterable([p['stacks'] for p in packages])))
 
     base_context = dict(
         base_path=os.environ.get('BASE_PATH', ''),
-        tags=tags,
-        package_titles=package_titles,
+        tag_names=tag_names,
+        stack_names=stack_names,
     )
 
     pages = [
@@ -55,11 +53,11 @@ def get_pages():
             context=base_context,
         ),
     ]
-    for tag in tags:
+    for tag_name in tag_names:
         pages.append(dict(
-            template='tag.html',
-            path=f"tag/{tag['title']}",
-            context=base_context | dict(tag=tag),
+            template='table.html',
+            path=f"tag/{tag_name}",
+            context=base_context | dict(tag_name=tag_name),
         ))
     return pages
 

@@ -20,10 +20,10 @@ def get_build_cache_index() -> dict[str, list[dict]]:
     return get_s3_response(INDEX_URL)
 
 
-def save_data(tags):
+def save_data(data):
     DATA_PATH.parent.mkdir(exist_ok=True)
     with open(DATA_PATH, 'w') as f:
-        json.dump([tag.to_dict() for tag in tags], f, indent=4)
+        json.dump(data, f, indent=4)
 
 
 def load_data():

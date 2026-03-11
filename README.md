@@ -26,8 +26,9 @@ By default, the data script will parse data for all build tags and all packages.
 
 | Shorthand | Longhand  | Description                                               |
 | --------- | --------- | --------------------------------------------------------- |
-| -p        | --package | Package name to include. Can be specified multiple times. |
 | -t        | --tag     | Build tag to include. Can be specified multiple times.    |
+| -s        | --stack   | Stack name to include. Can be specified multiple times.   |
+| -p        | --package | Package name to include. Can be specified multiple times. |
 
 ## Build Web Pages
 
