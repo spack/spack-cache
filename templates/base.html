@@ -15,6 +15,12 @@
   <link href="https://cdn.jsdelivr.net/npm/remixicon@3.2.0/fonts/remixicon.css" rel="stylesheet" />
   <link rel="stylesheet" href="{{ base_path }}/static/style.css" />
   <link rel="shortcut icon" type="image/x-icon" href="{{ base_path }}/favicon.ico" />
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+  <script src='https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js'></script>
+  <script
+    src='https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js'></script>
+  <script src='https://cdn.datatables.net/responsive/1.0.4/js/dataTables.responsive.js'></script>
 </head>
 
 <body class="bg-gray-100">
@@ -28,17 +34,29 @@
 </html>
 
 <script>
-  let stack = undefined;
+  let tagName = undefined;
+  let stackName = undefined;
 
-  function applyQuery() {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
+  function applyRoute() {
+    const path = window.location.pathname.split('/')
+    if (path.length == 2 && path[0] == 'tag') {
+      tagName = path[1]
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("stack")) {
-      stack = urlParams.get("stack");
-      setText("stack-name", stack);
+      stackName = urlParams.get("stack");
+      setText("stack-name", stackName);
+    }
+
+    if (tagName) {
+      setText(
+        'mirror-code',
+        `spack mirror add ${tagName}${stackName ? '-' + stackName : ''} https://binaries.spack.io/${tagName}${stackName ? '/' + stackName : ''}`,
+      )
     }
   }
-  applyQuery();
+  applyRoute();
 
   function toggleMenu(menuId) {
     const menu = document.getElementById(menuId);
@@ -60,8 +78,9 @@
     window.location.assign("{{ base_path }}/tag/" + tag);
   }
 
-  function selectStack(stack) {
-    setText("stack-name", stack);
-    window.location.assign(window.location.pathname + "?stack=" + stack);
+  function selectStack(s) {
+    stackName = s
+    setText("stack-name", stackName);
+    window.location.assign(window.location.pathname + "?stack=" + stackName);
   }
 </script>
