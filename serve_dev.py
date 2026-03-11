@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from build import TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
+from utils import DATA_PATH
 
 
 app = FastAPI()
@@ -26,6 +27,15 @@ def get_favicon():
             path=favicon_path,
             filename='favicon.ico',
         )
+
+@app.get('/api/data.json')
+def get_data():
+    if DATA_PATH.exists():
+        return FileResponse(
+            path=DATA_PATH,
+            filename='data.json',
+        )
+
 
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):

@@ -1,4 +1,4 @@
-from utils import load_data
+from utils import load_data, DATA_PATH
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -10,6 +10,7 @@ TEMPLATE_DIR = Path(__file__).parent / 'templates'
 TEMPLATE_STATIC_DIR = TEMPLATE_DIR / 'static'
 BUILD_DIR = Path(__file__).parent / '_build'
 BUILD_STATIC_DIR = BUILD_DIR / 'static'
+BUILD_DATA_DIR = BUILD_DIR / 'api'
 
 
 def save_rendered(rendered, output_name):
@@ -27,6 +28,11 @@ def copy_static():
                 # Favicon must be in the root for browsers to find it
                 dest = BUILD_DIR / item.name
             shutil.copy(item, dest)
+
+
+def copy_data():
+    BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
+    shutil.copy(DATA_PATH, BUILD_DATA_DIR / 'data.json')
 
 
 def get_pages():
@@ -75,6 +81,7 @@ def build():
         save_rendered(rendered, path)
 
     copy_static()
+    copy_data()
 
     end = time.perf_counter()
     print(f'Build completed in {end - start:.2f} seconds.')
