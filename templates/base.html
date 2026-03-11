@@ -23,6 +23,8 @@
   <script src='https://cdn.datatables.net/responsive/1.0.4/js/dataTables.responsive.js'></script>
 </head>
 
+<a id="base-path" style="display: none">{{base_path}}</a>
+
 <body class="bg-gray-100">
   <div class="container mx-auto py-8">
     {% include "header.html" %}
@@ -39,7 +41,11 @@
   let packageName = undefined;
 
   function applyRoute() {
-    const path = window.location.pathname.slice(1).split('/')
+    let path = window.location.pathname.slice(1).split('/')
+    const basePath = document.getElementById('base-path').innerHTML
+    if (basePath) {
+      path = path.filter((fragment) => !basePath.includes(fragment))
+    }
     if (path.length == 2 && path[0] == 'tag') {
       tagName = path[1]
     }
