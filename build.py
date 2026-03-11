@@ -70,10 +70,8 @@ def build():
     for page in pages:
         template = env.get_template(page['template'])
         rendered = template.render(**page['context'])
-        path = page['path']
-        if not path:
-            path = 'index.html'
-        (BUILD_DIR / path).parent.mkdir(exist_ok=True, parents=True)
+        path = BUILD_DIR / page['path'] / 'index.html'
+        path.parent.mkdir(exist_ok=True, parents=True)
         save_rendered(rendered, path)
 
     copy_static()
