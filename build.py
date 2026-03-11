@@ -33,7 +33,6 @@ def copy_static():
 def copy_data():
     BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
     shutil.copy(PACKAGE_DATA_PATH, BUILD_DATA_DIR / 'data.json')
-    shutil.copy(SPECS_DATA_PATH, BUILD_DATA_DIR / 'specs_data.json')
 
 
 def get_pages():

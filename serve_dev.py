@@ -35,14 +35,6 @@ def get_data():
             filename='data.json',
         )
 
-@app.get('/api/specs_data.json')
-def get_data():
-    if SPECS_DATA_PATH.exists():
-        return FileResponse(
-            path=SPECS_DATA_PATH,
-            filename='data.json',
-        )
-
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):
     def endpoint(request: Request):

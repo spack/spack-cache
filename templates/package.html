@@ -36,6 +36,8 @@
     </table>
 </div>
 
+<div id="specs-data" style="display: none">{{ specs | tojson }}</div>
+
 <script>
     function setupDataTable(data) {
         $('#cache').DataTable({
@@ -133,16 +135,7 @@
     }
 
     $(document).ready(function () {
-        fetch("{{ base_path }}/api/specs_data.json").then(function (response) {
-            response.json().then(function (data) {
-                const tagData = data[tagName]
-                if (tagData) {
-                    const specs = tagData[packageName]
-                    if (specs) setupDataTable(specs)
-                }
-
-            })
-        })
+        setupDataTable(JSON.parse(document.getElementById('specs-data').innerHTML))
     });
 </script>
 
