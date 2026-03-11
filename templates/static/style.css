@@ -885,6 +885,11 @@ html {
   align-items: center;
 }
 
+    .custom-select .selected {
+  line-height: 1rem !important;
+  padding: 5px 0px;
+}
+
     .custom-select-options {
   position: absolute;
   left: -1px;
@@ -2998,7 +3003,7 @@ html {
   line-height: 2rem;
 }
 .\!select-sm {
-  height: 2rem !important;
+  height: fit-content;
   padding-left: 0.75rem !important;
   padding-right: 2rem !important;
   font-size: 0.875rem !important;
