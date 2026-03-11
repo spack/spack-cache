@@ -5,8 +5,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from build import TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
-from utils import DATA_PATH
+from build import DATA_PATH, TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
 
 
 app = FastAPI()

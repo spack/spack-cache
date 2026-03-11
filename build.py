@@ -1,4 +1,4 @@
-from utils import load_data, DATA_PATH
+from data import load_data, DATA_PATH
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -58,6 +58,12 @@ def get_pages():
             template='table.html',
             path=f"tag/{tag_name}",
             context=base_context | dict(tag_name=tag_name),
+        ))
+    for package in packages:
+        pages.append(dict(
+            template='package.html',
+            path=f"package/{package['tag']}/{package['uid']}/specs",
+            context=base_context | dict(package=package)
         ))
     return pages
 
