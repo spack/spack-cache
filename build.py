@@ -37,7 +37,7 @@ def copy_data():
 
 def get_pages():
     packages = load_data()
-    tag_names = [p['tag'] for p in packages]
+    tag_names = list(set([p['tag'] for p in packages]))
     stack_names = list(set(itertools.chain.from_iterable([p['stacks'] for p in packages])))
 
     base_context = dict(
