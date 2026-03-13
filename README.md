@@ -1,14 +1,18 @@
 # Spack Build Cache
 
-TODO: add link here
+<!-- TODO: update this deployment link with real repo deployment -->
+
+View the deployment at [annehaley.github.io/spack_cache/](https://annehaley.github.io/spack_cache/)
+
+![Home View](screenshots/spack_cache_home_view.png)
 
 This small interface provides a summary table that shows versions, compilers, total specs, and allows for basic search!
 
-TODO: add screenshot here
+![Home View](screenshots/spack_cache_table_view.png)
 
 When you dig into a particular build cache package, you'll be presented with another view to inspect specs in detail, or search.
 
-TODO: add screenshot here
+![Home View](screenshots/spack_cache_package_view.png)
 
 # Usage
 
