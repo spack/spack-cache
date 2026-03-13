@@ -20,7 +20,7 @@ When you dig into a particular build cache package, you'll be presented with ano
 
 ## Get Data
 
-This Python script will parse data from (https://binaries.spack.io/)[https://binaries.spack.io/].
+This Python script will parse data from [https://binaries.spack.io/](https://binaries.spack.io/).
 
 ```
 uv run data.py
