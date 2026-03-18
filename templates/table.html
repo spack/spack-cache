@@ -55,6 +55,9 @@
             </tr>
         </thead>
     </table>
+
+    <div id="package-data" style="display: none">{{ packages | tojson }}</div>
+
 </div>
 
 <script>
@@ -215,26 +218,19 @@
 
     $(document).ready(function () {
         applyRoute();
-        fetch("{{ base_path }}/api/data.json").then(function (response) {
-            response.json().then(function (data) {
-                if (tagName) {
-                    data = data.filter((value) => value['tag'] == tagName)
-                }
+        const data = JSON.parse(document.getElementById('package-data').innerHTML)
 
-                if (stackName) {
-                    // add stack query string to url in every row of data
-                    data = data.map(function (el) {
-                        el['rel'] = el['rel'] + "?stack=" + stackName
-                        return el;
-                    });
-
-                    // filter by stack
-                    data = data.filter((value) => value['stacks'].includes(stackName))
-                }
-
-                setupDataTable(data, stackName ? stackName : null);
+        if (stackName) {
+            // add stack query string to url in every row of data
+            data = data.map(function (el) {
+                el['rel'] = el['rel'] + "?stack=" + stackName
+                return el;
             });
-        }).catch(console.error);
+
+            // filter by stack
+            data = data.filter((value) => value['stacks'].includes(stackName))
+        }
+        setupDataTable(data, stackName ? stackName : null)
     });
 </script>
 {% endblock %}

@@ -29,12 +29,6 @@ def copy_static():
                 dest = BUILD_DIR / item.name
             shutil.copy(item, dest)
 
-
-def copy_data():
-    BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
-    shutil.copy(PACKAGE_DATA_PATH, BUILD_DATA_DIR / 'data.json')
-
-
 def get_pages():
     packages = load_data(PACKAGE_DATA_PATH)
     specs = load_data(SPECS_DATA_PATH)
@@ -67,7 +61,10 @@ def get_pages():
         pages.append(dict(
             template='table.html',
             path=f"tag/{tag_name}",
-            context=base_context | dict(tag_name=tag_name),
+            context=base_context | dict(
+                tag_name=tag_name,
+                packages=[p for p in packages if p['tag'] == tag_name]
+            ),
         ))
     for package in packages:
         package_tag = package['tag']
@@ -98,7 +95,6 @@ def build():
         save_rendered(rendered, path)
 
     copy_static()
-    copy_data()
 
     end = time.perf_counter()
     print(f'Build completed in {end - start:.2f} seconds.')

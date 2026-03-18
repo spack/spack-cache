@@ -27,14 +27,6 @@ def get_favicon():
             filename='favicon.ico',
         )
 
-@app.get('/api/data.json')
-def get_data():
-    if PACKAGE_DATA_PATH.exists():
-        return FileResponse(
-            path=PACKAGE_DATA_PATH,
-            filename='data.json',
-        )
-
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):
     def endpoint(request: Request):
