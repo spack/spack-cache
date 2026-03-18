@@ -43,7 +43,7 @@
                     <div class="custom-select-options" id="stack-options-menu" style="display: none">
                         <div class="menu-wrap">
                             <ul>
-                                {% for s in stack_names %}
+                                {% for s in stack_names_by_tag[tag_name] %}
                                 <li onclick="selectStack('{{ s }}')">
                                     <a>{{ s }}</a>
                                 </li>

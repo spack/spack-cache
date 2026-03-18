@@ -38,13 +38,22 @@ def copy_data():
 def get_pages():
     packages = load_data(PACKAGE_DATA_PATH)
     specs = load_data(SPECS_DATA_PATH)
-    tag_names = list(set([p['tag'] for p in packages]))
-    stack_names = list(set(itertools.chain.from_iterable([p['stacks'] for p in packages])))
+    tag_names = []
+    stack_names_by_tag = {}
+    for p in packages:
+        tag = p.get('tag')
+        if tag not in tag_names:
+            tag_names.append(tag)
+        if tag not in stack_names_by_tag:
+            stack_names_by_tag[tag] = []
+        for stack in  p.get('stacks'):
+            if stack not in stack_names_by_tag[tag]:
+                stack_names_by_tag[tag].append(stack)
 
     base_context = dict(
         base_path=os.environ.get('BASE_PATH', ''),
         tag_names=tag_names,
-        stack_names=stack_names,
+        stack_names_by_tag=stack_names_by_tag,
     )
 
     pages = [
