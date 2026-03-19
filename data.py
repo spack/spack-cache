@@ -133,6 +133,7 @@ def get_data(tag, stack, package):
 
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
+                    stack=stack_name,
                     versions=[spec['version']],
                     variants=[],  # TODO: where do variants come from?
                     platform=arch['platform'],
