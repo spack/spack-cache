@@ -218,7 +218,7 @@
 
     $(document).ready(function () {
         applyRoute();
-        const data = JSON.parse(document.getElementById('package-data').innerHTML)
+        let data = JSON.parse(document.getElementById('package-data').innerHTML)
 
         if (stackName) {
             // add stack query string to url in every row of data
