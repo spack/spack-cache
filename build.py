@@ -54,7 +54,7 @@ def get_pages():
         dict(
             template='index.html',
             path='',
-            context=base_context,
+            context=base_context | dict(home=True),
         ),
     ]
     for tag_name in tag_names:
