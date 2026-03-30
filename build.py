@@ -1,4 +1,4 @@
-from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, load_data
+from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, load_data, save_data
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -29,7 +29,7 @@ def copy_static():
                 dest = BUILD_DIR / item.name
             shutil.copy(item, dest)
 
-def get_pages():
+def get_context_data():
     packages = load_data(PACKAGE_DATA_PATH)
     specs = load_data(SPECS_DATA_PATH)
     tag_names = []
@@ -50,13 +50,31 @@ def get_pages():
                 tag=tag,
                 stack=stack,
             ))
+    return dict(
+        packages=packages,
+        specs=specs,
+        tag_names=tag_names,
+        stack_names_by_tag=stack_names_by_tag,
+        tree_data=tree_data,
+    )
 
+def get_pages():
+    context_data = get_context_data()
+    packages = context_data.get('packages')
+    specs = context_data.get('specs')
+    tag_names = context_data.get('tag_names')
+    stack_names_by_tag = context_data.get('stack_names_by_tag')
+    tree_data = context_data.get('tree_data')
+
+    # Write tree data as a static asset that can be fetched
+    # This avoids copying the tree data into every page, which makes the build much larger and slower
+    tree_data_path = BUILD_DATA_DIR / 'tree_data.json'
+    save_data(tree_data, tree_data_path)
 
     base_context = dict(
         base_path=os.environ.get('BASE_PATH', ''),
         tag_names=tag_names,
         stack_names_by_tag=stack_names_by_tag,
-        tree_data=tree_data,
     )
 
     pages = [

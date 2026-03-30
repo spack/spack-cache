@@ -19,7 +19,7 @@ def get_response(url):
 
 
 def save_data(data, path):
-    path.parent.mkdir(exist_ok=True)
+    path.parent.mkdir(exist_ok=True, parents=True)
     with open(path, 'w') as f:
         json.dump(data, f, indent=4)
 

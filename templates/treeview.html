@@ -27,7 +27,7 @@
         Loading tree...
     </ul>
 
-    <div id="tree-data" style="display: none">{{ tree_data | tojson }}</div>
+    <div id="tree-data" style="display: none"></div>
 </div>
 {% endif %}
 
@@ -139,16 +139,24 @@
     function loadTree(organization) {
         const dataElem = document.getElementById('tree-data')
         if (dataElem) {
-            setSidebarOpen(true)
             const data = JSON.parse(dataElem.innerHTML)
             const organized = organizeTreeData(data, organization)
             const tree_nodes = generateTreeNodes(organized)
             const tree_root = document.getElementById('tree-root')
             setElementChildren(tree_root, tree_nodes)
-        } else {
-            setSidebarOpen(false)
         }
     }
 
-    $(document).ready(() => loadTree('Tag -> Stack'))
+    $(document).ready(() => {
+        const dataElem = document.getElementById('tree-data')
+        if (dataElem) {
+            fetch("{{ base_path }}/api/tree_data.json").then((response) => {
+                response.json().then((data) => {
+                    dataElem.innerHTML = JSON.stringify(data)
+                    loadTree('Tag -> Stack')
+                })
+            })
+        }
+        setSidebarOpen(false)
+    })
 </script>

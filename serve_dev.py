@@ -1,11 +1,12 @@
 import uvicorn
 
+from functools import lru_cache
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from build import PACKAGE_DATA_PATH, SPECS_DATA_PATH, TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages
+from build import SPECS_DATA_PATH, TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_pages, get_context_data
 
 
 app = FastAPI()
@@ -17,6 +18,11 @@ app.mount(
     name="static",
 )
 
+@lru_cache
+def get_tree_data():
+    context_data = get_context_data()
+    return context_data.get('tree_data')
+
 # Favicon must be in the root for browsers to find it
 @app.get('/favicon.ico')
 def get_favicon():
@@ -26,6 +32,10 @@ def get_favicon():
             path=favicon_path,
             filename='favicon.ico',
         )
+
+@app.get('/api/tree_data.json')
+def get_data():
+   return get_tree_data()
 
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
 def serve_template(template_name, context):
