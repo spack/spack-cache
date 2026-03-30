@@ -784,7 +784,6 @@ html {
     .table.dataTable td.platforms,
     .table.dataTable td.oss,
     .table.dataTable td.targets,
-    .table.dataTable td.compilers,
     .table.dataTable td.stacks {
   white-space: normal;
 }

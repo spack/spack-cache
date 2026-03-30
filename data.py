@@ -91,7 +91,6 @@ def get_data(tag, stack, package):
                         url=f'https://packages.spack.io/package.html?name={package_name}',
                         rel=f'package/{tag_name}/{package_name}/specs/',
                         versions=set(),
-                        compilers=set(),
                         oss=set(),
                         platforms=set(),
                         targets=set(),
@@ -100,11 +99,6 @@ def get_data(tag, stack, package):
                         num_specs_by_stack={},
                     )
                 tag_packages[package_name]['versions'].add(spec['version'])
-                compilers = set(
-                    dep['name'] for dep in spec.get('dependencies', [])
-                    if 'build' in dep.get('parameters', {}).get('deptypes', [])
-                )
-                tag_packages[package_name]['compilers'].union(compilers)
                 arch = spec['arch']
                 tag_packages[package_name]['oss'].add(arch['platform_os'])
                 tag_packages[package_name]['platforms'].add(arch['platform'])
@@ -126,7 +120,6 @@ def get_data(tag, stack, package):
                     platform=arch['platform'],
                     os=arch['platform_os'],
                     target=target,
-                    compiler=list(compilers)[0] if len(compilers) else '' # TODO: select single compiler for spec?
                 ))
 
         all_packages += [

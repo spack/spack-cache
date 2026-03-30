@@ -35,7 +35,6 @@
                 <th>Platform</th>
                 <th>OS</th>
                 <th>Target</th>
-                <th>Compiler</th>
             </tr>
         </thead>
     </table>
@@ -98,13 +97,6 @@
                         return '<button class="tag searchable-badge">' + data + '</button>';
                     },
                     className: 'targets',
-                },
-                {
-                    data: 'compiler',
-                    render: function (data, type, row) {
-                        return '<button class="tag searchable-badge">' + data + '</button>';
-                    },
-                    className: 'compilers',
                 },
             ],
             pageLength: 50,

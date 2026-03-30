@@ -6,7 +6,7 @@ View the deployment at [annehaley.github.io/spack_cache/](https://annehaley.gith
 
 ![Home View](screenshots/spack_cache_home_view.png)
 
-This small interface provides a summary table that shows versions, compilers, total specs, and allows for basic search!
+This small interface provides a summary table that shows versions, total specs, and allows for basic search!
 
 ![Home View](screenshots/spack_cache_table_view.png)
 

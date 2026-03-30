@@ -50,7 +50,6 @@
                 <th>Platform</th>
                 <th>OS</th>
                 <th>Target</th>
-                <th>Compiler</th>
                 <th>Stacks</th>
             </tr>
         </thead>
@@ -178,21 +177,6 @@
                     targets: 0,
                     orderable: false,
                     className: "targets",
-                },
-                {
-                    data: "compilers",
-                    render: function (data, type, row) {
-                        var compilers = ""
-                        if (data.length > 0) {
-                            $.each(data, function (i, e) {
-                                compilers += "<button onclick=$('#software').DataTable().search('" + e + "').draw(); class='tag searchable-badge'>" + e + "</button>";
-                            })
-                        }
-                        return compilers
-                    },
-                    targets: 0,
-                    orderable: false,
-                    className: "compilers",
                 },
                 {
                     data: "stacks",
