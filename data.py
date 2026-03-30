@@ -1,30 +1,21 @@
 import click
 import requests
 import time
-import requests
 import json
-from functools import lru_cache
 from pathlib import Path
 
 
-BUCKET_URL = "https://binaries.spack.io/"
-INDEX_URL = f"{BUCKET_URL}cache_spack_io_index.json"
+BASE_URL = 'https://binaries.spack.io/'
+MANIFEST_URL = BASE_URL + 'cache_spack_io_index.json'
 DATA_DIR = Path(__file__).parent / '_data'
 PACKAGE_DATA_PATH = DATA_DIR / 'package_data.json'
 SPECS_DATA_PATH = DATA_DIR / 'specs_data.json'
 
 
-
-def get_s3_response(url: str) -> dict:
-    url = url.replace('s3://spack-binaries', BUCKET_URL)
-    r = requests.get(url)
-    r.raise_for_status()
-    return r.json()
-
-
-@lru_cache
-def get_build_cache_index() -> dict[str, list[dict]]:
-    return get_s3_response(INDEX_URL)
+def get_response(url):
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
 
 def save_data(data, path):
@@ -38,6 +29,7 @@ def load_data(path):
         return []
     with open(path, 'r') as f:
         return json.load(f)
+
 
 @click.option(
     '--tag',
@@ -66,7 +58,7 @@ def get_data(tag, stack, package):
 
     all_packages = []
     all_specs = {}
-    for tag_name, stack_info in get_build_cache_index().items():
+    for tag_name, stack_info in get_response(MANIFEST_URL).items():
         if len(include_tags) > 0 and tag_name not in include_tags:
             continue
 
@@ -75,21 +67,16 @@ def get_data(tag, stack, package):
             all_specs[tag_name] = {}
         tag_packages = {}
         for s in stack_info:
-            stack_name = s.get('label', None)
-            url = s.get('url', None)
-
+            stack_name = s['label']
             if len(include_stacks) > 0 and stack_name not in include_stacks:
                 continue
 
             print(f'  - Stack: {stack_name}')
-            response = get_s3_response(url)
-            version = response['database']['version']
-            installs = response['database']['installs']
-
-            for install in installs.values():
+            url = s['url'].replace('s3://spack-binaries/', BASE_URL)
+            response = get_response(url)
+            for install in response['database']['installs'].values():
                 spec = install['spec']
                 package_name = spec['name']
-
                 if len(include_packages) > 0 and package_name not in include_packages:
                     continue
 
