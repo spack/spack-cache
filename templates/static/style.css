@@ -781,6 +781,7 @@ html {
 
     .table.dataTable td.versions,
     .table.dataTable td.variants,
+    .table.dataTable td.dependencies,
     .table.dataTable td.platforms,
     .table.dataTable td.oss,
     .table.dataTable td.targets,

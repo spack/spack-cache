@@ -74,7 +74,8 @@ def get_data(tag, stack, package):
             print(f'  - Stack: {stack_name}')
             url = s['url'].replace('s3://spack-binaries/', BASE_URL)
             response = get_response(url)
-            for install in response['database']['installs'].values():
+            installs = response['database']['installs']
+            for install in installs.values():
                 spec = install['spec']
                 package_name = spec['name']
                 if len(include_packages) > 0 and package_name not in include_packages:
@@ -124,6 +125,21 @@ def get_data(tag, stack, package):
                             variants.append(f'{key}={v}')
                     else:
                         variants.append(f'{key}={value}')
+                dependencies = []
+                for dep in spec.get('dependencies', []):
+                    dep_string = ''
+                    # only include dependencies where 'link' or 'run' in deptypes
+                    deptypes = dep['parameters']['deptypes']
+                    if not ('link' in deptypes or 'run' in deptypes):
+                        continue
+                    virtuals = dep['parameters']['virtuals']
+                    if len(virtuals):
+                        dep_string += f'[virtuals={",".join(virtuals)}] '
+                    dep_string += dep['name']
+                    if dep['hash'] in installs:
+                        version = installs[dep['hash']]['spec']['version']
+                        dep_string += f' @= {version}'
+                    dependencies.append(dep_string)
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
                     stack=stack_name,
@@ -132,6 +148,7 @@ def get_data(tag, stack, package):
                     platform=arch['platform'],
                     os=arch['platform_os'],
                     target=target,
+                    dependencies=dependencies,
                 ))
 
         all_packages += [
