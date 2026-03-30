@@ -5,12 +5,14 @@
 </h1>
 
 <div class="alert bg-primary text-white">
-    <div>
-        This package has <strong>{{ package.num_specs }}</strong>spec(s) in the build cache.
+    <div style="display: block;">
+        This package has
+        <strong class="px-1">{{ package.num_specs }}</strong>
+        spec(s) in the build cache.
         <span id="stack-filter-banner" style="display:none">
-            <strong class="stack-num-specs"></strong>
-            <span style="margin: 0px 5px">spec(s) exist for stack</span>
-            <strong class="stack-name"></strong>.
+            <strong class="stack-num-specs px-1"></strong>
+            spec(s) exist for stack
+            <strong class="stack-name pl-1"></strong>.
         </span>
     </div>
     <div class="flex-none">
@@ -157,7 +159,7 @@
             // filter by stack
             data = data.filter((value) => value['stack'] === stackName)
             setText('stack-num-specs', data.length)
-            document.getElementById('stack-filter-banner').style.display = 'inherit'
+            document.getElementById('stack-filter-banner').style.display = 'inline'
         }
 
         setupDataTable(data)
