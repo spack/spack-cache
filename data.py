@@ -112,11 +112,23 @@ def get_data(tag, stack, package):
                     tag_packages[package_name]['num_specs_by_stack'][stack_name] = 0
                 tag_packages[package_name]['num_specs_by_stack'][stack_name] += 1
 
+                variants = []
+                for key, value in spec['parameters'].items():
+                    if isinstance(value, bool):
+                        if value:
+                            variants.append(f'+{key}')
+                        else:
+                            variants.append(f'~{key}')
+                    elif isinstance(value, list):
+                        for v in value:
+                            variants.append(f'{key}={v}')
+                    else:
+                        variants.append(f'{key}={value}')
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
                     stack=stack_name,
                     versions=[spec['version']],
-                    variants=[],  # TODO: where do variants come from?
+                    variants=variants,
                     platform=arch['platform'],
                     os=arch['platform_os'],
                     target=target,
