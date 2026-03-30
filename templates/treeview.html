@@ -1,0 +1,154 @@
+{% if not home %}
+<div id="sidebar">
+    <div id="sidebar-toggle" onclick="toggleSidebar()"></div>
+    <div id="sidebar-title">Navigation</div>
+    <div class="form-control py-2" onclick="toggleMenu('tree-organization-menu')">
+        <label class="label floating">
+            <span class="label-text-alt text-gray-400 text-[10px]">Tree Organization</span>
+        </label>
+        <button class="custom-select w-full">
+            <span id="tree-organization" class="selected">Tag -> Stack</span>
+        </button>
+
+        <div class="custom-select-options" id="tree-organization-menu" style="display: none">
+            <div class="menu-wrap">
+                <ul>
+                    <li onclick="setTreeOrganization('Tag -> Stack')">
+                        <a>Tag -> Stack</a>
+                    </li>
+                    <li onclick="setTreeOrganization('Stack -> Tag')">
+                        <a>Stack -> Tag</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <ul id="tree-root">
+        Loading tree...
+    </ul>
+
+    <div id="tree-data" style="display: none">{{ tree_data | tojson }}</div>
+</div>
+{% endif %}
+
+<script>
+    function setSidebarOpen(open) {
+        const sidebar = document.getElementById('sidebar');
+        const contentContainer = document.getElementById('content-container');
+        if (open) {
+            if (sidebar) sidebar.classList.remove('collapsed')
+            contentContainer.classList.add('shifted')
+        } else {
+            if (sidebar) sidebar.classList.add('collapsed')
+            contentContainer.classList.remove('shifted')
+        }
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) return
+        setSidebarOpen(sidebar.classList.contains('collapsed'))
+    }
+
+    function setTreeOrganization(organization) {
+        document.getElementById('tree-organization').innerHTML = organization
+        document.getElementById('tree-root').innerHTML = 'Loading tree...'
+        loadTree(organization)
+    }
+
+    function setTreeNodeOpen(node, open) {
+        if (open) {
+            node.classList.remove('collapsed')
+        } else {
+            node.classList.add('collapsed')
+        }
+    }
+
+    function toggleTreeNode(node) {
+        setTreeNodeOpen(node, node.classList.contains('collapsed'))
+    }
+
+    function setElementChildren(element, children) {
+        element.innerHTML = ''
+        for (let i = 0; i < children.length; i++) {
+            element.appendChild(children[i])
+        }
+    }
+
+    function generateTreeNodes(items) {
+        const nodes = []
+        for (let i = 0; i < items.length; i++) {
+            const node = document.createElement('li')
+            const node_title = document.createElement('span')
+            const item = items[i]
+            if (item.url) {
+                const link = document.createElement('a')
+                link.href = item.url
+                link.innerHTML = item.name
+                node_title.appendChild(link)
+            } else {
+                node_title.innerHTML = item.name
+            }
+            node.appendChild(node_title)
+
+            const children = items[i].children
+            if (children) {
+                node_title.classList.add('caret')
+                node_title.addEventListener('click', () => toggleTreeNode(node))
+                const children_container = document.createElement('ul')
+                children_container.classList.add('nested')
+                setElementChildren(children_container, generateTreeNodes(children))
+                node.appendChild(children_container)
+
+            }
+            node.classList.add('collapsed')
+            nodes.push(node)
+        }
+        return nodes
+    }
+
+    function organizeTreeData(data, organization) {
+        let firstAttr = 'tag'
+        let secondAttr = 'stack'
+        if (organization === 'Stack -> Tag') {
+            firstAttr = 'stack'
+            secondAttr = 'tag'
+        }
+        const hierarchy = {}
+        for (let i = 0; i < data.length; i++) {
+            const first = data[i][firstAttr]
+            const second = data[i][secondAttr]
+            if (!hierarchy[first]) hierarchy[first] = {}
+            if (!hierarchy[first][second]) hierarchy[first][second] = []
+            hierarchy[first][second].push(data[i])
+        }
+        const basePath = document.getElementById('base-path').innerHTML
+        const treeItems = Object.entries(hierarchy).map(([key1, level1]) => ({
+            name: key1,
+            children: Object.entries(level1).map(([key2, level2]) => ({
+                name: key2,
+                children: level2.map((package) => ({
+                    name: package.name,
+                    url: "{{ base_path }}/package/" + package.tag + '/' + package.name + '/specs?stack=' + package.stack
+                }))
+            }))
+        }))
+        return treeItems
+    }
+
+    function loadTree(organization) {
+        const dataElem = document.getElementById('tree-data')
+        if (dataElem) {
+            setSidebarOpen(true)
+            const data = JSON.parse(dataElem.innerHTML)
+            const organized = organizeTreeData(data, organization)
+            const tree_nodes = generateTreeNodes(organized)
+            const tree_root = document.getElementById('tree-root')
+            setElementChildren(tree_root, tree_nodes)
+        } else {
+            setSidebarOpen(false)
+        }
+    }
+
+    $(document).ready(() => loadTree('Tag -> Stack'))
+</script>

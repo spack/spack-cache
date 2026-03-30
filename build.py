@@ -34,20 +34,29 @@ def get_pages():
     specs = load_data(SPECS_DATA_PATH)
     tag_names = []
     stack_names_by_tag = {}
+    tree_data = []
     for p in packages:
+        name = p.get('uid')
         tag = p.get('tag')
         if tag not in tag_names:
             tag_names.append(tag)
         if tag not in stack_names_by_tag:
             stack_names_by_tag[tag] = []
-        for stack in  p.get('stacks'):
+        for stack in p.get('stacks'):
             if stack not in stack_names_by_tag[tag]:
                 stack_names_by_tag[tag].append(stack)
+            tree_data.append(dict(
+                name=name,
+                tag=tag,
+                stack=stack,
+            ))
+
 
     base_context = dict(
         base_path=os.environ.get('BASE_PATH', ''),
         tag_names=tag_names,
         stack_names_by_tag=stack_names_by_tag,
+        tree_data=tree_data,
     )
 
     pages = [
