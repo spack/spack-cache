@@ -130,7 +130,7 @@
                 children: level2.map((package) => ({
                     name: package.name,
                     url: "{{ base_path }}/package/" + package.tag + '/' + package.name + '/specs?stack=' + package.stack
-                }))
+                })).sort((a, b) => a.name > b.name)
             }))
         }))
         return treeItems
