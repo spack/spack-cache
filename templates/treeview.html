@@ -7,7 +7,7 @@
             <span class="label-text-alt text-gray-400 text-[10px]">Tree Organization</span>
         </label>
         <button class="custom-select w-full">
-            <span id="tree-organization" class="selected">Tag -> Stack</span>
+            <span id="tree-organization" class="selected">Stack -> Tag</span>
         </button>
 
         <div class="custom-select-options" id="tree-organization-menu" style="display: none">
@@ -153,7 +153,7 @@
             fetch("{{ base_path }}/api/tree_data.json").then((response) => {
                 response.json().then((data) => {
                     dataElem.innerHTML = JSON.stringify(data)
-                    loadTree('Tag -> Stack')
+                    loadTree('Stack -> Tag')
                 })
             })
         }
