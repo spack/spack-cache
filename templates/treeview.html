@@ -23,6 +23,14 @@
             </div>
         </div>
     </div>
+    <div class="form-control py-2">
+        <input id="tree-search" type="search" class="form-control input-sm input border-base-300"
+            oninput="filterTree(event)">
+        <label class="label floating">
+            <span class="label-text-alt text-gray-400 text-[10px]">Search</span>
+        </label>
+    </div>
+
     <ul id="tree-root">
         Loading tree...
     </ul>
@@ -123,11 +131,15 @@
                 node_title.addEventListener('click', () => toggleTreeNode(node))
                 const children_container = document.createElement('ul')
                 children_container.classList.add('nested')
-                setElementChildren(children_container, generateTreeNodes(children))
+                const child_nodes = generateTreeNodes(children)
+                setElementChildren(children_container, child_nodes)
                 node.appendChild(children_container)
-
+                node.classList.add('collapsed')
+                node.searchContent = child_nodes.map((node) => node.searchContent).join(' ')
+            } else {
+                node.searchContent = item.name
             }
-            node.classList.add('collapsed')
+            node.classList.add('tree-node')
             nodes.push(node)
         }
         return nodes
@@ -171,6 +183,19 @@
             const tree_root = document.getElementById('tree-root')
             setElementChildren(tree_root, tree_nodes)
         }
+    }
+
+    function filterTree(e) {
+        const search = document.getElementById('tree-search')
+        let filterString = search.value
+        const nodes = Array.from(document.getElementsByClassName('tree-node'))
+        nodes.forEach((node) => {
+            if (node.searchContent.toLowerCase().includes(filterString.toLowerCase())) {
+                node.classList.remove('hidden')
+            } else {
+                node.classList.add('hidden')
+            }
+        })
     }
 
     $(document).ready(() => {
