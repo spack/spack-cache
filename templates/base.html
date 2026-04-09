@@ -26,9 +26,9 @@
 <a id="base-path" style="display: none">{{base_path}}</a>
 
 <body class="bg-gray-100">
+  {% include "treeview.html" %}
   <div class="container py-8 shifted" id="content-container">
     {% include "header.html" %}
-    {% include "treeview.html" %}
     <div class="py-8 pb-24">{% block content %} {% endblock %}</div>
     {% include "footer.html" %}
   </div>

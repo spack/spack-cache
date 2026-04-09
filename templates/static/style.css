@@ -47,6 +47,7 @@ html {
 body {
   margin: 0; /* 1 */
   line-height: inherit; /* 2 */
+  position: relative;
 }
 
 /*
@@ -3464,6 +3465,7 @@ html {
 #sidebar {
   position: absolute;
   top: 0;
+  bottom: 0;
   left: 0;
   height: 100%;
   width: 200px;
@@ -3534,8 +3536,8 @@ html {
   display: none;
 }
 
-#sidebar #tree-root {
-  max-height: calc(100% - 30px);
+#tree-root {
+  max-height: calc(100% - 80px);
   overflow-y: auto;
 }
 
