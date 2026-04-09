@@ -28,10 +28,36 @@
     </ul>
 
     <div id="tree-data" style="display: none"></div>
+    <div id="sidebar-resize"></div>
 </div>
 {% endif %}
 
 <script>
+    function setupSidebarResize() {
+        const sidebar = document.getElementById('sidebar');
+        const resizer = document.getElementById('sidebar-resize');
+
+        resizer.addEventListener('mousedown', (e) => {
+            document.addEventListener('mousemove', resizeSidebar, false);
+            document.addEventListener("mouseup", () => {
+                document.removeEventListener("mousemove", resizeSidebar, false);
+            }, false);
+        })
+    }
+
+    function resizeSidebar(e) {
+        let newWidth = e.clientX;
+        newWidth = Math.max(170, newWidth);
+        newWidth = Math.min(700, newWidth);
+
+        const sidebar = document.getElementById('sidebar');
+        sidebar.style.width = `${newWidth}px`;
+
+        const contentContainer = document.getElementById('content-container');
+        contentContainer.style.marginLeft = `${newWidth + 25}px`;
+        contentContainer.style.maxWidth = `calc(100% - ${newWidth + 50})`
+    }
+
     function setSidebarOpen(open) {
         const sidebar = document.getElementById('sidebar');
         const contentContainer = document.getElementById('content-container');
@@ -158,5 +184,6 @@
             })
         }
         setSidebarOpen(true)
+        setupSidebarResize()
     })
 </script>
