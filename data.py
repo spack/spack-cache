@@ -139,7 +139,10 @@ def get_data(tag, stack, package):
                     if dep['hash'] in installs:
                         version = installs[dep['hash']]['spec']['version']
                         dep_string += f' @= {version}'
-                    dependencies.append(dep_string)
+                    dependencies.append(dict(
+                        label=dep_string,
+                        link='/package/' + tag_name + '/' + dep['name'] + '/specs?stack=' + stack_name
+                    ))
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
                     stack=stack_name,

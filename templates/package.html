@@ -83,12 +83,12 @@
                 {
                     data: 'dependencies',
                     render: function (data, type, row) {
-                        const content = data.map(function (variant, i) {
+                        const content = data.map(function (dependency, i) {
                             hidden = i > 3 ? 'variant hidden' : '';
-                            return '<button class="tag searchable-badge ' + hidden + '">' + variant + '</button>';
+                            return '<a class="tag searchable-badge ' + hidden + '" href="' + dependency.link + '">' + dependency.label + '</a>';
                         }).join('');
 
-                        // if there are more than 4 variants, display a button to toggle show more or less
+                        // if there are more than 4 dependencies, display a button to toggle show more or less
                         if (data.length > 4) {
                             return content + '<span class="pl-2">...</span><button data-count="' + data.length + '" class="show-variants btn btn-xs btn-ghost normal-case">show ' + (data.length - 4) + ' more</button>';
                         } else {
