@@ -27,8 +27,7 @@
 
 <body class="bg-gray-100">
   {% include "treeview.html" %}
-  <div class="container py-8 shifted" id="content-container">
-    {% include "header.html" %}
+  <div class="container shifted" id="content-container">
     <div class="py-8 pb-24">{% block content %} {% endblock %}</div>
     {% include "footer.html" %}
   </div>
@@ -84,16 +83,5 @@
     Array.from(document.getElementsByClassName(className)).forEach(
       (elem) => (elem.innerHTML = text),
     );
-  }
-
-  function selectTag(tag) {
-    setText("tag-name", tag);
-    window.location.assign("{{ base_path }}/tag/" + tag);
-  }
-
-  function selectStack(s) {
-    stackName = s
-    setText("stack-name", stackName);
-    window.location.assign(window.location.pathname + "?stack=" + stackName);
   }
 </script>

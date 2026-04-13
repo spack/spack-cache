@@ -1,5 +1,13 @@
 <div id="sidebar">
-    <div id="sidebar-title">Navigation</div>
+    <div id="sidebar-title">
+        <div class="flex-1">
+            <a href="{{ base_path }}/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
+                <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-auto" />
+                Spack Build Cache
+            </a>
+        </div>
+    </div>
+
     <div class="form-control py-2" onclick="toggleMenu('tree-organization-menu')">
         <label class="label floating">
             <span class="label-text-alt text-gray-400 text-[10px]">Tree Organization</span>
