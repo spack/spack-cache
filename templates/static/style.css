@@ -3453,11 +3453,6 @@ html {
 }
 
 #content-container {
-  margin-left: 70px;
-  max-width: calc(100% - 90px);
-}
-
-#content-container.shifted {
   margin-left: 275px;
   max-width: calc(100% - 300px);
 }
@@ -3474,16 +3469,6 @@ html {
   padding: 15px 10px
 }
 
-#sidebar.collapsed {
-  width: 50px;
-}
-
-#sidebar.collapsed ul,
-#sidebar.collapsed #sidebar-title,
-#sidebar.collapsed .form-control {
-  display: none;
-}
-
 #sidebar-title {
   font-weight: bold;
   color: gray;
@@ -3492,23 +3477,6 @@ html {
   width: 100%;
   text-align: center;
   margin-bottom: 10px;
-}
-
-#sidebar-toggle {
-  position: absolute;
-  top: 10px;
-  left: 0px;
-  width: 50px;
-  height: 30px;
-  text-align: center;
-}
-
-#sidebar-toggle::after {
-  content: '\FF1C'
-}
-
-#sidebar.collapsed #sidebar-toggle::after {
-  content: '\FF1E'
 }
 
 #sidebar .caret {
@@ -3523,17 +3491,9 @@ html {
   margin-right: 5px;
 }
 
-#sidebar .collapsed .caret::before {
-  content: '\25B8';
-}
-
 #sidebar .nested {
   display: block;
   margin-left: 15px
-}
-
-#sidebar .collapsed .nested {
-  display: none;
 }
 
 #sidebar-resize {

@@ -1,6 +1,4 @@
-{% if not home %}
 <div id="sidebar">
-    <div id="sidebar-toggle" onclick="toggleSidebar()"></div>
     <div id="sidebar-title">Navigation</div>
     <div class="form-control py-2" onclick="toggleMenu('tree-organization-menu')">
         <label class="label floating">
@@ -38,7 +36,6 @@
     <div id="tree-data" style="display: none"></div>
     <div id="sidebar-resize"></div>
 </div>
-{% endif %}
 
 <script>
     function setupSidebarResize() {
@@ -66,23 +63,6 @@
         contentContainer.style.maxWidth = `calc(100% - ${newWidth + 50}px)`
     }
 
-    function setSidebarOpen(open) {
-        const sidebar = document.getElementById('sidebar');
-        const contentContainer = document.getElementById('content-container');
-        if (open) {
-            if (sidebar) sidebar.classList.remove('collapsed')
-            contentContainer.classList.add('shifted')
-        } else {
-            if (sidebar) sidebar.classList.add('collapsed')
-            contentContainer.classList.remove('shifted')
-        }
-    }
-
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        if (!sidebar) return
-        setSidebarOpen(sidebar.classList.contains('collapsed'))
-    }
 
     function setTreeOrganization(organization) {
         document.getElementById('tree-organization').innerHTML = organization
@@ -208,7 +188,6 @@
                 })
             })
         }
-        setSidebarOpen(true)
         setupSidebarResize()
     })
 </script>
