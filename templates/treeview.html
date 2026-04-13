@@ -124,6 +124,7 @@
                 node.appendChild(children_container)
                 node.classList.add('collapsed')
                 node.searchContent = child_nodes.map((node) => node.searchContent).join(' ')
+                node_title.innerHTML += ` (${child_nodes.length})`
             } else {
                 node.searchContent = item.name
             }
