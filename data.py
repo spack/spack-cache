@@ -91,28 +91,20 @@ def get_data(tag, stack, package):
                         tag=tag_name,
                         url=f'https://packages.spack.io/package.html?name={package_name}',
                         rel=f'package/{tag_name}/{package_name}/specs/',
-                        versions=set(),
-                        oss=set(),
-                        platforms=set(),
-                        targets=set(),
                         stacks=set(),
                         num_specs=0,
                         num_specs_by_stack={},
                     )
-                tag_packages[package_name]['versions'].add(spec['version'])
-                arch = spec['arch']
-                tag_packages[package_name]['oss'].add(arch['platform_os'])
-                tag_packages[package_name]['platforms'].add(arch['platform'])
-                target = arch['target']
-                if isinstance(target, dict):
-                    target = target['name']
-                tag_packages[package_name]['targets'].add(target)
                 tag_packages[package_name]['stacks'].add(stack_name)
                 tag_packages[package_name]['num_specs'] += 1
                 if stack_name not in tag_packages[package_name]['num_specs_by_stack']:
                     tag_packages[package_name]['num_specs_by_stack'][stack_name] = 0
                 tag_packages[package_name]['num_specs_by_stack'][stack_name] += 1
 
+                arch = spec['arch']
+                target = arch['target']
+                if isinstance(target, dict):
+                    target = target['name']
                 variants = []
                 for key, value in spec['parameters'].items():
                     if isinstance(value, bool):

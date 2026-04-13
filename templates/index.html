@@ -3,39 +3,6 @@
     <div
         class="border-l-4 border-secondary hero rounded bg-primary bg-gradient-to-tr from-primary to-primary-focus py-36">
         <div class="hero-content flex-col gap-24 lg:flex-row-reverse">
-            <div class="card flex-shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-                <div class="card-body">
-                    <h2 class="card-title">Get Started</h2>
-
-                    <div class="form-control py-2" onclick="toggleMenu('home-options-menu')">
-                        <label class="label floating">
-                            <span class="label-text-alt text-gray-400 text-[10px]">Build Cache Version</span>
-                        </label>
-                        <button class="custom-select w-full">
-                            <span id="tag-selection" class="selected">-- choose tag--</span>
-                        </button>
-
-                        <div class="custom-select-options" id="home-options-menu" style="display: none">
-                            <div class="menu-wrap">
-                                <ul>
-                                    {% for t in tag_names %}
-                                    <li onclick="document.getElementById('tag-selection').innerHTML = '{{ t }}'">
-                                        <a>{{ t }}</a>
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-control mt-6">
-                        <button id="hero-browse-build-cache" class="btn btn-secondary"
-                            onclick="selectTag(document.getElementById('tag-selection').innerHTML)">
-                            Browse the Build Cache
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             <div class="text-center text-white lg:text-left">
                 <div class="heading">
                     <h1 class="text-2xl font-light uppercase tracking-widest text-primary-content">

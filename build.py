@@ -84,15 +84,6 @@ def get_pages():
             context=base_context | dict(home=True),
         ),
     ]
-    for tag_name in tag_names:
-        pages.append(dict(
-            template='table.html',
-            path=f"tag/{tag_name}",
-            context=base_context | dict(
-                tag_name=tag_name,
-                packages=[p for p in packages if p['tag'] == tag_name]
-            ),
-        ))
     for package in packages:
         package_tag = package['tag']
         package_name = package['uid']
