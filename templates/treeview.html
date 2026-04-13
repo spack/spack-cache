@@ -36,6 +36,14 @@
             <span class="label-text-alt text-gray-400 text-[10px]">Search</span>
         </label>
     </div>
+    <div class="button-set">
+        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(true)">
+            Expand All
+        </a>
+        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(false)">
+            Collapse All
+        </a>
+    </div>
 
     <ul id="tree-root">
         Loading tree...
@@ -88,6 +96,11 @@
 
     function toggleTreeNode(node) {
         setTreeNodeOpen(node, node.classList.contains('collapsed'))
+    }
+
+    function setAllNodesOpen(open) {
+        const nodes = Array.from(document.getElementsByClassName('tree-node'));
+        nodes.forEach((node) => setTreeNodeOpen(node, open));
     }
 
     function setElementChildren(element, children) {
