@@ -3956,3 +3956,13 @@ table.dataTable {
   display: flex;
   justify-content: space-between;
 }
+
+.dependency-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.link {
+  text-decoration: underline !important;
+  padding: 4px;
+}

@@ -83,17 +83,20 @@
                 {
                     data: 'dependencies',
                     render: function (data, type, row) {
-                        const content = data.map(function (dependency, i) {
-                            hidden = i > 3 ? 'variant hidden' : '';
-                            return '<a class="tag searchable-badge ' + hidden + '" href="' + dependency.link + '">' + dependency.label + '</a>';
+                        let content = data.map(function (dependency, i) {
+                            hidden = i > 3 ? 'dependency hidden' : '';
+                            if (dependency.link) {
+                                return '<a class="link ' + hidden + '" href="' + dependency.link + '">' + dependency.label + '</a>';
+                            }
+                            return '<a class="link ' + hidden + '">' + dependency.label + '</a>';
                         }).join('');
 
                         // if there are more than 4 dependencies, display a button to toggle show more or less
                         if (data.length > 4) {
-                            return content + '<span class="pl-2">...</span><button data-count="' + data.length + '" class="show-variants btn btn-xs btn-ghost normal-case">show ' + (data.length - 4) + ' more</button>';
-                        } else {
-                            return content;
+                            content += '<span class="pl-2">...</span><button data-count="' + data.length + '" class="show-dependencies btn btn-xs btn-ghost normal-case">show ' + (data.length - 4) + ' more</button>';
                         }
+
+                        return `<div class="dependency-group">${content}</div>`
                     },
                     className: 'dependencies',
                 },
@@ -144,6 +147,15 @@
         //show more variants
         $('.show-variants').click(function (el) {
             $(el.target).parent('td').find('.variant.hidden').toggle();
+            $(this).text(function (i, text) {
+                const countDisplayed = $(this).data('count') - 4;
+                return text === "show " + countDisplayed + " more" ? "show less" : "show " + countDisplayed + " more";
+            })
+        });
+
+        //show more dependencies
+        $('.show-dependencies').click(function (el) {
+            $(el.target).parent('div').parent('td').find('.dependency.hidden').toggle();
             $(this).text(function (i, text) {
                 const countDisplayed = $(this).data('count') - 4;
                 return text === "show " + countDisplayed + " more" ? "show less" : "show " + countDisplayed + " more";

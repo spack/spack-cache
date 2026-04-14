@@ -120,20 +120,22 @@ def get_data(tag, stack, package):
                 dependencies = []
                 for dep in spec.get('dependencies', []):
                     dep_string = ''
+                    link = None
                     # only include dependencies where 'link' or 'run' in deptypes
                     deptypes = dep['parameters']['deptypes']
                     if not ('link' in deptypes or 'run' in deptypes):
                         continue
                     virtuals = dep['parameters']['virtuals']
                     if len(virtuals):
-                        dep_string += f'[virtuals={",".join(virtuals)}] '
+                        dep_string += f'%^{",".join(virtuals)}='
                     dep_string += dep['name']
                     if dep['hash'] in installs:
                         version = installs[dep['hash']]['spec']['version']
-                        dep_string += f' @= {version}'
+                        dep_string += f'@{version}'
+                        link = '/package/' + tag_name + '/' + dep['name'] + '/specs?stack=' + stack_name
                     dependencies.append(dict(
                         label=dep_string,
-                        link='/package/' + tag_name + '/' + dep['name'] + '/specs?stack=' + stack_name
+                        link=link,
                     ))
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
