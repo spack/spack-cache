@@ -33,6 +33,8 @@
             </label>
         </div>
 
+        <div id="badge-filters"></div>
+
         <div id="result-summary"></div>
     </div>
 
@@ -55,11 +57,37 @@
 
 <script>
     let originalData = null;
+    const badgeFilters = {
+        version: [],
+        variant: [],
+        platform: [],
+        os: [],
+        target: [],
+    };
     const maxBadges = 3;
 
     function addBadgeFilter(column, label) {
-        console.log(column, label)
+        if (!badgeFilters[column].includes(label)) {
+            badgeFilters[column].push(label);
+            const container = document.getElementById('badge-filters');
+            const badge = document.createElement('button');
+            badge.id = `badge-filter-${column}-${label}`;
+            badge.classList.add('tag', 'searchable-badge');
+            badge.innerHTML = label + '  X';
+            badge.onclick = () => removeBadgeFilter(column, label)
+            container.appendChild(badge);
+            updateTable();
+        }
     }
+
+    function removeBadgeFilter(column, label) {
+        badgeFilters[column] = badgeFilters[column].filter((l) => l !== label)
+        const badge = document.getElementById(`badge-filter-${column}-${label}`);
+        const container = document.getElementById('badge-filters');
+        container.removeChild(badge);
+        updateTable();
+    }
+
 
     function groupBadges(column, data, link = false) {
         const container = document.createElement('div');
@@ -86,7 +114,7 @@
         });
         if (data.length > maxBadges) {
             const showMore = document.createElement('button');
-            showMore.classList.add('show-variants', 'btn', 'btn-xs', 'btn-ghost', 'normal-case', 'pl-2')
+            showMore.classList.add('btn', 'btn-xs', 'btn-ghost', 'normal-case', 'pl-2')
             showMore.innerHTML = `... Show ${data.length - maxBadges} More`;
             showMore.onclick = (e) => showMoreBadges(e, data.length - maxBadges)
             container.appendChild(showMore)
@@ -165,9 +193,21 @@
     }
 
     function updateTable() {
-        const filter = document.getElementById('table-filter')
-        let table = $('#cache').DataTable()
-        table.clear().rows.add(originalData).search(filter.value).draw();
+        let table = $('#cache').DataTable();
+        const filter = document.getElementById('table-filter');
+        const badgeFilteredData = originalData.filter((d) => {
+            for (const column in badgeFilters) {
+                const labels = badgeFilters[column]
+                for (let i = 0; i < labels.length; i++) {
+                    const value = labels[i];
+                    if (d[column] && !JSON.stringify(d[column]).includes(value)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        })
+        table.clear().rows.add(badgeFilteredData).search(filter.value).draw();
         var count = table.rows({ search: 'applied' }).count();
         const resultSummary = document.getElementById('result-summary');
         resultSummary.innerHTML = `Showing ${count} of ${originalData.length} Results`;

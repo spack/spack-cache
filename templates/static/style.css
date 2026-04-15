@@ -3975,8 +3975,14 @@ table.dataTable {
 .table-controls {
   display: flex;
   justify-content: space-between;
+  align-items: end;
+  column-gap: 10px;
   padding-top: 10px;
   margin: 10px 0px;
+}
+
+#badge-filters {
+  flex: 1;
 }
 
 .dt-layout-table {
