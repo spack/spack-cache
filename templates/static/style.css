@@ -822,13 +822,7 @@ h3 {
   vertical-align: text-top;
 }
 
-.table.dataTable td.versions,
-.table.dataTable td.variants,
-.table.dataTable td.dependencies,
-.table.dataTable td.platforms,
-.table.dataTable td.oss,
-.table.dataTable td.targets,
-.table.dataTable td.stacks {
+.table.dataTable td {
   white-space: normal;
 }
 
@@ -3976,16 +3970,6 @@ table.dataTable {
 .button-set {
   display: flex;
   justify-content: space-between;
-}
-
-.dependency-group {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.link {
-  text-decoration: underline !important;
-  padding: 4px;
 }
 
 .table-controls {

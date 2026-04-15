@@ -27,11 +27,13 @@
     <div class="table-controls">
         <div class="form-control">
             <input id="table-filter" type="search" class="form-control input-sm input border-base-300"
-                oninput="filterTable(event)">
+                oninput="updateTable()">
             <label class="label floating">
                 <span class="label-text-alt text-gray-400 text-[10px]">Filter</span>
             </label>
         </div>
+
+        <div id="result-summary"></div>
     </div>
 
     <table id="cache" class="table w-full">
@@ -52,9 +54,57 @@
 <div id="specs-data" style="display: none">{{ specs | tojson }}</div>
 
 <script>
-    function setupDataTable(data) {
+    let originalData = null;
+    const maxBadges = 3;
+
+    function addBadgeFilter(column, label) {
+        console.log(column, label)
+    }
+
+    function groupBadges(column, data, link = false) {
+        const container = document.createElement('div');
+        container.style.display = 'flex';
+        container.style.flexWrap = 'wrap';
+        data.forEach((d, i) => {
+            let badge = null
+            if (link) {
+                badge = document.createElement('a')
+                badge.style.textDecoration = 'underline';
+                badge.classList.add('pl-2')
+                badge.href = d.link;
+                badge.innerHTML = d.label;
+            } else {
+                badge = document.createElement('button');
+                badge.classList.add('tag', 'searchable-badge');
+                badge.onclick = () => addBadgeFilter(column, d);
+                badge.innerHTML = d;
+            }
+            if (i >= maxBadges) {
+                badge.classList.add('hidden')
+            }
+            container.appendChild(badge)
+        });
+        if (data.length > maxBadges) {
+            const showMore = document.createElement('button');
+            showMore.classList.add('show-variants', 'btn', 'btn-xs', 'btn-ghost', 'normal-case', 'pl-2')
+            showMore.innerHTML = `... Show ${data.length - maxBadges} More`;
+            showMore.onclick = (e) => showMoreBadges(e, data.length - maxBadges)
+            container.appendChild(showMore)
+        }
+        return container;
+    }
+
+    function showMoreBadges(e, n) {
+        const target = e.target
+        $(target).parent().find('.hidden').toggle();
+        $(target).text(function (i, text) {
+            const showMoreText = `... Show ${n} More`
+            return text === showMoreText ? "Show Less" : showMoreText;
+        })
+    }
+
+    function setupDataTable() {
         $('#cache').DataTable({
-            data,
             ordering: false,
             layout: {
                 topStart: null,
@@ -66,113 +116,67 @@
             language: {
                 search: "Filter: ",
             },
+            pageLength: 25,
             columns: [
                 {
                     data: 'hash',
                     render: function (data, type, row) {
                         return '<span class="font-mono">' + data + '</span>';
                     },
-                    className: 'hash',
                 },
                 {
                     data: 'versions',
                     render: function (data, type, row) {
-                        return '<button class="tag searchable-badge">' + data + '</button>';
+                        return groupBadges('version', data);
                     }
                 },
                 {
                     data: 'variants',
                     render: function (data, type, row) {
-                        const content = data.map(function (variant, i) {
-                            hidden = i > 3 ? 'variant hidden' : '';
-                            return '<button class="tag searchable-badge ' + hidden + '">' + variant + '</button>';
-                        }).join('');
-
-                        // if there are more than 4 variants, display a button to toggle show more or less
-                        if (data.length > 4) {
-                            return content + '<span class="pl-2">...</span><button data-count="' + data.length + '" class="show-variants btn btn-xs btn-ghost normal-case">show ' + (data.length - 4) + ' more</button>';
-                        } else {
-                            return content;
-                        }
+                        return groupBadges('variant', data);
                     },
-                    className: 'variants',
                 },
                 {
                     data: 'dependencies',
                     render: function (data, type, row) {
-                        let content = data.map(function (dependency, i) {
-                            hidden = i > 3 ? 'dependency hidden' : '';
-                            if (dependency.link) {
-                                return '<a class="link ' + hidden + '" href="' + dependency.link + '">' + dependency.label + '</a>';
-                            }
-                            return '<a class="link ' + hidden + '">' + dependency.label + '</a>';
-                        }).join('');
-
-                        // if there are more than 4 dependencies, display a button to toggle show more or less
-                        if (data.length > 4) {
-                            content += '<span class="pl-2">...</span><button data-count="' + data.length + '" class="show-dependencies btn btn-xs btn-ghost normal-case">show ' + (data.length - 4) + ' more</button>';
-                        }
-
-                        return `<div class="dependency-group">${content}</div>`
+                        return groupBadges('dependency', data, true);
                     },
-                    className: 'dependencies',
                 },
                 {
                     data: 'platform',
                     render: function (data, type, row) {
-                        return '<button class="tag searchable-badge">' + data + '</button>';
+                        return groupBadges('platform', [data]);
                     },
-                    className: 'platforms',
                 },
                 {
                     data: 'os',
                     render: function (data, type, row) {
-                        return '<button class="tag searchable-badge">' + data + '</button>';
+                        return groupBadges('os', [data]);
                     },
-                    className: 'oss',
                 },
                 {
                     data: 'target',
                     render: function (data, type, row) {
-                        return '<button class="tag searchable-badge">' + data + '</button>';
+                        return groupBadges('target', [data]);
                     },
-                    className: 'targets',
                 },
             ],
-            pageLength: 25,
-        });
-
-        $('#cache button.tag').click(function () {
-            var filter = $(this).text();
-            $('#cache').DataTable().search(filter).draw();
-        });
-
-        //show more variants
-        $('.show-variants').click(function (el) {
-            $(el.target).parent('td').find('.variant.hidden').toggle();
-            $(this).text(function (i, text) {
-                const countDisplayed = $(this).data('count') - 4;
-                return text === "show " + countDisplayed + " more" ? "show less" : "show " + countDisplayed + " more";
-            })
-        });
-
-        //show more dependencies
-        $('.show-dependencies').click(function (el) {
-            $(el.target).parent('div').parent('td').find('.dependency.hidden').toggle();
-            $(this).text(function (i, text) {
-                const countDisplayed = $(this).data('count') - 4;
-                return text === "show " + countDisplayed + " more" ? "show less" : "show " + countDisplayed + " more";
-            })
         });
     }
 
-    function filterTable(e) {
+    function updateTable() {
         const filter = document.getElementById('table-filter')
-        $('#cache').DataTable().search(filter.value).draw()
+        let table = $('#cache').DataTable()
+        table.clear().rows.add(originalData).search(filter.value).draw();
+        var count = table.rows({ search: 'applied' }).count();
+        const resultSummary = document.getElementById('result-summary');
+        resultSummary.innerHTML = `Showing ${count} of ${originalData.length} Results`;
     }
 
     $(document).ready(function () {
         applyRoute();
+        setupDataTable();
+
         let data = JSON.parse(document.getElementById('specs-data').innerHTML)
 
         if (stackName) {
@@ -181,8 +185,8 @@
             setText('stack-num-specs', data.length)
             document.getElementById('stack-filter-banner').style.display = 'inline'
         }
-
-        setupDataTable(data)
+        originalData = data;
+        updateTable();
     });
 </script>
 
