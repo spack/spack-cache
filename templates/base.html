@@ -16,11 +16,13 @@
   <link rel="stylesheet" href="{{ base_path }}/static/style.css" />
   <link rel="shortcut icon" type="image/x-icon" href="{{ base_path }}/favicon.ico" />
 
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
-  <script src='https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js'></script>
-  <script
-    src='https://cdn.datatables.net/plug-ins/f2c75b7247b/integration/bootstrap/3/dataTables.bootstrap.js'></script>
-  <script src='https://cdn.datatables.net/responsive/1.0.4/js/dataTables.responsive.js'></script>
+  <!-- https://datatables.net/download/ -->
+  <!-- Includes DataTables default styling, jQuery, and the FixedHeader extension-->
+  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.7/fh-4.0.6/datatables.min.css" rel="stylesheet"
+    integrity="sha384-yJrobgt0wFqSJNdxOFcBbOXNpr8I/uFjwZ44/196NWd7rHSf7GYycUBGhz33pyUd" crossorigin="anonymous">
+  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.7/fh-4.0.6/datatables.min.js"
+    integrity="sha384-/YuHOFVXnW0bJqgpLdERyNItcLG4UoQuEXmtCKesNfWDsKuCOQUMYbfaJ+gkmutf"
+    crossorigin="anonymous"></script>
 </head>
 
 <a id="base-path" style="display: none">{{base_path}}</a>

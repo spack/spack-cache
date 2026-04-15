@@ -23,11 +23,7 @@
     </span>
 </div>
 
-<div class="container py-8">
-    <a class="button reset filter-reset btn btn-secondary btn-sm mt-2 float-right"
-        onclick="$('#cache').DataTable().search('').draw()" href="#">
-        reset
-    </a>
+<div class="container">
     <table id="cache" class="table w-full">
         <thead>
             <tr>
@@ -49,6 +45,17 @@
     function setupDataTable(data) {
         $('#cache').DataTable({
             data,
+            ordering: false,
+            layout: {
+                topStart: null,
+                topEnd: null,
+                bottom: 'paging',
+                bottomStart: null,
+                bottomEnd: null
+            },
+            language: {
+                search: "Filter: ",
+            },
             columns: [
                 {
                     data: 'hash',
@@ -122,21 +129,7 @@
                     className: 'targets',
                 },
             ],
-            pageLength: 50,
-            "drawCallback": function () {
-                $('.dataTables_filter').addClass('flex md:justify-end');
-                $('.dataTables_filter label').addClass('flex items-center gap-2 pr-2');
-                $('.dataTables_filter .form-control').addClass('input input-sm');
-                $('.dataTables_length label').addClass('flex items-center gap-2');
-                $('.dataTables_length select').addClass('select select-sm');
-                $('.dataTables_paginate').addClass('flex md:justify-end');
-                $('.pagination').addClass('btn-group');
-                $('.paginate_button').addClass('btn btn-xs btn-ghost rounded-none');
-                $('.paginate_button.previous').addClass('btn btn-xs rounded-r-none rounded-l');
-                $('.paginate_button.next').addClass('btn btn-xs rounded-l-none rounded-r');
-                $('.paginate_button.disabled').addClass('btn btn-xs btn-disabled');
-                $('.paginate_button.active').addClass('btn btn-xs btn-active');
-            },
+            pageLength: 25,
         });
 
         $('#cache button.tag').click(function () {

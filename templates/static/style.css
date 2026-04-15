@@ -832,6 +832,26 @@ h3 {
   white-space: normal;
 }
 
+.table.dataTable td.dependencies {
+  width: 25%;
+}
+
+.dt-paging .dt-paging-button {
+  border: none !important;
+}
+
+.dt-paging .dt-paging-button:hover {
+  background: hsl(var(--p)) !important;
+}
+
+.dt-paging .dt-paging-button.disabled:hover {
+  background: none !important;
+}
+
+.dt-paging .dt-paging-button.current {
+  background: hsl(var(--s)) !important;
+}
+
 .form-control {
   position: relative;
 }
