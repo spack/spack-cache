@@ -24,6 +24,16 @@
 </div>
 
 <div class="container">
+    <div class="table-controls">
+        <div class="form-control">
+            <input id="table-filter" type="search" class="form-control input-sm input border-base-300"
+                oninput="filterTable(event)">
+            <label class="label floating">
+                <span class="label-text-alt text-gray-400 text-[10px]">Filter</span>
+            </label>
+        </div>
+    </div>
+
     <table id="cache" class="table w-full">
         <thead>
             <tr>
@@ -154,6 +164,11 @@
                 return text === "show " + countDisplayed + " more" ? "show less" : "show " + countDisplayed + " more";
             })
         });
+    }
+
+    function filterTable(e) {
+        const filter = document.getElementById('table-filter')
+        $('#cache').DataTable().search(filter.value).draw()
     }
 
     $(document).ready(function () {

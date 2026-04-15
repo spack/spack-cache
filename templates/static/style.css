@@ -859,9 +859,10 @@ h3 {
 .form-control label.floating {
   pointer-events: none;
   position: absolute;
-  left: 3px;
+  left: 5px;
   top: 0px;
   --tw-bg-opacity: 1;
+  height: 5px;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
   padding: 0px;
   padding-left: 0.25rem;
@@ -3985,4 +3986,15 @@ table.dataTable {
 .link {
   text-decoration: underline !important;
   padding: 4px;
+}
+
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin: 10px 0px;
+}
+
+.dt-layout-table {
+  margin: 0px !important;
 }
