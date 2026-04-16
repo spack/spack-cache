@@ -140,7 +140,7 @@ def get_data(tag, stack, package):
                 all_specs[tag_name][package_name].append(dict(
                     hash=spec['hash'],
                     stack=stack_name,
-                    versions=[spec['version']],
+                    version=spec['version'],
                     variants=variants,
                     platform=arch['platform'],
                     os=arch['platform_os'],
