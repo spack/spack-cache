@@ -65,6 +65,7 @@
         target: [],
     };
     const maxBadges = 3;
+    let expandedCells = [];
 
     function addBadgeFilter(column, label) {
         if (!badgeFilters[column].includes(label)) {
@@ -89,10 +90,12 @@
     }
 
 
-    function groupBadges(column, data, link = false) {
+    function groupBadges(rowId, column, data, link = false) {
         const container = document.createElement('div');
+        container.id = `row-${rowId}-${column}`;
         container.style.display = 'flex';
         container.style.flexWrap = 'wrap';
+        const expand = expandedCells.includes(container.id);
         data.forEach((d, i) => {
             let badge = null
             if (link) {
@@ -109,25 +112,34 @@
             }
             if (i >= maxBadges) {
                 badge.classList.add('hidden')
+                if (expand) {
+                    badge.style.display = 'inline-block';
+                }
             }
             container.appendChild(badge)
         });
         if (data.length > maxBadges) {
             const showMore = document.createElement('button');
             showMore.classList.add('btn', 'btn-xs', 'btn-ghost', 'normal-case', 'pl-2')
-            showMore.innerHTML = `... Show ${data.length - maxBadges} More`;
-            showMore.onclick = (e) => showMoreBadges(e, data.length - maxBadges)
+            showMore.innerHTML = expand ? 'Show Less' : `... Show ${data.length - maxBadges} More`;
+            showMore.onclick = (e) => showMoreBadges(e, data.length - maxBadges, container.id)
             container.appendChild(showMore)
         }
         return container;
     }
 
-    function showMoreBadges(e, n) {
+    function showMoreBadges(e, n, id) {
         const target = e.target
         $(target).parent().find('.hidden').toggle();
         $(target).text(function (i, text) {
-            const showMoreText = `... Show ${n} More`
-            return text === showMoreText ? "Show Less" : showMoreText;
+            const showMoreText = `... Show ${n} More`;
+            const expand = text === showMoreText;
+            if (expand && !expandedCells.includes(id)) {
+                expandedCells.push(id);
+            } else if (!expand) {
+                expandedCells = expandedCells.filter((cellId) => cellId !== id);
+            }
+            return expand ? "Show Less" : showMoreText;
         })
     }
 
@@ -148,44 +160,44 @@
             columns: [
                 {
                     data: 'hash',
-                    render: function (data, type, row) {
+                    render: function (data, type, row, info) {
                         return '<span class="font-mono">' + data + '</span>';
                     },
                 },
                 {
                     data: 'versions',
-                    render: function (data, type, row) {
-                        return groupBadges('version', data);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'version', data);
                     }
                 },
                 {
                     data: 'variants',
-                    render: function (data, type, row) {
-                        return groupBadges('variant', data);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'variant', data);
                     },
                 },
                 {
                     data: 'dependencies',
-                    render: function (data, type, row) {
-                        return groupBadges('dependency', data, true);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'dependency', data, true);
                     },
                 },
                 {
                     data: 'platform',
-                    render: function (data, type, row) {
-                        return groupBadges('platform', [data]);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'platform', [data]);
                     },
                 },
                 {
                     data: 'os',
-                    render: function (data, type, row) {
-                        return groupBadges('os', [data]);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'os', [data]);
                     },
                 },
                 {
                     data: 'target',
-                    render: function (data, type, row) {
-                        return groupBadges('target', [data]);
+                    render: function (data, type, row, info) {
+                        return groupBadges(info.row, 'target', [data]);
                     },
                 },
             ],
