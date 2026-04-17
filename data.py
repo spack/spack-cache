@@ -127,7 +127,7 @@ def get_data(tag, stack, package):
                         continue
                     virtuals = dep['parameters']['virtuals']
                     if len(virtuals):
-                        dep_string += f'%^{",".join(virtuals)}='
+                        dep_string += f'%{",".join(virtuals)}='
                     dep_string += dep['name']
                     if dep['hash'] in installs:
                         version = installs[dep['hash']]['spec']['version']
