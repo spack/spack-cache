@@ -147,6 +147,7 @@ function generateTreeNodes(items) {
             node_title.innerHTML += ` (${child_nodes.length})`
         } else {
             node.onclick = () => treeNavigate(item);
+            node.classList.add('tree-leaf')
             node.searchContent = item.name
         }
         node.classList.add('tree-node')

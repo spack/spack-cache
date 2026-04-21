@@ -4006,6 +4006,19 @@ input:checked + .slider:before {
   overflow-y: auto;
 }
 
+.tree-leaf {
+  color: hsl(var(--p));
+  padding-left: 4px;
+}
+
+.tree-leaf:active {
+  animation: button-pop var(--animation-btn, 0.25s) ease-out;
+}
+
+.tree-leaf:hover {
+  background-color: hsl(var(--b2));
+}
+
 table.dataTable {
   width: 100% !important;
 }
