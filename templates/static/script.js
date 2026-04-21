@@ -14,6 +14,7 @@ const badgeFilters = {
     target: [],
 };
 const maxBadges = 3;
+let tableInitialized = false;
 let expandedCells = [];
 let diffMode = false;
 const noDiffMessage = 'No diff';
@@ -29,7 +30,10 @@ function applyRoute() {
         if (packageData[packageName]) {
             contentToShow = 'package-content';
             setPackageName(packageName);
-            setupDataTable();
+            if (!tableInitialized) {
+                // https://datatables.net/manual/tech-notes/3
+                setupDataTable();
+            }
             toggleDiffMode();
             updateTable();
         }
@@ -342,6 +346,7 @@ function setupDataTable() {
             },
         ],
     });
+    tableInitialized = true;
 }
 
 function updateTable() {
