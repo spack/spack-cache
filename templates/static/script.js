@@ -6,12 +6,14 @@ let packageName = undefined;
 let currentSpecs = undefined;
 let sidebarMinWidth = 250;
 let sidebarMaxWidth = 800;
-const badgeFilters = {
+let badgeFilters = {
     version: [],
     variants: [],
     platform: [],
     os: [],
     target: [],
+    stacks: [],
+    tags: [],
 };
 const maxBadges = 3;
 let tableInitialized = false;
@@ -24,7 +26,7 @@ const noDiffMessage = 'No diff';
 function applyRoute() {
     let contentToShow = 'home-content'
     const urlParams = new URLSearchParams(window.location.search);
-    const packageName = urlParams.get('package');
+    packageName = urlParams.get('package');
     if (packageName) {
         contentToShow = 'package-not-found-content';
         if (packageData[packageName]) {
@@ -35,6 +37,11 @@ function applyRoute() {
                 setupDataTable();
             }
             toggleDiffMode();
+
+            const tagName = urlParams.get('tag');
+            if (tagName) addBadgeFilter('tags', tagName);
+            const stackName = urlParams.get('stack');
+            if (stackName) addBadgeFilter('stacks', stackName);
             updateTable();
         }
     }
@@ -48,7 +55,6 @@ function showContent(content_id) {
 }
 
 function setPackageName(name) {
-    packageName = name;
     currentSpecs = packageData[packageName].specs.map((hash) => specData[hash]);
     document.getElementById('package-name').innerHTML = name;
     document.getElementById('package-link').href = "https://packages.spack.io/package.html?name=" + name;
@@ -121,6 +127,7 @@ function setElementChildren(element, children) {
 function treeNavigate(item) {
     const newUrl = basePath + `?package=${item.name}&tag=${item.tag}&stack=${item.stack}`;
     window.history.pushState(null, '', newUrl.toString());
+    resetTableState();
     applyRoute();
 }
 
@@ -202,6 +209,19 @@ function filterTree(e) {
 }
 
 // Specs Table
+function resetTableState() {
+    badgeFilters = {
+        version: [],
+        variants: [],
+        platform: [],
+        os: [],
+        target: [],
+        stacks: [],
+        tags: [],
+    };
+    document.getElementById('badge-filters').innerHTML = '';
+}
+
 function toggleDiffMode() {
     diffMode = !diffMode;
     const toggle = document.getElementById('diff-mode-toggle');
@@ -314,6 +334,18 @@ function setupDataTable() {
                 render: function (data, type, row, info) {
                     return groupBadges(info.row, 'version', [data]);
                 }
+            },
+            {
+                data: 'tags',
+                render: function (data, type, row, info) {
+                    return groupBadges(info.row, 'tags', data);
+                },
+            },
+            {
+                data: 'stacks',
+                render: function (data, type, row, info) {
+                    return groupBadges(info.row, 'stacks', data);
+                },
             },
             {
                 data: 'variants',
