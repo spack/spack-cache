@@ -30,71 +30,11 @@ def copy_static():
             shutil.copy(item, dest)
 
 def get_context_data():
-    packages = load_data(PACKAGE_DATA_PATH)
-    specs = load_data(SPECS_DATA_PATH)
-    tag_names = []
-    stack_names_by_tag = {}
-    tree_data = []
-    for p in packages:
-        name = p.get('uid')
-        tag = p.get('tag')
-        if tag not in tag_names:
-            tag_names.append(tag)
-        if tag not in stack_names_by_tag:
-            stack_names_by_tag[tag] = []
-        for stack in p.get('stacks'):
-            if stack not in stack_names_by_tag[tag]:
-                stack_names_by_tag[tag].append(stack)
-            tree_data.append(dict(
-                name=name,
-                tag=tag,
-                stack=stack,
-            ))
     return dict(
-        packages=packages,
-        specs=specs,
-        tag_names=tag_names,
-        stack_names_by_tag=stack_names_by_tag,
-        tree_data=tree_data,
-    )
-
-def get_pages():
-    context_data = get_context_data()
-    packages = context_data.get('packages')
-    specs = context_data.get('specs')
-    tag_names = context_data.get('tag_names')
-    stack_names_by_tag = context_data.get('stack_names_by_tag')
-    tree_data = context_data.get('tree_data')
-
-    # Write tree data as a static asset that can be fetched
-    # This avoids copying the tree data into every page, which makes the build much larger and slower
-    tree_data_path = BUILD_DATA_DIR / 'tree_data.json'
-    save_data(tree_data, tree_data_path)
-
-    base_context = dict(
         base_path=os.environ.get('BASE_PATH', ''),
-        tag_names=tag_names,
-        stack_names_by_tag=stack_names_by_tag,
+        packages=load_data(PACKAGE_DATA_PATH),
+        specs=load_data(SPECS_DATA_PATH),
     )
-
-    pages = [
-        dict(
-            template='index.html',
-            path='',
-            context=base_context | dict(home=True),
-        ),
-    ]
-    for package in packages:
-        package_tag = package['tag']
-        package_name = package['uid']
-        package_specs = specs[package_tag][package_name]
-        pages.append(dict(
-            template='package.html',
-            path=f'package/{package_tag}/{package_name}/specs',
-            context=base_context | dict(package=package, specs=package_specs)
-        ))
-    return pages
-
 
 def build():
     start = time.perf_counter()
@@ -104,14 +44,11 @@ def build():
         shutil.rmtree(BUILD_DIR)
 
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-    pages = get_pages()
-    for page in pages:
-        template = env.get_template(page['template'])
-        rendered = template.render(**page['context'])
-        path = BUILD_DIR / page['path'] / 'index.html'
-        path.parent.mkdir(exist_ok=True, parents=True)
-        save_rendered(rendered, path)
-
+    template = env.get_template('index.html')
+    save_rendered(
+        template.render(**get_context_data()),
+        BUILD_DIR / 'index.html',
+    )
     copy_static()
 
     end = time.perf_counter()

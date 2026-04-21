@@ -1,0 +1,54 @@
+<div id="sidebar">
+    <div id="sidebar-title">
+        <div class="flex-1">
+            <a href="{{ base_path }}/" class="btn btn-ghost !px-2 !py-1 !flex gap-2">
+                <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-auto" />
+                Spack Build Cache
+            </a>
+        </div>
+    </div>
+
+    <div class="form-control pb-2" onclick="toggleMenu('tree-organization-menu')">
+        <label class="label floating">
+            <span class="label-text-alt text-gray-400 text-[10px]">Tree Organization</span>
+        </label>
+        <button class="custom-select w-full">
+            <span id="tree-organization" class="selected">Stack -> Tag</span>
+        </button>
+
+        <div class="custom-select-options" id="tree-organization-menu" style="display: none">
+            <div class="menu-wrap">
+                <ul>
+                    <li onclick="setTreeOrganization('Tag -> Stack')">
+                        <a>Tag -> Stack</a>
+                    </li>
+                    <li onclick="setTreeOrganization('Stack -> Tag')">
+                        <a>Stack -> Tag</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="form-control">
+        <input id="tree-search" type="search" class="form-control input-sm input border-base-300"
+            oninput="filterTree(event)">
+        <label class="label floating">
+            <span class="label-text-alt text-gray-400 text-[10px]">Search</span>
+        </label>
+    </div>
+    <div class="button-set">
+        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(true)">
+            Expand All
+        </a>
+        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(false)">
+            Collapse All
+        </a>
+    </div>
+
+    <ul id="tree-root">
+        Loading tree...
+    </ul>
+
+    <div id="tree-data" style="display: none"></div>
+    <div id="sidebar-resize"></div>
+</div>

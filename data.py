@@ -4,6 +4,7 @@ import time
 import json
 from json import JSONEncoder
 from pathlib import Path
+from functools import lru_cache
 
 
 BASE_URL = 'https://binaries.spack.io/'
@@ -30,6 +31,7 @@ def save_data(data, path):
         json.dump(data, f, indent=4, cls=SetEncoder)
 
 
+@lru_cache
 def load_data(path):
     if not path.exists():
         return []
@@ -91,11 +93,13 @@ def get_data(tag, stack, package):
                         url=f'https://packages.spack.io/package.html?name={package_name}',
                         tags=set(),
                         stacks=set(),
+                        specs=set(),
                     )
                 packages[package_name]['tags'].add(tag_name)
                 packages[package_name]['stacks'].add(stack_name)
 
                 spec_hash = spec['hash']
+                packages[package_name]['specs'].add(spec_hash)
                 if spec_hash not in specs:
                     arch = spec['arch']
                     target = arch['target']
