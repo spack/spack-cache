@@ -34,7 +34,7 @@
     <!-- Main content -->
     <div class="container shifted" id="content-container">
         <div id="loading-content" class="py-8 pb-24">
-            <h1>Loading...</h1>
+            <h1 style="width: 100%; text-align: center;">Loading...</h1>
         </div>
 
         <div id="home-content" class="py-8 pb-24" style="display: none">
@@ -48,16 +48,16 @@
         <div id="package-not-found-content" class="py-8 pb-24" style="display: none">
             <h1>Package not found.</h1>
         </div>
-    </div>
 
-    <!-- Site footer -->
-    <footer class="border-t border-base-300 footer footer-center p-4 text-base-content">
-        <p>
-            <span class="site-footer-credits">Contribute to the Spack Build Cache on
-                <a target="_blank" href="https://github.com/spack/cache.spack.io">GitHub</a>.
-            </span>
-        </p>
-    </footer>
+        <!-- Site footer -->
+        <footer class="border-t border-base-300 footer footer-center p-4 text-base-content">
+            <p>
+                <span class="site-footer-credits">Contribute to the Spack Build Cache on
+                    <a target="_blank" href="https://github.com/spack/cache.spack.io">GitHub</a>.
+                </span>
+            </p>
+        </footer>
+    </div>
 
     <!-- Inject context data into hidden elements -->
     <a id="base-path" style="display: none">{{base_path}}</a>

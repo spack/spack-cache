@@ -596,14 +596,14 @@ h3 {
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   border-radius: var(--rounded-btn, 0.5rem);
-  height: 3rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  height: auto;
+  max-width: 100%;
+  padding: 5px 10px;
   font-size: 0.875rem;
   line-height: 1.25rem;
   line-height: 1em;
-  min-height: 3rem;
   font-weight: 600;
+  text-wrap: wrap;
   text-transform: uppercase;
   text-transform: var(--btn-text-case, uppercase);
   text-decoration-line: none;
@@ -713,14 +713,6 @@ h3 {
 
 .btn-group>input[type="radio"]:checked.searchable-badge:focus-visible {
   outline: 2px solid hsl(var(--p));
-}
-
-.searchable-badge {
-  height: 1.5rem;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  min-height: 1.5rem;
-  font-size: 0.75rem;
 }
 
 .btn-square:where(.searchable-badge) {
