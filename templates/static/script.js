@@ -6,6 +6,7 @@ let packageName = undefined;
 let currentSpecs = undefined;
 let sidebarMinWidth = 250;
 let sidebarMaxWidth = 800;
+let badgeOptions = {};
 let badgeFilters = {
     version: [],
     variant: [],
@@ -71,6 +72,7 @@ function showContent(content_id) {
 
 function setPackageName(name) {
     currentSpecs = packageData[packageName].specs.map((hash) => specData[hash]);
+    updateBadgeOptions();
     document.getElementById('package-name').innerHTML = name;
     document.getElementById('package-link').href = "https://packages.spack.io/package.html?name=" + name;
 }
@@ -229,6 +231,67 @@ function toggleDiffMode() {
     updateTable();
 }
 
+function createFilterBadge(key, value, remove) {
+    const badge = document.createElement('div');
+    badge.classList.add('tag', 'searchable-badge');
+
+    const keyLabel = document.createElement('label');
+    keyLabel.classList.add('label-text-alt', 'text-[10px]', 'label', 'floating');
+    keyLabel.innerHTML = key;
+    badge.appendChild(keyLabel);
+
+    const valueLabel = document.createElement('label');
+    valueLabel.innerHTML = value;
+    badge.appendChild(valueLabel);
+
+    if (remove) {
+        const removeIcon = document.createElement('div');
+        removeIcon.classList.add('remove-icon');
+        removeIcon.innerHTML = 'X';
+        badge.appendChild(removeIcon);
+    }
+
+    return badge;
+}
+
+function updateBadgeOptions() {
+    badgeOptions = {};
+    for (const column in badgeFilters) {
+        badgeOptions[column] = [];
+        const pluralColumn = pluralColumns[column] || column;
+        for (const spec of currentSpecs) {
+            const value = spec[pluralColumn];
+            if (Array.isArray(value)) {
+                for (const v of value) {
+                    if (!badgeOptions[column].includes(v)) {
+                        badgeOptions[column].push(v)
+                    }
+                }
+            } else {
+                if (!badgeOptions[column].includes(value)) {
+                    badgeOptions[column].push(value)
+                }
+            }
+        }
+    }
+    const container = document.getElementById('badge-options-list');
+    container.innerHTML = '';
+    for (const key in badgeOptions) {
+        for (value of badgeOptions[key]) {
+            const badge = createFilterBadge(key, value, false);
+            badge.key = key;
+            badge.value = value;
+            badge.addEventListener('mousedown', (e) => {
+                // prevent default on mousedown event so that focus remains on filter input
+                e.preventDefault();
+                addBadgeFilter(badge.key, badge.value)
+            })
+            container.appendChild(badge);
+        }
+    }
+    filterBadgeOptions()
+}
+
 function addBadgeFilter(column, label) {
     if (!badgeFilters[column].includes(label)) {
         badgeFilters[column].push(label);
@@ -246,28 +309,27 @@ function badgeFiltersUpdated() {
     container.innerHTML = '';
     for (const key in badgeFilters) {
         for (const value of badgeFilters[key]) {
-            const badge = document.createElement('div');
-            badge.classList.add('tag', 'searchable-badge');
-
-            const labels = document.createElement('div');
-            labels.classList.add('labels');
-            const keyLabel = document.createElement('label');
-            keyLabel.classList.add('label-text-alt', 'text-[10px]', 'label', 'floating');
-            keyLabel.innerHTML = key;
-            labels.appendChild(keyLabel);
-            const valueLabel = document.createElement('label');
-            valueLabel.innerHTML = value;
-            labels.appendChild(valueLabel);
-            badge.appendChild(labels);
-
-            const removeIcon = document.createElement('div');
-            removeIcon.classList.add('remove-icon');
-            removeIcon.innerHTML = 'X';
-            badge.appendChild(removeIcon);
+            const badge = createFilterBadge(key, value, true);
             badge.onclick = () => removeBadgeFilter(key, value);
             container.appendChild(badge);
         }
     }
+}
+
+function filterBadgeOptions() {
+    const filterString = document.getElementById('badge-options-filter').value;
+    const container = document.getElementById('badge-options-list');
+    Array.from(container.children).forEach((badge) => {
+        if (
+            !filterString.length ||
+            badge.key.toLowerCase().includes(filterString.toLowerCase()) ||
+            badge.value.toLowerCase().includes(filterString.toLowerCase())
+        ) {
+            badge.classList.remove('hidden')
+        } else {
+            badge.classList.add('hidden')
+        }
+    })
 }
 
 function groupBadges(rowId, column, data, link = false) {
@@ -403,7 +465,6 @@ function setupDataTable() {
 
 function updateTable() {
     let table = $('#cache').DataTable();
-    const filter = document.getElementById('table-filter');
     let filteredData = currentSpecs.filter((d) => {
         for (const column in badgeFilters) {
             const labels = badgeFilters[column]
@@ -453,10 +514,9 @@ function updateTable() {
             )
         });
     }
-    table.clear().rows.add(filteredData).search(filter.value).draw();
-    var count = table.rows({ search: 'applied' }).count();
+    table.clear().rows.add(filteredData).draw();
     const resultSummary = document.getElementById('result-summary');
-    resultSummary.innerHTML = `Showing ${count} of ${currentSpecs.length} Results`;
+    resultSummary.innerHTML = `Showing ${filteredData.length} of ${currentSpecs.length} Results`;
 }
 
 // Ready

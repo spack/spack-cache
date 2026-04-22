@@ -947,7 +947,7 @@ h3 {
   left: -1px;
   right: -1px;
   top: 100%;
-  z-index: 10;
+  z-index: 20;
   padding-top: 0.25rem;
   font-size: 0.875rem;
   line-height: 1.25rem;
@@ -4039,15 +4039,24 @@ table.dataTable {
   margin: 0px 4px;
 }
 
-#badge-filters .searchable-badge .labels {
-  display: flex;
-  flex-direction: column;
+#badge-options-list .searchable-badge {
+  padding: 12px 8px 4px 8px;
+  margin: 2px 4px;
+  justify-content: left;
 }
 
 #badge-filters .searchable-badge .remove-icon {
   position: absolute;
   right: 8px;
   top: 8px;
+}
+
+#badge-options-filter + #badge-options-menu {
+  display: none;
+}
+
+#badge-options-filter:focus + #badge-options-menu {
+  display: block;
 }
 
 .searchable-badge label.floating {
@@ -4057,6 +4066,7 @@ table.dataTable {
   top: 4px;
   height: 5px;
   padding: 0px;
+  background-color: transparent;
 }
 
 .dt-layout-table {

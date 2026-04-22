@@ -13,11 +13,16 @@
 <div class="container">
     <div class="table-controls">
         <div class="form-control">
-            <input id="table-filter" type="search" class="form-control input-sm input border-base-300"
-                oninput="updateTable()">
             <label class="label floating">
                 <span class="label-text-alt text-gray-400 text-[10px]">Filter</span>
             </label>
+            <input id="badge-options-filter" type="search" class="form-control input-sm input border-base-300"
+                oninput="filterBadgeOptions()">
+            <div class="custom-select-options" id="badge-options-menu">
+                <div class="menu-wrap">
+                    <ul id="badge-options-list"></ul>
+                </div>
+            </div>
         </div>
 
         <div id="badge-filters"></div>
