@@ -578,6 +578,7 @@ h3 {
 }
 
 .searchable-badge {
+  position: relative;
   display: inline-flex;
   flex-shrink: 0;
   cursor: pointer;
@@ -4031,6 +4032,31 @@ table.dataTable {
 
 #badge-filters {
   flex: 1;
+}
+
+#badge-filters .searchable-badge {
+  padding: 12px 28px 4px 8px;
+  margin: 0px 4px;
+}
+
+#badge-filters .searchable-badge .labels {
+  display: flex;
+  flex-direction: column;
+}
+
+#badge-filters .searchable-badge .remove-icon {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+}
+
+.searchable-badge label.floating {
+  position: absolute;
+  text-align: left;
+  left: 8px;
+  top: 4px;
+  height: 5px;
+  padding: 0px;
 }
 
 .dt-layout-table {

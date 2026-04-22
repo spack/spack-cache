@@ -245,11 +245,26 @@ function badgeFiltersUpdated() {
     const container = document.getElementById('badge-filters');
     container.innerHTML = '';
     for (const key in badgeFilters) {
-        for (const label of badgeFilters[key]) {
-            const badge = document.createElement('button');
+        for (const value of badgeFilters[key]) {
+            const badge = document.createElement('div');
             badge.classList.add('tag', 'searchable-badge');
-            badge.innerHTML = label + '  X';
-            badge.onclick = () => removeBadgeFilter(key, label)
+
+            const labels = document.createElement('div');
+            labels.classList.add('labels');
+            const keyLabel = document.createElement('label');
+            keyLabel.classList.add('label-text-alt', 'text-[10px]', 'label', 'floating');
+            keyLabel.innerHTML = key;
+            labels.appendChild(keyLabel);
+            const valueLabel = document.createElement('label');
+            valueLabel.innerHTML = value;
+            labels.appendChild(valueLabel);
+            badge.appendChild(labels);
+
+            const removeIcon = document.createElement('div');
+            removeIcon.classList.add('remove-icon');
+            removeIcon.innerHTML = 'X';
+            badge.appendChild(removeIcon);
+            badge.onclick = () => removeBadgeFilter(key, value);
             container.appendChild(badge);
         }
     }
