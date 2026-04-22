@@ -166,7 +166,10 @@ function generateTreeNodes(items) {
             node.appendChild(children_container)
             node.classList.add('collapsed')
             node.searchContent = child_nodes.map((node) => node.searchContent).join(' ')
-            node_title.innerHTML += ` (${child_nodes.length})`
+            const childCounter = document.createElement('span');
+            childCounter.style.paddingLeft = '5px';
+            childCounter.innerHTML += `(${child_nodes.length})`;
+            node_title.appendChild(childCounter);
         } else {
             node.onclick = () => treeNavigate(item);
             node.classList.add('tree-leaf')
@@ -210,7 +213,7 @@ function loadTree(organization) {
     setElementChildren(tree_root, tree_nodes)
 }
 
-function filterTree(e) {
+function filterTree() {
     const search = document.getElementById('tree-search')
     let filterString = search.value
     const nodes = Array.from(document.getElementsByClassName('tree-node'))
@@ -219,6 +222,16 @@ function filterTree(e) {
             node.classList.remove('hidden')
         } else {
             node.classList.add('hidden')
+        }
+    });
+    // Update number of children for visible parent nodes
+    nodes.forEach((node) => {
+        if (!node.classList.contains('hidden') && !node.classList.contains('tree-leaf')) {
+            const title = node.children[0];
+            const counter = title.children[0];
+            const childContainer = node.children[1];
+            const visibleChildren = Array.from(childContainer.children).filter((c) => !c.classList.contains('hidden'))
+            counter.innerHTML = `(${visibleChildren.length})`
         }
     })
 }
@@ -532,6 +545,7 @@ $(document).ready(async function () {
         applyRoute(dest.includes('?') ? dest.split('?')[1] : '')
     });
 
-    loadTree('Stack -> Tag')
-    setupSidebarResize()
+    loadTree('Stack -> Tag');
+    filterTree();
+    setupSidebarResize();
 })
