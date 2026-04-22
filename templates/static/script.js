@@ -8,13 +8,18 @@ let sidebarMinWidth = 250;
 let sidebarMaxWidth = 800;
 let badgeFilters = {
     version: [],
-    variants: [],
+    variant: [],
     platform: [],
     os: [],
     target: [],
-    stacks: [],
-    tags: [],
+    stack: [],
+    tag: [],
 };
+const pluralColumns = {
+    variant: 'variants',
+    tag: 'tags',
+    stack: 'stacks',
+}
 const maxBadges = 3;
 let tableInitialized = false;
 let expandedCells = [];
@@ -23,10 +28,10 @@ const noDiffMessage = 'No diff';
 
 
 // General
-function applyRoute() {
-    let contentToShow = 'home-content'
-    const urlParams = new URLSearchParams(window.location.search);
+function applyRoute(params) {
+    const urlParams = new URLSearchParams(params);
     packageName = urlParams.get('package');
+    let contentToShow = 'home-content'
     if (packageName) {
         contentToShow = 'package-not-found-content';
         if (packageData[packageName]) {
@@ -36,16 +41,26 @@ function applyRoute() {
                 // https://datatables.net/manual/tech-notes/3
                 setupDataTable();
             }
-            toggleDiffMode();
-
-            const tagName = urlParams.get('tag');
-            if (tagName) addBadgeFilter('tags', tagName);
-            const stackName = urlParams.get('stack');
-            if (stackName) addBadgeFilter('stacks', stackName);
+            badgeFilters = Object.fromEntries(
+                Object.keys(badgeFilters).map((key) => [key, urlParams.getAll(key)])
+            )
+            badgeFiltersUpdated();
             updateTable();
         }
     }
     showContent(contentToShow);
+}
+
+function syncRoute() {
+    const urlParams = new URLSearchParams();
+    urlParams.append('package', packageName);
+    for (const key in badgeFilters) {
+        for (const value of badgeFilters[key]) {
+            urlParams.append(key, value)
+        }
+    }
+    const newUrl = basePath + '?' + urlParams.toString();
+    window.history.pushState(null, '', newUrl);
 }
 
 function showContent(content_id) {
@@ -126,9 +141,7 @@ function setElementChildren(element, children) {
 
 function treeNavigate(item) {
     const newUrl = basePath + `?package=${item.name}&tag=${item.tag}&stack=${item.stack}`;
-    window.history.pushState(null, '', newUrl.toString());
-    resetTableState();
-    applyRoute();
+    window.history.pushState(null, '', newUrl);
 }
 
 function generateTreeNodes(items) {
@@ -209,19 +222,6 @@ function filterTree(e) {
 }
 
 // Specs Table
-function resetTableState() {
-    badgeFilters = {
-        version: [],
-        variants: [],
-        platform: [],
-        os: [],
-        target: [],
-        stacks: [],
-        tags: [],
-    };
-    document.getElementById('badge-filters').innerHTML = '';
-}
-
 function toggleDiffMode() {
     diffMode = !diffMode;
     const toggle = document.getElementById('diff-mode-toggle');
@@ -232,23 +232,27 @@ function toggleDiffMode() {
 function addBadgeFilter(column, label) {
     if (!badgeFilters[column].includes(label)) {
         badgeFilters[column].push(label);
-        const container = document.getElementById('badge-filters');
-        const badge = document.createElement('button');
-        badge.id = `badge-filter-${column}-${label}`;
-        badge.classList.add('tag', 'searchable-badge');
-        badge.innerHTML = label + '  X';
-        badge.onclick = () => removeBadgeFilter(column, label)
-        container.appendChild(badge);
-        updateTable();
+        syncRoute();
     }
 }
 
 function removeBadgeFilter(column, label) {
     badgeFilters[column] = badgeFilters[column].filter((l) => l !== label)
-    const badge = document.getElementById(`badge-filter-${column}-${label}`);
+    syncRoute();
+}
+
+function badgeFiltersUpdated() {
     const container = document.getElementById('badge-filters');
-    container.removeChild(badge);
-    updateTable();
+    container.innerHTML = '';
+    for (const key in badgeFilters) {
+        for (const label of badgeFilters[key]) {
+            const badge = document.createElement('button');
+            badge.classList.add('tag', 'searchable-badge');
+            badge.innerHTML = label + '  X';
+            badge.onclick = () => removeBadgeFilter(key, label)
+            container.appendChild(badge);
+        }
+    }
 }
 
 function groupBadges(rowId, column, data, link = false) {
@@ -338,25 +342,25 @@ function setupDataTable() {
             {
                 data: 'tags',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'tags', data);
+                    return groupBadges(info.row, 'tag', data);
                 },
             },
             {
                 data: 'stacks',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'stacks', data);
+                    return groupBadges(info.row, 'stack', data);
                 },
             },
             {
                 data: 'variants',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'variants', data);
+                    return groupBadges(info.row, 'variant', data);
                 },
             },
             {
                 data: 'dependencies',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'dependencies', data, true);
+                    return groupBadges(info.row, 'dependency', data, true);
                 },
             },
             {
@@ -390,7 +394,8 @@ function updateTable() {
             const labels = badgeFilters[column]
             for (let i = 0; i < labels.length; i++) {
                 const value = labels[i];
-                if (d[column] && !JSON.stringify(d[column]).includes(value)) {
+                const pluralColumn = pluralColumns[column] || column
+                if (d[pluralColumn] && !JSON.stringify(d[pluralColumn]).includes(value)) {
                     return false;
                 }
             }
@@ -444,7 +449,11 @@ $(document).ready(async function () {
     basePath = document.getElementById('base-path').innerHTML;
     packageData = JSON.parse(document.getElementById('package-data').innerHTML);
     specData = JSON.parse(document.getElementById('spec-data').innerHTML);
-    applyRoute();
+    applyRoute(window.location.search);
+    window.navigation.addEventListener("navigate", (e) => {
+        const dest = e.destination.url;
+        applyRoute(dest.includes('?') ? dest.split('?')[1] : '')
+    });
 
     // Construct tree data from package data
     treeData = [];
