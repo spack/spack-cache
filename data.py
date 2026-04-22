@@ -12,6 +12,7 @@ MANIFEST_URL = BASE_URL + 'cache_spack_io_index.json'
 DATA_DIR = Path(__file__).parent / '_data'
 PACKAGE_DATA_PATH = DATA_DIR / 'package_data.json'
 SPECS_DATA_PATH = DATA_DIR / 'specs_data.json'
+TREE_DATA_PATH = DATA_DIR / 'tree_data.json'
 
 
 class SetEncoder(JSONEncoder):
@@ -66,6 +67,7 @@ def get_data(tag, stack, package):
 
     packages = {}
     specs = {}
+    tree = set()
     for tag_name, stack_info in get_response(MANIFEST_URL).items():
         if len(include_tags) > 0 and tag_name not in include_tags:
             continue
@@ -91,12 +93,13 @@ def get_data(tag, stack, package):
                     packages[package_name] = dict(
                         uid=package_name,
                         url=f'https://packages.spack.io/package.html?name={package_name}',
-                        tags=set(),
-                        stacks=set(),
                         specs=set(),
                     )
-                packages[package_name]['tags'].add(tag_name)
-                packages[package_name]['stacks'].add(stack_name)
+                tree.add(json.dumps(dict(
+                    name=package_name,
+                    tag=tag_name,
+                    stack=stack_name,
+                )))
 
                 spec_hash = spec['hash']
                 packages[package_name]['specs'].add(spec_hash)
@@ -153,6 +156,10 @@ def get_data(tag, stack, package):
 
     save_data(packages, PACKAGE_DATA_PATH)
     save_data(specs, SPECS_DATA_PATH)
+
+    # Convert tree data from set of strings to list of dicts
+    tree = [json.loads(item) for item in tree]
+    save_data(tree, TREE_DATA_PATH)
 
     end = time.perf_counter()
     print(f'Data retrieval completed in {end - start:.2f} seconds.')

@@ -1,4 +1,4 @@
-from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, load_data, save_data
+from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, TREE_DATA_PATH, load_data, save_data
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -34,6 +34,7 @@ def get_context_data():
         base_path=os.environ.get('BASE_PATH', ''),
         packages=load_data(PACKAGE_DATA_PATH),
         specs=load_data(SPECS_DATA_PATH),
+        tree=load_data(TREE_DATA_PATH),
     )
 
 def build():

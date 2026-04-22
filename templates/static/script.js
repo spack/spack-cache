@@ -524,20 +524,13 @@ $(document).ready(async function () {
     basePath = document.getElementById('base-path').innerHTML;
     packageData = JSON.parse(document.getElementById('package-data').innerHTML);
     specData = JSON.parse(document.getElementById('spec-data').innerHTML);
+    treeData = JSON.parse(document.getElementById('tree-data').innerHTML);
+
     applyRoute(window.location.search);
     window.navigation.addEventListener("navigate", (e) => {
         const dest = e.destination.url;
         applyRoute(dest.includes('?') ? dest.split('?')[1] : '')
     });
-
-    // Construct tree data from package data
-    treeData = [];
-    for (const packageName in packageData) {
-        const package = packageData[packageName]
-        for (const [tagName, stackName] of package.tags.flatMap((t) => package.stacks.map((s) => [t, s]))) {
-            treeData.push({ name: packageName, tag: tagName, stack: stackName })
-        }
-    }
 
     loadTree('Stack -> Tag')
     setupSidebarResize()

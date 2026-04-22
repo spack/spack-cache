@@ -6,7 +6,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from build import TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_context_data
-from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, load_data
 
 
 app = FastAPI()
