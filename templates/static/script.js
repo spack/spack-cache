@@ -435,12 +435,6 @@ function setupDataTable() {
                 },
             },
             {
-                data: 'dependencies',
-                render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'dependency', data, true);
-                },
-            },
-            {
                 data: 'platform',
                 render: function (data, type, row, info) {
                     return groupBadges(info.row, 'platform', [data]);
@@ -456,6 +450,12 @@ function setupDataTable() {
                 data: 'target',
                 render: function (data, type, row, info) {
                     return groupBadges(info.row, 'target', [data]);
+                },
+            },
+            {
+                data: 'dependencies',
+                render: function (data, type, row, info) {
+                    return groupBadges(info.row, 'dependency', data, true);
                 },
             },
         ],
