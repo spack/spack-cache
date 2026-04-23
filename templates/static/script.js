@@ -484,7 +484,7 @@ function updateTable() {
             for (let i = 0; i < labels.length; i++) {
                 const value = labels[i];
                 const pluralColumn = pluralColumns[column] || column
-                if (d[pluralColumn] && !JSON.stringify(d[pluralColumn]).includes(value)) {
+                if (d[pluralColumn] && !d[pluralColumn].includes(value)) {
                     return false;
                 }
             }
