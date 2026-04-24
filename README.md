@@ -1,8 +1,6 @@
 # Spack Build Cache
 
-<!-- TODO: update this deployment link with real repo deployment -->
-
-View the deployment at [annehaley.github.io/spack_cache/](https://annehaley.github.io/spack_cache/)
+View the deployment at [https://cache.spack.io/](https://cache.spack.io/).
 
 ![Home View](screenshots/spack_cache_home_view.png)
 
