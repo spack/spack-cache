@@ -19,11 +19,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-env:
-  # Base path of GH Pages deployment
-  # All links will be relative to this path
-  BASE_PATH: "/spack-cache"
-
 jobs:
   deploy:
     environment:
