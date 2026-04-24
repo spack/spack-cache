@@ -6,11 +6,7 @@ View the deployment at [annehaley.github.io/spack_cache/](https://annehaley.gith
 
 ![Home View](screenshots/spack_cache_home_view.png)
 
-This small interface provides a summary table that shows versions, total specs, and allows for basic search!
-
-![Home View](screenshots/spack_cache_table_view.png)
-
-When you dig into a particular build cache package, you'll be presented with another view to inspect specs in detail, or search.
+When you select a package name from the tree in the sidebar, you'll be presented with a table to compare available specs for that package.
 
 ![Home View](screenshots/spack_cache_package_view.png)
 
