@@ -4012,6 +4012,10 @@ input:checked + .slider:before {
   background-color: hsl(var(--b2));
 }
 
+.tree-leaf .highlight {
+  background-color: hsl(var(--s) / 0.7);
+}
+
 table.dataTable {
   width: 100% !important;
 }
