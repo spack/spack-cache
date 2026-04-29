@@ -213,12 +213,23 @@ function loadTree(organization) {
     setElementChildren(tree_root, tree_nodes)
 }
 
+function matchString(match, string) {
+    match = match.toLowerCase();
+    string = string.toLowerCase();
+    if (match.endsWith('$')) {
+        return string.endsWith(match.slice(0, -1));
+    } else {
+        return string.includes(match);
+    }
+}
+
 function filterTree() {
     const search = document.getElementById('tree-search')
     let filterString = search.value
     const nodes = Array.from(document.getElementsByClassName('tree-node'))
     nodes.forEach((node) => {
-        const visible = node.searchContent.filter((c) => c.toLowerCase().includes(filterString.toLowerCase()));
+        const visible = node.searchContent.filter((c) => matchString(filterString, c));
+        filterString = filterString.replace('$', '')
         if (visible.length) {
             node.classList.remove('hidden')
             if (!node.classList.contains('tree-leaf')) {
