@@ -229,11 +229,11 @@ function filterTree() {
     const nodes = Array.from(document.getElementsByClassName('tree-node'))
     nodes.forEach((node) => {
         const visible = node.searchContent.filter((c) => matchString(filterString, c));
-        filterString = filterString.replace('$', '')
+        const filterStringClean = filterString.replace('$', '')
         if (visible.length) {
             node.classList.remove('hidden')
             if (!node.classList.contains('tree-leaf')) {
-                if (filterString.length > 2) {
+                if (filterStringClean.length > 2) {
                     node.classList.remove('collapsed');
                 } else {
                     node.classList.add('collapsed');
@@ -243,7 +243,7 @@ function filterTree() {
                 counter.innerHTML = `(${visible.length})`;
             } else {
                 const packageName = node.searchContent[0];
-                node.innerHTML = filterString.length > 2 ? packageName.replace(filterString, `<span class='highlight'>${filterString}</span>`) : packageName;
+                node.innerHTML = filterStringClean.length > 2 ? packageName.replace(filterStringClean, `<span class='highlight'>${filterStringClean}</span>`) : packageName;
             }
         } else {
             node.classList.add('hidden')
