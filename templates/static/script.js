@@ -222,6 +222,11 @@ function filterTree() {
         if (visible.length) {
             node.classList.remove('hidden')
             if (!node.classList.contains('tree-leaf')) {
+                if (filterString.length > 2) {
+                    node.classList.remove('collapsed');
+                } else {
+                    node.classList.add('collapsed');
+                }
                 const title = node.children[0];
                 const counter = title.children[0];
                 counter.innerHTML = `(${visible.length})`;
