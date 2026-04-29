@@ -29,6 +29,10 @@ const noDiffMessage = 'No diff';
 
 
 // General
+function navigateToHome() {
+    window.history.pushState(null, '', basePath + '/');
+}
+
 function applyRoute(params) {
     const urlParams = new URLSearchParams(params);
     packageName = urlParams.get('package');
