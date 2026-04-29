@@ -7,8 +7,15 @@
             </a>
         </div>
     </div>
+    <div class="form-control">
+        <input id="tree-search" type="search" class="form-control input-sm input border-base-300"
+            oninput="filterTree(event)" style="height: 50px">
+        <label class="label floating">
+            <span class="label-text-alt text-gray-400 text-[10px]">Search</span>
+        </label>
+    </div>
 
-    <div class="form-control pb-2" onclick="toggleMenu('tree-organization-menu')">
+    <div class="form-control mt-2" onclick="toggleMenu('tree-organization-menu')">
         <label class="label floating">
             <span class="label-text-alt text-gray-400 text-[10px]">Tree Organization</span>
         </label>
@@ -28,13 +35,6 @@
                 </ul>
             </div>
         </div>
-    </div>
-    <div class="form-control">
-        <input id="tree-search" type="search" class="form-control input-sm input border-base-300"
-            oninput="filterTree(event)">
-        <label class="label floating">
-            <span class="label-text-alt text-gray-400 text-[10px]">Search</span>
-        </label>
     </div>
     <div class="button-set">
         <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(true)">
