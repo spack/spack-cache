@@ -165,7 +165,7 @@ function generateTreeNodes(items) {
             setElementChildren(children_container, child_nodes)
             node.appendChild(children_container)
             node.classList.add('collapsed')
-            node.searchContent = child_nodes.map((node) => node.searchContent).join(' ')
+            node.searchContent = child_nodes.map((node) => node.searchContent).flat()
             const childCounter = document.createElement('span');
             childCounter.style.paddingLeft = '5px';
             childCounter.innerHTML += `(${child_nodes.length})`;
@@ -173,7 +173,7 @@ function generateTreeNodes(items) {
         } else {
             node.onclick = () => treeNavigate(item);
             node.classList.add('tree-leaf')
-            node.searchContent = item.name
+            node.searchContent = [item.name]
         }
         node.classList.add('tree-node')
         nodes.push(node)
@@ -218,22 +218,18 @@ function filterTree() {
     let filterString = search.value
     const nodes = Array.from(document.getElementsByClassName('tree-node'))
     nodes.forEach((node) => {
-        if (node.searchContent.toLowerCase().includes(filterString.toLowerCase())) {
+        const visible = node.searchContent.filter((c) => c.toLowerCase().includes(filterString.toLowerCase()));
+        if (visible.length) {
             node.classList.remove('hidden')
+            if (!node.classList.contains('tree-leaf')) {
+                const title = node.children[0];
+                const counter = title.children[0];
+                counter.innerHTML = `(${visible.length})`;
+            }
         } else {
             node.classList.add('hidden')
         }
     });
-    // Update number of children for visible parent nodes
-    nodes.forEach((node) => {
-        if (!node.classList.contains('hidden') && !node.classList.contains('tree-leaf')) {
-            const title = node.children[0];
-            const counter = title.children[0];
-            const childContainer = node.children[1];
-            const visibleChildren = Array.from(childContainer.children).filter((c) => !c.classList.contains('hidden'))
-            counter.innerHTML = `(${visibleChildren.length})`
-        }
-    })
 }
 
 // Specs Table
