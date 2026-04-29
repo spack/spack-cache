@@ -201,8 +201,8 @@ function organizeTreeData(data, organization) {
         children: Object.entries(level1).map(([key2, level2]) => ({
             name: key2,
             children: level2.sort((a, b) => a.name > b.name)
-        }))
-    }))
+        })).sort((a, b) => a.name > b.name)
+    })).sort((a, b) => a.name > b.name);
     return treeItems
 }
 
