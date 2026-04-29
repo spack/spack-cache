@@ -436,13 +436,13 @@ function setupDataTable() {
         columns: [
             {
                 data: 'hash',
+                className: 'nowrap',
                 render: function (data, type, row, info) {
                     return '<span class="font-mono">' + data + '</span>';
                 },
             },
             {
                 data: 'version',
-                className: 'dt-left',
                 render: function (data, type, row, info) {
                     return groupBadges(info.row, 'version', [data]);
                 }
@@ -490,6 +490,28 @@ function setupDataTable() {
                 },
             },
         ],
+        fixedHeader: true,
+        responsive: {
+            details: {
+                renderer: function (api, rowIdx, columns) {
+                    let container = document.createElement('div');
+                    for (const column of columns) {
+                        if (column.hidden) {
+                            const row = document.createElement('div');
+                            row.style.display = 'flex';
+
+                            const keyLabel = document.createElement('div');
+                            keyLabel.classList.add('table-responsive-column-label');
+                            keyLabel.innerHTML = column.title;
+                            row.appendChild(keyLabel);
+                            row.appendChild(column.data);
+                            container.appendChild(row);
+                        }
+                    }
+                    return container;
+                }
+            }
+        }
     });
     tableInitialized = true;
 }
