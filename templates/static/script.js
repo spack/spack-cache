@@ -230,6 +230,9 @@ function filterTree() {
                 const title = node.children[0];
                 const counter = title.children[0];
                 counter.innerHTML = `(${visible.length})`;
+            } else {
+                const packageName = node.searchContent[0];
+                node.innerHTML = filterString.length > 2 ? packageName.replace(filterString, `<span class='highlight'>${filterString}</span>`) : packageName;
             }
         } else {
             node.classList.add('hidden')
