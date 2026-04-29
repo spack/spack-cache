@@ -227,10 +227,12 @@ function filterTree() {
     const search = document.getElementById('tree-search')
     let filterString = search.value
     const nodes = Array.from(document.getElementsByClassName('tree-node'))
+    let resultsFound = false;
     nodes.forEach((node) => {
         const visible = node.searchContent.filter((c) => matchString(filterString, c));
         const filterStringClean = filterString.replace('$', '')
         if (visible.length) {
+            resultsFound = true;
             node.classList.remove('hidden')
             if (!node.classList.contains('tree-leaf')) {
                 if (filterStringClean.length > 2) {
@@ -249,6 +251,7 @@ function filterTree() {
             node.classList.add('hidden')
         }
     });
+    document.getElementById('tree-no-data').style.display = resultsFound ? 'none' : 'block';
 }
 
 // Specs Table
