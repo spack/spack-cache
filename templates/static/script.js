@@ -118,7 +118,8 @@ function resizeSidebar(e) {
 function setTreeOrganization(organization) {
     document.getElementById('tree-organization').innerHTML = organization
     document.getElementById('tree-root').innerHTML = 'Loading tree...'
-    loadTree(organization)
+    loadTree(organization);
+    filterTree();
 }
 
 function setTreeNodeOpen(node, open) {
