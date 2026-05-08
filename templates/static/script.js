@@ -204,9 +204,9 @@ function organizeTreeData(data, organization) {
         name: key1,
         children: Object.entries(level1).map(([key2, level2]) => ({
             name: key2,
-            children: level2.sort((a, b) => a.name > b.name)
-        })).sort((a, b) => a.name > b.name)
-    })).sort((a, b) => a.name > b.name);
+            children: level2.toSorted((a, b) => a.name.localeCompare(b.name))
+        })).toSorted((a, b) => a.name.localeCompare(b.name))
+    })).toSorted((a, b) => a.name.localeCompare(b.name));
     return treeItems
 }
 
