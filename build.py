@@ -1,4 +1,4 @@
-from data import PACKAGE_DATA_PATH, SPECS_DATA_PATH, TREE_DATA_PATH, load_data, save_data
+from data import DATA_DIR, load_data, save_data
 from jinja2 import Template, Environment, FileSystemLoader
 from pathlib import Path
 import shutil
@@ -29,12 +29,16 @@ def copy_static():
                 dest = BUILD_DIR / item.name
             shutil.copy(item, dest)
 
+def copy_data():
+    BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
+    for item in DATA_DIR.iterdir():
+        if item.is_file():
+            dest = BUILD_DATA_DIR / item.name
+            shutil.copy(item, dest)
+        
 def get_context_data():
     return dict(
         base_path=os.environ.get('BASE_PATH', ''),
-        packages=load_data(PACKAGE_DATA_PATH),
-        specs=load_data(SPECS_DATA_PATH),
-        tree=load_data(TREE_DATA_PATH),
     )
 
 def build():
@@ -50,6 +54,7 @@ def build():
         template.render(**get_context_data()),
         BUILD_DIR / 'index.html',
     )
+    copy_data()
     copy_static()
 
     end = time.perf_counter()

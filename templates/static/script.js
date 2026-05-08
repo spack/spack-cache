@@ -609,9 +609,9 @@ function updateTable() {
 // Ready
 $(document).ready(async function () {
     basePath = document.getElementById('base-path').innerHTML;
-    packageData = JSON.parse(document.getElementById('package-data').innerHTML);
-    specData = JSON.parse(document.getElementById('spec-data').innerHTML);
-    treeData = JSON.parse(document.getElementById('tree-data').innerHTML);
+    packageData = await (await fetch(`${basePath}/api/package_data.json`)).json();
+    specData = await (await fetch(`${basePath}/api/specs_data.json`)).json();
+    treeData = await (await fetch(`${basePath}/api/tree_data.json`)).json();
 
     applyRoute(window.location.search);
     window.navigation.addEventListener("navigate", (e) => {

@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from data import DATA_DIR
 from build import TEMPLATE_DIR, TEMPLATE_STATIC_DIR, get_context_data
 
 
@@ -17,6 +18,13 @@ app.mount(
     "/static",
     StaticFiles(directory=TEMPLATE_STATIC_DIR),
     name="static",
+)
+
+# Mount the "api" directory to serve data files
+app.mount(
+    "/api",
+    StaticFiles(directory=DATA_DIR),
+    name="api",
 )
 
 # Favicon must be in the root for browsers to find it
