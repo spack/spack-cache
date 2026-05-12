@@ -727,7 +727,7 @@ input:checked+.slider:before {
 
 #badge-filters .searchable-badge {
   padding: 12px 28px 4px 8px;
-  margin: 0px 4px;
+  margin: 2px 4px;
 }
 
 #badge-options-list .searchable-badge {
