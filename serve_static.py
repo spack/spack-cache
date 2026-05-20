@@ -1,4 +1,4 @@
-from http.server import SimpleHTTPRequestHandler, HTTPServer
+from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import click
 from pathlib import Path
 
@@ -19,7 +19,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
 )
 def run_server(port):
     server_address = ('', port)
-    with HTTPServer(server_address, CustomHandler) as httpd:
+    with ThreadingHTTPServer(server_address, CustomHandler) as httpd:
         print(f"Serving at http://localhost:{port}")
         httpd.serve_forever()
 
