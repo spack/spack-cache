@@ -6,47 +6,43 @@
         </a>
     </div>
     <div class="form-control">
-        <input id="tree-search" type="search" class="form-control input border-base-300"
-            oninput="filterTree(event)">
+        <input id="sidebar-search" type="search" class="form-control input border-base-300"
+            oninput="filterSidebar(event)">
         <label class="label floating">
             <span class="text-gray-400 text-[10px]">Search</span>
         </label>
     </div>
 
-    <div class="form-control mt-2">
-        <label class="label floating">
-            <span class="text-gray-400 text-[10px]">Tree Organization</span>
-        </label>
-        <button class="custom-select w-full">
-            <span id="tree-organization" class="selected">Stack -> Tag</span>
-            <div class="custom-select-options" id="tree-organization-menu">
-                <div class="menu-wrap">
-                    <ul>
-                        <li onclick="setTreeOrganization('Tag -> Stack')">
-                            <a>Tag -> Stack</a>
-                        </li>
-                        <li onclick="setTreeOrganization('Stack -> Tag')">
-                            <a>Stack -> Tag</a>
-                        </li>
-                    </ul>
-                </div>
+    <div id="sidebar-tabs" class="tab-control">
+        <div id="all-packages-tab" class="tab active" onclick="selectSidebarTab('all-packages')">All Packages</div>
+        <div id="by-release-tab" class="tab" onclick="selectSidebarTab('by-release')">By Release</div>
+    </div>
+    <div id="sidebar-tab-contents" class="tab-content">
+        <div id="all-packages-content" class="active">
+            <div id="all-packages-loading" class="status">Loading...</div>
+            <div id="all-packages-nodata" class="status" style="display: none">No results.</div>
+            <div id="all-packages-list" class="sidebar-list"></div>
+        </div>
+        <div id="by-release-content">
+            <div class="button-set">
+                <a class="btn btn-secondary btn-sm" onclick="setAllSidebarGroupsOpen(true)">
+                    Expand All
+                </a>
+                <a class="btn btn-secondary btn-sm" onclick="setAllSidebarGroupsOpen(false)">
+                    Collapse All
+                </a>
             </div>
-        </button>
-    </div>
-    <div class="button-set">
-        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(true)">
-            Expand All
-        </a>
-        <a class="button btn btn-secondary btn-sm mt-2" onclick="setAllNodesOpen(false)">
-            Collapse All
-        </a>
-    </div>
-
-    <ul id="tree-root">
-        <div style="width: 100%; text-align: center; padding: 10px;">Loading...</div>
-    </ul>
-    <div id="tree-no-data" style="display: none; width: 100%; text-align: center; padding: 10px;">
-        No packages found.
+            <div style="display: flex; padding: 5px 0px; column-gap: 5px; align-items: center;">
+                <label class="switch">
+                    <input type="checkbox" id="show-devs-toggle" onchange="toggleShowDevs()">
+                    <span class="slider"></span>
+                </label>
+                <span class="text-gray-400" style="font-size: 14px;">Show development releases</span>
+            </div>
+            <div id="by-release-loading" class="status">Loading...</div>
+            <div id="by-release-nodata" class="status" style="display: none">No results.</div>
+            <div id="by-release-list" class="sidebar-list"></div>
+        </div>
     </div>
 
     <div id="sidebar-resize"></div>

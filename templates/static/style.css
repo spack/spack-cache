@@ -398,6 +398,51 @@ h3 {
   z-index: 3;
 }
 
+.tab-control {
+  display: flex;
+  width: 100%;
+}
+
+.tab {
+  flex-grow: 1;
+  text-align: center;
+  background-color: hsl(var(--b2));
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 5px 0px;
+  border: 1px solid hsl(var(--b3));
+}
+
+.tab.active {
+  background-color: hsl(var(--b1));
+  border-bottom: none;
+}
+
+.tab-content {
+  border: 1px solid hsl(var(--b3));
+  border-top: none;
+  padding: 5px;
+  min-height: 0;
+}
+
+.tab-content > div {
+  display: none;
+  height: 100%;
+}
+
+.tab-content > div.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content .status {
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+}
+
 .btn {
   display: inline-flex;
   cursor: pointer;
@@ -416,7 +461,6 @@ h3 {
   padding-right: 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  text-transform: uppercase;
   text-decoration-line: none;
   border-width: var(--border-btn, 1px);
 }
@@ -450,8 +494,7 @@ h3 {
 }
 
 .btn-secondary {
-  border-color: hsl(var(--s));
-  background-color: hsl(var(--s));
+  background-color: hsl(var(--b2));
   color: hsl(var(--sc));
 }
 
@@ -658,7 +701,7 @@ input:checked+.slider:before {
   font-size: 0.875rem;
   width: 100%;
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 #sidebar .caret {
@@ -671,6 +714,10 @@ input:checked+.slider:before {
   color: black;
   display: inline-block;
   margin-right: 5px;
+}
+
+#sidebar .collapsed.caret::before {
+  content: '\25B8';
 }
 
 #sidebar .nested {
@@ -692,28 +739,31 @@ input:checked+.slider:before {
   user-select: none;
 }
 
-/* Treeview */
+#sidebar-search {
+  margin-bottom: 5px;
+}
 
-#tree-root {
-  max-height: calc(100% - 80px);
+.sidebar-list {
+  min-height: 0;
+  max-height: 100%;
   overflow-y: auto;
 }
 
-.tree-leaf {
+.sidebar-item {
   color: hsl(var(--p));
   padding-left: 4px;
 }
 
-.tree-leaf:active {
-  animation: button-pop var(--animation-btn, 0.25s) ease-out;
-}
-
-.tree-leaf:hover {
+.sidebar-item:hover {
   background-color: hsl(var(--b2));
 }
 
-.tree-leaf .highlight {
+.sidebar-item.active {
   background-color: hsl(var(--s) / 0.7);
+}
+
+.sidebar-item:active {
+  animation: button-pop var(--animation-btn, 0.25s) ease-out;
 }
 
 /* Badges */
