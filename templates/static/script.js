@@ -69,7 +69,7 @@ function applyRoute(params) {
             }
         }
     }
-    applySidebarHighlights();     
+    applySidebarHighlights(); 
     showContent(contentToShow);
 }
 
