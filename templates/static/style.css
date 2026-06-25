@@ -16,6 +16,10 @@
 }
 
 /* Layout */
+html {
+  overflow: hidden;
+}
+
 ol,
 ul,
 menu {
