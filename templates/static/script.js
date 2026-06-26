@@ -780,7 +780,6 @@ function setupDataTable() {
                 },
             },
         ],
-        fixedHeader: true,
         responsive: {
             details: {
                 renderer: function (api, rowIdx, columns) {
