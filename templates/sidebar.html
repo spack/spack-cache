@@ -1,49 +1,74 @@
-<div id="sidebar">
-    <div id="sidebar-title" onclick="navigateToHome()">
-        <a class="btn btn-ghost !flex gap-2">
-            <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-auto" />
-            Spack Build Cache
-        </a>
-    </div>
-    <div class="form-control">
-        <input id="sidebar-search" type="search" class="form-control input border-base-300"
-            oninput="filterSidebar(event)">
-        <label class="label floating">
-            <span class="text-gray-400 text-[10px]">Search</span>
-        </label>
-    </div>
-
-    <div id="sidebar-tabs" class="tab-control">
-        <div id="all-packages-tab" class="tab active" onclick="selectSidebarTab('all-packages')">All Packages</div>
-        <div id="by-release-tab" class="tab" onclick="selectSidebarTab('by-release')">By Release</div>
+<div id="mobile-toolbar" class="block">
+    <header class="flex h-12 shrink-0 items-center justify-left border-b border-border bg-surface-elevated px-4">
+        <button class="w-7" onclick="setSidebarOpen(true)">{{ menu_icon() }}</button>
+        <button class="flex items-center gap-2 rounded text-left hover:opacity-80" title="Home" onclick="navigateToHome()">
+            <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-7" />
+            <div>
+                <div class="text-sm font-semibold leading-none">Spack Build Cache</div>
+                <div class="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <span class="total-builds-stat">...</span> builds indexed
+                </div>
+            </div>
+        </button>
+    </header>
+    <button id="sidebar-shadow" aria-label="Close navigation" class="fixed inset-0 z-10 bg-black/40" onclick="setSidebarOpen(false)"></button>
+</div>
+<div id="sidebar" class="bg-surface">
+    <header class="flex h-12 shrink-0 items-center justify-left border-b border-border bg-surface-elevated px-4">
+        <button class="flex items-center gap-2 rounded text-left hover:opacity-80" title="Home" onclick="navigateToHome()">
+            <img src="{{ base_path }}/static/spack-logo.svg" class="max-h-full w-7" />
+            <div>
+                <div class="text-sm font-semibold leading-none">Spack Build Cache</div>
+                <div class="mt-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <span class="total-builds-stat">...</span> builds indexed
+                </div>
+            </div>
+        </button>
+    </header>
+    <div class="px-3 pt-3">
+        <div class="relative">
+            {{ search_icon() }}
+            <input id="sidebar-search" type="search" oninput="filterSidebar(event)" placeholder="Search by package name" class="w-full rounded-md border border-input bg-background py-1.5 pl-8 pr-7 text-sm outline-none focus:ring-2 focus:ring-ring">
+        </div>
+        <div id="sidebar-tabs" class="mt-2 flex gap-1 rounded-md bg-muted p-0.5 text-xs">
+            <button id="all-packages-tab" onclick="selectSidebarTab('all-packages')" class="flex flex-1 items-center justify-center gap-1 rounded px-2 py-1 transition-colors text-muted-foreground hover:text-foreground tab active">
+                All Packages
+            </button>
+            <button id="by-release-tab" onclick="selectSidebarTab('by-release')" class="flex flex-1 items-center justify-center gap-1 rounded px-2 py-1 transition-colors text-muted-foreground hover:text-foreground tab">
+                By Release
+            </button>
+        </div>
     </div>
     <div id="sidebar-tab-contents" class="tab-content">
-        <div id="all-packages-content" class="active">
+        <div id="all-packages-content" class="active border-t mt-1.5">
             <div id="all-packages-loading" class="status">Loading...</div>
             <div id="all-packages-nodata" class="status" style="display: none">No results.</div>
-            <div id="all-packages-list" class="sidebar-list"></div>
+            <div id="all-packages-list" class="sidebar-list p-1.5"></div>
         </div>
         <div id="by-release-content">
-            <div class="button-set">
-                <a class="btn btn-secondary btn-sm" onclick="setAllSidebarGroupsOpen(true)">
-                    Expand All
-                </a>
-                <a class="btn btn-secondary btn-sm" onclick="setAllSidebarGroupsOpen(false)">
-                    Collapse All
-                </a>
-            </div>
-            <div style="display: flex; padding: 5px 0px; column-gap: 5px; align-items: center;">
-                <label class="switch">
-                    <input type="checkbox" id="show-devs-toggle" onchange="toggleShowDevs()">
-                    <span class="slider"></span>
+            <div class="px-2 mt-1">
+                <div class="flex gap-1.5">
+                    <button onclick="setAllSidebarGroupsOpen(true)" class="flex-1 rounded border border-border bg-background px-2 py-1 text-xs hover:bg-accent hover:text-accent-foreground">
+                        Expand All
+                    </button>
+                    <button onclick="setAllSidebarGroupsOpen(false)" class="flex-1 rounded border border-border bg-background px-2 py-1 text-xs hover:bg-accent hover:text-accent-foreground">
+                        Collapse All
+                    </button>
+                </div>
+                <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground py-2">
+                    <label class="switch">
+                        <input type="checkbox" id="show-devs-toggle" onchange="toggleShowDevs()">
+                        <span class="slider"></span>
+                    </label>
+                    Show development releases
                 </label>
-                <span class="text-gray-400" style="font-size: 14px;">Show development releases</span>
             </div>
-            <div id="by-release-loading" class="status">Loading...</div>
-            <div id="by-release-nodata" class="status" style="display: none">No results.</div>
-            <div id="by-release-list" class="sidebar-list"></div>
+            <div class="border-t sidebar-list">
+                <div id="by-release-loading" class="status">Loading...</div>
+                <div id="by-release-nodata" class="status" style="display: none">No results.</div>
+                <div id="by-release-list" class="sidebar-list p-1.5"></div>
+            </div>
         </div>
     </div>
-
     <div id="sidebar-resize"></div>
 </div>

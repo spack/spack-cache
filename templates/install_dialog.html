@@ -1,0 +1,66 @@
+<div id="install-dialog" onclick="toggleInstallDialogShown(undefined)" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div onclick="event.stopPropagation()" class="w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
+        <div class="flex items-center justify-between border-b border-border px-5 py-3">
+            <h2 class="text-lg font-semibold">Install <span class="package-name"></span></h2>
+            <button onclick="toggleInstallDialogShown(undefined)" class="rounded p-1 text-muted-foreground hover:bg-muted">
+                {{ close_icon() }}
+            </button>
+        </div>
+        <div class="space-y-5 p-5">
+            <div>
+                <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                    <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                        <span class="text-xs font-medium text-muted-foreground">
+                            Install <span class="package-name"></span>
+                        </span>
+                        {{ copy_command_button() }}
+                    </div>
+                    <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight: 550;"><code><span class="select-none text-command-prompt">$ </span><span id="install-command"></span></code></pre>
+                </div>
+                <div class="mt-2 px-1 text-xs text-muted-foreground">
+                    <span id="package-install-detail">Let spack decide which version of <span class="package-name font-mono text-foreground">bzip2</span> to install, either from the build cache or from source.</span>
+                    <span id="hash-install-detail">Install a package by hash directly. This will either reuse an already installed spec or install from the build cache.</span>
+                </div>
+            </div>
+
+            <div class="rounded-md border border-border">
+                <button onclick="toggleInstallDialogExpandedSection()" id="install-dialog-expansion-button" class="flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-muted/50">
+                    <span class="flex items-center gap-2">
+                        {{ right_chevron_icon() }}
+                        <span class="font-medium">
+                            First-time setup
+                        </span>
+                        <span class="text-xs text-muted-foreground">
+                            Run these once per Spack instance
+                        </span>
+                    </span>
+                </button>
+
+                <div id="install-dialog-expansion-content" class="hidden space-y-4 border-t border-border px-3 py-3">
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    1. Add the mirror
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack mirror add spack-cache https://binaries.spack.io/<span class="recent-release-name">...</span></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    2. Trust the signing key
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack buildcache keys --install --trust --force</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

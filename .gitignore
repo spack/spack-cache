@@ -3,3 +3,4 @@ __pycache__
 _data
 _build
 node_modules
+.vscode

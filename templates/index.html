@@ -16,28 +16,28 @@
 
     <!-- https://datatables.net/download/ -->
     <!-- Includes DataTables default styling, jQuery, and the FixedHeader extension-->
-    <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.8/fh-4.0.6/r-3.0.8/datatables.min.css" rel="stylesheet"
-        integrity="sha384-8CPcDC0elDrzZ0r2yfkImYxl2I/12sUZre7nq6YKbA+67a7aeXFsoXp+4edxEULD" crossorigin="anonymous">
-    <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.8/fh-4.0.6/r-3.0.8/datatables.min.js"
-        integrity="sha384-hqNfa58rJlItf0QAmO0uLTtMTbyEM5GBMVkTzwTLU1fMpBNXWJXuwVlwQE4bg5fO"
-        crossorigin="anonymous"></script>
+    <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.8/fh-4.0.6/r-3.0.8/datatables.min.css" rel="stylesheet" integrity="sha384-8CPcDC0elDrzZ0r2yfkImYxl2I/12sUZre7nq6YKbA+67a7aeXFsoXp+4edxEULD" crossorigin="anonymous">
+    <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.3.8/fh-4.0.6/r-3.0.8/datatables.min.js" integrity="sha384-hqNfa58rJlItf0QAmO0uLTtMTbyEM5GBMVkTzwTLU1fMpBNXWJXuwVlwQE4bg5fO" crossorigin="anonymous"></script>
 
     <!-- Favicon and static content -->
     <link rel="shortcut icon" type="image/x-icon" href="{{ base_path }}/favicon.ico" />
     <link rel="stylesheet" href="{{ base_path }}/static/style.css" />
+    <link rel="stylesheet" href="{{ base_path }}/static/lovable-styles.css" />
     <script src="{{ base_path }}/static/script.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<body>
+    {% from 'macros.html' import menu_icon, search_icon, mini_search_icon, builds_icon, packages_icon, releases_icon, left_arrow_icon, right_chevron_icon, down_chevron_icon, tag_icon, copy_icon, copy_command_button, install_icon, close_icon, plus_icon, cols_icon, eye_icon, eye_off_icon %}
     {% include "sidebar.html" %}
+    {% include "install_dialog.html" %}
 
     <!-- Main content -->
-    <div class="container shifted" id="content-container">
+    <div class="container" id="content-container" onclick="setColumnsMenuVisible(false); setBadgeOptionsMenuVisible(false)">
         <div id="loading-content" class="py-8 pb-24">
             <h1 style="width: 100%; text-align: center;">Loading...</h1>
         </div>
 
-        <div id="home-content" class="py-8 pb-24" style="display: none">
+        <div id="home-content" style="display: none">
             {% include "home.html" %}
         </div>
 
@@ -48,19 +48,18 @@
         <div id="package-not-found-content" class="py-8 pb-24" style="display: none">
             <h1>Package not found.</h1>
         </div>
-
-        <!-- Site footer -->
-        <footer class="border-t border-base-300 footer footer-center p-4 text-base-content">
-            <p>
-                <span class="site-footer-credits">Contribute to the Spack Build Cache on
-                    <a target="_blank" href="https://github.com/spack/cache.spack.io">GitHub</a>.
-                </span>
-            </p>
-        </footer>
     </div>
 
     <!-- Inject context data into hidden elements -->
     <a id="base-path" style="display: none">{{base_path}}</a>
+    <!-- Hide some icon nodes that will be duplicated by javascript -->
+    <div class="hidden">
+        {{ right_chevron_icon() }}
+        {{ down_chevron_icon() }}
+        {{ tag_icon() }}
+        {{ eye_icon() }}
+        {{ eye_off_icon() }}
+    </div>
 </body>
 
 </html>

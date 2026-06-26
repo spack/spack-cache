@@ -1,26 +1,131 @@
 {% block content %}
-<main id="app">
-    <div class="border-l-4 border-secondary rounded bg-primary">
-        <div class="text-white heading" style="padding: 16px;">
-            <h1 class="text-2xl font-light uppercase text-primary-content">
-                Welcome to the
-            </h1>
-            <h1 class="text-5xl font-semibold">Spack Build Cache</h1>
+<main id="app" class="min-w-0 flex-1 overflow-hidden">
+    <div class="h-full overflow-y-auto">
+        <div class="bg-primary text-primary-foreground">
+            <div class="mx-auto max-w-5xl px-4 pt-10 pb-24 sm:px-8 sm:pt-16 sm:pb-28">
+                <h1 class="text-3xl font-bold tracking-tight sm:text-5xl">
+                    Prebuilt Spack binaries, ready to install.
+                </h1>
+                <p class="mt-4 max-w-3xl text-sm text-primary-foreground/80 sm:text-base">
+                    Explore available packages by name or by build cache release in the sidebar. Click on any package
+                    name to see a table of available
+                    builds. Once you find the package/build you want, refer to the installation instructions below to
+                    get started.
+                </p>
+            </div>
+        </div>
+        <div class="mx-auto max-w-3xl px-4 pb-12 sm:px-8 sm:pb-16">
+            <section class="-mt-16">
+                <dl class="grid grid-cols-3 gap-4">
+                    <div class="flex flex-col items-center justify-center rounded-lg border border-border bg-background px-2 py-4 text-center shadow-md sm:px-4 sm:py-5">
+                        <dt class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:text-xs">
+                            {{ builds_icon() }}
+                            Builds
+                        </dt>
+                        <dd class="mt-2 text-xl font-bold tracking-tight sm:text-2xl total-builds-stat">...</dd>
+                    </div>
+                    <div class="flex flex-col items-center justify-center rounded-lg border border-border bg-background px-2 py-4 text-center shadow-md sm:px-4 sm:py-5">
+                        <dt class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:text-xs">
+                            {{ packages_icon() }}
+                            Packages
+                        </dt>
+                        <dd class="mt-2 text-xl font-bold tracking-tight sm:text-2xl total-packages-stat">...</dd>
+                    </div>
+                    <div class="flex flex-col items-center justify-center rounded-lg border border-border bg-background px-2 py-4 text-center shadow-md sm:px-4 sm:py-5">
+                        <dt class="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground sm:text-xs">
+                            {{ releases_icon() }}
+                            Releases
+                        </dt>
+                        <dd class="mt-2 text-xl font-bold tracking-tight sm:text-2xl total-releases-stat">...</dd>
+                    </div>
+                </dl>
+                <div class="mt-4 flex items-center gap-2 rounded-md border border-primary/30 bg-primary/5 px-4 py-3 text-sm text-foreground">
+                    {{ left_arrow_icon() }}
+                    <span>
+                        <span class="font-medium">Browse packages in the sidebar</span>
+                        <span class="text-muted-foreground">to explore what's in the cache.</span>
+                    </span>
+                </div>
+            </section>
+            <section class="mt-12">
+                <h2 class="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Get started</h2>
+                <p class="mt-1 text-xs text-muted-foreground">
+                    Run steps 1 & 2 once per Spack instance. Pinned to
+                    <span class="font-mono text-foreground recent-release-name">...</span>.
+                </p>
+                <div class="mt-3 space-y-5">
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    1. Add the mirror
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack mirror add spack-cache https://binaries.spack.io/<span class="recent-release-name">...</span></code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    2. Trust the signing key
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack buildcache keys --install --trust --force</code></pre>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    3a. Install a package by name
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack install py-torch</code></pre>
+                        </div>
+                        <div class="mt-2 px-1 text-xs text-muted-foreground">
+                            <span>
+                                Let spack decide which version of the package to install, either from the build cache or from source.
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="overflow-hidden rounded-md border border-command-border bg-surface-elevated">
+                            <div class="flex items-center justify-between border-b border-command-border px-3 py-1.5">
+                                <span class="text-xs font-medium text-muted-foreground">
+                                    3b. Or install an exact build by hash
+                                </span>
+                                {{ copy_command_button() }}
+                            </div>
+                            <pre class="overflow-x-auto bg-command-bg px-3 py-2 font-command text-xs leading-relaxed text-command-text" style="font-weight:550"><code><span class="select-none text-command-prompt">$ </span>spack install /abc123def456 </code></pre>
+                        </div>
+                        <div class="mt-2 px-1 text-xs text-muted-foreground">
+                            <div class="space-y-1">
+                                <p>Install a package by hash directly. This will either reuse an already installed spec or install from the build cache.</p>
+                                <ol class="list-decimal pl-4 text-muted-foreground">
+                                    <li>1. Click on the name of the desired package in the sidebar to view a table of builds for that package.</li>
+                                    <li>2. Once you find the desired build, click on the hash to copy it or click the install button for the full install command.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <footer class="mt-12 border-t border-border pt-4 text-xs text-muted-foreground">
+                <strong>Issues or contributions:</strong>
+                <div>
+                    For this website: 
+                    <a href="https://github.com/spack/spack-cache" target="_blank" rel="noreferrer" class="text-primary hover:underline">github.com/spack/spack-cache</a>
+                </div>
+                <div>
+                    For spack packages: 
+                    <a href="https://github.com/spack/spack-packages" target="_blank" rel="noreferrer" class="text-primary hover:underline">github.com/spack/spack-packages</a>
+                </div>
+            </footer>
         </div>
     </div>
-    <p>
-        Build caches are repositories of pre-built packages that can be used
-        to speed up the software building process. They work by allowing users
-        to reuse previously compiled code instead of compiling the same code
-        again from source.
-    </p>
-    <p>
-        By using build caches, users can reduce the time it takes to build and
-        install software, and also reduce the amount of network bandwidth and
-        CPU resources required for the build process.
-    </p>
-    <p class="font-semibold">
-        Navigate available packages using the sidebar.
-    </p>
 </main>
 {% endblock %}
