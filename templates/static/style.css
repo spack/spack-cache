@@ -190,6 +190,13 @@ input:checked+.slider:before {
   animation: button-pop var(--animation-btn, 0.25s) ease-out;
 }
 
+#filters-menu {
+  position: absolute;
+  width: 250px;
+  right: -250px;
+  top: 60px;
+}
+
 /* Tables */
 .table {
   text-indent: 0;

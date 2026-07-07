@@ -23,9 +23,9 @@
                 Add filter
             </button>
             <div id="badge-options-menu" class="hidden absolute left-0 top-full z-20 mt-1 w-80 overflow-hidden rounded-md border border-border bg-surface-elevated shadow-lg">
-                <div class="flex items-center gap-2 border-b border-border px-2 py-1.5">
+                <div class="relative flex items-center gap-2 border-b border-border px-2 py-1.5">
                     {{ mini_search_icon() }}
-                    <input id="badge-options-filter" type="search" oninput="filterBadgeOptions()" placeholder="Filter attributes..." class="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground">
+                    <input id="badge-options-filter" type="search" oninput="filterBadgeOptions()" placeholder="Filter attributes..." class="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" style="padding-left: 18px">
                 </div>
                 <div class="max-h-72 overflow-auto">
                     <div id="badge-options-list" class="pb-1"></div>

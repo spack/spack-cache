@@ -1,10 +1,12 @@
 let basePath = undefined;
 let packageData = undefined;
 let specData = undefined;
+let packageAttrValueSpecs = undefined;
 let packageName = undefined;
 let currentSpecs = undefined;
 let sidebarMinWidth = 250;
 let sidebarMaxWidth = 800;
+let sidebarFilters = {}
 let badgeOptions = {};
 let badgeFilters = {
     version: [],
@@ -71,6 +73,10 @@ function applyRoute(params) {
             }
         }
     }
+    if (packageData && specData && !packageAttrValueSpecs) {
+        computePackageAttrValueSpecs();
+        populateFiltersMenu();
+    }
     applySidebarHighlights();
     showContent(contentToShow);
 }
@@ -118,6 +124,28 @@ function matchString(match, string) {
     }
 }
 
+function computePackageAttrValueSpecs() {
+    packageAttrValueSpecs = {};
+    for (const pName in packageData) {
+        packageAttrValueSpecs[pName] = {};
+        for (const specHash of packageData[pName].specs) {
+            for (const key in specData[specHash]) {
+                if (!packageAttrValueSpecs[pName][key]) packageAttrValueSpecs[pName][key] = {};
+                let values = specData[specHash][key];
+                if (Array.isArray(values)) {
+                    values = values.map((v) => v.label ? v.label : v)
+                } else {
+                    values = [values]
+                }
+                for (val of values) {
+                    if (!packageAttrValueSpecs[pName][key][val]) packageAttrValueSpecs[pName][key][val] = new Set();
+                    packageAttrValueSpecs[pName][key][val].add(specHash);
+                }
+            }
+        }
+    }
+}
+
 function copyCommand(e) {
     const target = e.currentTarget;
     const codeContent = $(target).parent().parent().find('code').text();
@@ -146,6 +174,72 @@ function setupHomepage() {
     const orderedReleases = releases.filter((r) => r[0] === 'v').toSorted((a, b) => releaseNameToDate(a) - releaseNameToDate(b)).reverse();
     if (orderedReleases.length) {
         setTextByClassName('recent-release-name', orderedReleases[0]);
+    }
+}
+
+function getUniqueAttributeValues(specs) {
+    if (!specs) return;
+    const uniqueValues = {};
+    for (const column in badgeFilters) {
+        uniqueValues[column] = [];
+        const pluralColumn = pluralColumns[column] || column;
+        for (const spec of specs) {
+            const value = spec[pluralColumn];
+            if (Array.isArray(value)) {
+                for (const v of value) {
+                    if (!uniqueValues[column].includes(v)) {
+                        uniqueValues[column].push(v)
+                    }
+                }
+            } else {
+                if (!uniqueValues[column].includes(value)) {
+                    uniqueValues[column].push(value)
+                }
+            }
+        }
+    }
+    return uniqueValues;
+}
+
+function closeAllMenus() {
+    setColumnsMenuVisible(false);
+    setBadgeOptionsMenuVisible(false);
+    setFiltersMenuVisible(false);
+}
+
+function toggleChevron(container, open = undefined) {
+    const currentChevronQuery = $(container).find('svg.lucide-chevron');
+    const currentChevron = currentChevronQuery.get(0);
+    const parent = currentChevronQuery.parent().get(0);
+    if (open === undefined) {
+        open = currentChevron.classList.contains('lucide-chevron-right');
+    }
+    if (open) {
+        const downChevronIcon = document.getElementsByClassName('lucide-chevron-down')[0].cloneNode(true);
+        parent.replaceChild(downChevronIcon, currentChevron);
+        return true;
+    } else {
+        const rightChevronIcon = document.getElementsByClassName('lucide-chevron-right')[0].cloneNode(true);
+        parent.replaceChild(rightChevronIcon, currentChevron);
+        return false;
+    }
+}
+
+function toggleCheckbox(container, checked = undefined) {
+    const currentCheckboxQuery = $(container).find('span.checkbox');
+    const currentCheckbox = currentCheckboxQuery.get(0);
+    const parent = currentCheckboxQuery.parent().get(0);
+    if (checked === undefined) {
+        checked = currentCheckbox.classList.contains('checkbox-unchecked');
+    }
+    if (checked) {
+        const checkedIcon = document.getElementsByClassName('checkbox-checked')[0].cloneNode(true);
+        parent.replaceChild(checkedIcon, currentCheckbox);
+        return true;
+    } else {
+        const uncheckedIcon = document.getElementsByClassName('checkbox-unchecked')[0].cloneNode(true);
+        parent.replaceChild(uncheckedIcon, currentCheckbox);
+        return false;
     }
 }
 
@@ -210,10 +304,30 @@ function filterSidebar() {
     let resultsFound = false;
     const search = document.getElementById('sidebar-search');
     let filterString = search.value;
-    const emphasisString = filterString.replace('$', '')
+    const emphasisString = filterString.replace('$', '');
     Array.from(document.getElementsByClassName('sidebar-item')).forEach((item) => {
-        const match = matchString(filterString, item.package);
-        const label = item.children[0];
+        let match = matchString(filterString, item.package);
+        const [label, specCount] = item.children;
+        const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
+        if (totalFilters && packageAttrValueSpecs && packageAttrValueSpecs[item.package]) {
+            const attrValueSpecs = packageAttrValueSpecs[item.package];
+            let matchingSpecs = undefined;
+            let matchComplete = true;
+            for (const key in sidebarFilters) {
+                const valueSpecs = attrValueSpecs[key] || attrValueSpecs[key + 's'];
+                for (value of sidebarFilters[key]) {
+                    matchComplete &= !!valueSpecs[value];
+                    if (valueSpecs[value]) {
+                        if (!matchingSpecs) matchingSpecs = new Set(valueSpecs[value]);
+                        else matchingSpecs = matchingSpecs.intersection(valueSpecs[value]);
+                    }
+                }
+            }
+            match &= matchComplete && matchingSpecs && matchingSpecs.size > 0;
+            specCount.innerHTML = matchComplete && matchingSpecs ? matchingSpecs.size : 0
+        } else {
+            specCount.innerHTML = packageData[item.package].specs.length;
+        }
         if (match) {
             resultsFound = true;
             item.classList.remove('hidden');
@@ -226,7 +340,7 @@ function filterSidebar() {
     Array.from(document.getElementsByClassName('sidebar-group')).forEach((group) => {
         const childContainer = $(group).find('ul').get(0);
         const childCounter = $(group).find('.child-counter').get(0);
-        const matchedChildren = Array.from(childContainer.children).filter((child) => matchString(filterString, child.package));
+        const matchedChildren = Array.from(childContainer.children).filter((child) => !child.classList.contains('hidden'));
         childCounter.innerHTML = matchedChildren.length.toLocaleString();
         if (matchedChildren.length && (showDevs || !group.release.includes('develop'))) {
             group.classList.remove('hidden');
@@ -294,8 +408,14 @@ function createSidebarItem(pkg, releaseName) {
     item.appendChild(numSpecsLabel);
     item.onclick = (e) => {
         e.stopPropagation();
+        closeAllMenus();
         let newUrl = basePath + `?package=${pkg.uid}`;
         if (releaseName) newUrl += `&release=${releaseName}`;
+        for (const key in sidebarFilters) {
+            for (const value of sidebarFilters[key]) {
+                newUrl += `&${key}=${value}`;
+            }
+        }
         window.history.pushState(null, '', newUrl);
     }
     item.package = pkg.uid;
@@ -339,16 +459,10 @@ function createSidebarGroup(groupName) {
 }
 
 function setSidebarGroupOpen(group, open) {
-    const currentChevronQuery = $(group).find('svg.lucide-chevron');
-    const currentChevron = currentChevronQuery.get(0);
-    const parent = currentChevronQuery.parent().get(0);
+    open = toggleChevron(group, open);
     if (open) {
-        const downChevronIcon = document.getElementsByClassName('lucide-chevron-down')[0].cloneNode(true);
-        parent.replaceChild(downChevronIcon, currentChevron);
         group.classList.remove('collapsed');
     } else {
-        const rightChevronIcon = document.getElementsByClassName('lucide-chevron-right')[0].cloneNode(true);
-        parent.replaceChild(rightChevronIcon, currentChevron);
         group.classList.add('collapsed');
     }
 }
@@ -365,6 +479,171 @@ function setAllSidebarGroupsOpen(open) {
 function toggleShowDevs() {
     showDevs = !showDevs;
     filterSidebar();
+}
+
+function setFiltersMenuVisible(visible) {
+    const menu = document.getElementById('filters-menu');
+    if (visible) {
+        menu.classList.remove('hidden');
+    } else {
+        menu.classList.add('hidden');
+    }
+}
+
+function setFiltersMenuGroupOpen(group, open = undefined) {
+    open = toggleChevron(group, open);
+    const items = $(group).find('.group-items').get(0);
+    if (open) {
+        Array.from(document.getElementsByClassName('filter-group')).filter(
+            (g) => g.key !== group.key
+        ).forEach((g) => setFiltersMenuGroupOpen(g, false));
+        items.classList.remove('hidden');
+    } else {
+        items.classList.add('hidden');
+    }
+}
+
+function searchFilterGroup(e, groupList) {
+    for (const child of groupList.children) {
+        if (child.searchContent.toLowerCase().includes(e.target.value.toLowerCase())) {
+            child.classList.remove('hidden');
+        } else {
+            child.classList.add('hidden');
+        }
+    }
+}
+
+function toggleSidebarFilter(key, value, button) {
+    const checked = toggleCheckbox(button);
+    const filtersList = document.getElementById('filters-list');
+    const filterId = `${key}-${value}`.replaceAll('.', '-').replaceAll('+', '-').replaceAll('~', '-').replaceAll('_', '-');
+    if (!sidebarFilters[key]) sidebarFilters[key] = [];
+    if (checked) {
+        button.classList.add('checked');
+        sidebarFilters[key].push(value);
+        const filterChip = document.createElement('span');
+        filterChip.id = filterId;
+        filterChip.classList.add('inline-flex', 'max-w-full', 'items-center', 'gap-1', 'rounded', 'border', 'border-primary/30', 'bg-primary/10', 'px-1.5', 'py-0.5', 'text-[10px]', 'text-foreground');
+        const filterChipKey = document.createElement('span');
+        filterChipKey.classList.add('uppercase', 'tracking-wider', 'text-muted-foreground');
+        filterChipKey.innerHTML = key;
+        filterChip.appendChild(filterChipKey);
+        const filterChipValue = document.createElement('span');
+        filterChipValue.classList.add('truncate', 'font-mono');
+        filterChipValue.innerHTML = value;
+        filterChip.appendChild(filterChipValue);
+        const filterChipCloseButton = document.createElement('button');
+        filterChipCloseButton.classList.add('ml-0.5', 'rounded');
+        filterChipCloseButton.innerHTML = 'X';
+        filterChip.appendChild(filterChipCloseButton);
+        filterChip.onclick = () => {
+            toggleSidebarFilter(key, value, button)
+        };
+        filterChip.title = 'Remove filter';
+        filtersList.appendChild(filterChip);
+    } else {
+        button.classList.remove('checked');
+        sidebarFilters[key] = sidebarFilters[key].filter((v) => v !== value);
+        const filterChip = $(filtersList).find(`#${filterId}`).get(0);
+        filtersList.removeChild(filterChip);
+    }
+    sidebarFiltersUpdated();
+}
+
+function clearAllSidebarFilters() {
+    sidebarFilters = {};
+    const menuContent = document.getElementById('filters-menu-content');
+    $(menuContent).find('button.checked').each((index, button) => { toggleCheckbox(button) });
+    const filtersList = document.getElementById('filters-list');
+    filtersList.replaceChildren(filtersList.children[0]);
+    sidebarFiltersUpdated();
+}
+
+function sidebarFiltersUpdated() {
+    const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
+    const menuButton = document.getElementById('filters-menu-button');
+    const filtersList = document.getElementById('filters-list');
+    const filtersCount = document.getElementById('filters-count');
+    filtersCount.innerHTML = totalFilters;
+    if (totalFilters > 0) {
+        menuButton.classList.remove('border-input', 'bg-background', 'text-muted-foreground');
+        menuButton.classList.add('border-primary/50', 'bg-primary/5', 'text-foreground');
+        filtersList.classList.remove('hidden');
+        filtersCount.classList.remove('hidden');
+    } else {
+        menuButton.classList.add('border-input', 'bg-background', 'text-muted-foreground');
+        menuButton.classList.remove('border-primary/50', 'bg-primary/5', 'text-foreground');
+        filtersList.classList.add('hidden');
+        filtersCount.classList.add('hidden');
+    }
+    filterSidebar();
+}
+
+function populateFiltersMenu() {
+    const uniqueValues = getUniqueAttributeValues(Object.values(specData));
+    const content = document.getElementById('filters-menu-content');
+    content.innerHTML = '';
+    for (const key in uniqueValues) {
+        // Exclude release from filters menu; "by release" tab should be used instead
+        if (key !== 'release') {
+            const keyGroup = document.createElement('div');
+            keyGroup.classList.add('rounded', 'filter-group');
+            keyGroup.key = key;
+            const keyButton = document.createElement('button');
+            keyButton.classList.add('flex', 'w-full', 'items-center', 'gap-1.5', 'rounded', 'px-2', 'py-1.5', 'text-left', 'text-sm', 'hover:bg-accent');
+            const rightChevronIcon = document.getElementsByClassName('lucide-chevron-right')[0].cloneNode(true);
+            keyButton.appendChild(rightChevronIcon);
+            const keyLabel = document.createElement('span');
+            keyLabel.classList.add('flex-1');
+            keyLabel.innerHTML = key[0].toLocaleUpperCase() + key.slice(1);
+            keyButton.appendChild(keyLabel);
+            const countLabel = document.createElement('span');
+            countLabel.classList.add('text-[10px]', 'text-muted-foreground', 'tabular-nums');
+            countLabel.innerHTML = uniqueValues[key].length;
+            keyButton.appendChild(countLabel);
+            keyGroup.appendChild(keyButton);
+            keyButton.onclick = () => setFiltersMenuGroupOpen(keyGroup);
+            const groupItems = document.createElement('div');
+            groupItems.classList.add('hidden', 'group-items', 'mb-1', 'border-l', 'border-border', 'pl-1');
+            groupItems.style.marginLeft = '14px';
+            const groupItemsList = document.createElement('ul');
+            groupItemsList.classList.add('overflow-y-auto');
+            groupItemsList.style.maxHeight = '250px';
+            if (uniqueValues[key].length > 10) {
+                // Only add a search box if more than 10 values exist
+                const searchContainer = document.createElement('div');
+                searchContainer.classList.add('relative', 'my-1', 'mr-1');
+                const searchIcon = document.getElementsByClassName('lucide-search-mini')[0].cloneNode(true);
+                searchContainer.appendChild(searchIcon);
+                const searchInput = document.createElement('input');
+                searchInput.type = 'search';
+                searchInput.placeholder = 'Search ' + key;
+                searchInput.classList.add('w-full', 'rounded', 'border', 'border-input', 'bg-background', 'py-1', 'text-xs', 'outline-none', 'focus:ring-1', 'focus:ring-ring');
+                searchInput.style.paddingLeft = '24px';
+                searchInput.oninput = (e) => searchFilterGroup(e, groupItemsList);
+                searchContainer.appendChild(searchInput);
+                groupItems.appendChild(searchContainer);
+            }
+            for (const value of uniqueValues[key].toSorted()) {
+                const item = document.createElement('li');
+                const itemButton = document.createElement('button');
+                itemButton.classList.add('flex', 'w-full', 'items-center', 'gap-2', 'rounded', 'px-1.5', 'py-1', 'text-left', 'text-xs', 'hover:bg-accent');
+                itemButton.onclick = () => toggleSidebarFilter(key, value, itemButton);
+                const itemCheckbox = document.getElementsByClassName('checkbox-unchecked')[0].cloneNode(true);
+                itemButton.appendChild(itemCheckbox);
+                const itemLabel = document.createElement('span');
+                itemLabel.classList.add('truncate', 'font-mono');
+                itemLabel.innerHTML = value;
+                itemButton.appendChild(itemLabel);
+                item.appendChild(itemButton);
+                item.searchContent = value;
+                groupItemsList.appendChild(item);
+            }
+            groupItems.appendChild(groupItemsList);
+            keyGroup.appendChild(groupItems)
+            content.appendChild(keyGroup);
+        }
+    }
 }
 
 // Install Dialog
@@ -392,16 +671,10 @@ function toggleInstallDialogShown(hash) {
 function toggleInstallDialogExpandedSection() {
     const expansionButton = document.getElementById('install-dialog-expansion-button');
     const expansionContent = document.getElementById('install-dialog-expansion-content');
-    const currentChevronQuery = $(expansionButton).find('svg.lucide-chevron');
-    const currentChevron = currentChevronQuery.get(0);
-    const parent = currentChevronQuery.parent().get(0);
-    if (expansionContent.classList.contains('hidden')) {
-        const downChevronIcon = document.getElementsByClassName('lucide-chevron-down')[0].cloneNode(true);
-        parent.replaceChild(downChevronIcon, currentChevron);
+    const open = toggleChevron(expansionButton);
+    if (open) {
         expansionContent.classList.remove('hidden');
     } else {
-        const rightChevronIcon = document.getElementsByClassName('lucide-chevron-right')[0].cloneNode(true);
-        parent.replaceChild(rightChevronIcon, currentChevron);
         expansionContent.classList.add('hidden');
     }
 }
@@ -453,25 +726,7 @@ function createFilterBadge(key, value, remove) {
 }
 
 function updateBadgeOptions() {
-    badgeOptions = {};
-    for (const column in badgeFilters) {
-        badgeOptions[column] = [];
-        const pluralColumn = pluralColumns[column] || column;
-        for (const spec of currentSpecs) {
-            const value = spec[pluralColumn];
-            if (Array.isArray(value)) {
-                for (const v of value) {
-                    if (!badgeOptions[column].includes(v)) {
-                        badgeOptions[column].push(v)
-                    }
-                }
-            } else {
-                if (!badgeOptions[column].includes(value)) {
-                    badgeOptions[column].push(value)
-                }
-            }
-        }
-    }
+    badgeOptions = getUniqueAttributeValues(currentSpecs);
     const container = document.getElementById('badge-options-list');
     container.innerHTML = '';
     for (const key in badgeOptions) {

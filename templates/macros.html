@@ -14,7 +14,7 @@
 {% endmacro %}
 
 {% macro mini_search_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search h-3.5 w-3.5 text-muted-foreground" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search lucide-search-mini absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true">
     <path d="m21 21-4.34-4.34"></path>
     <circle cx="11" cy="11" r="8"></circle>
 </svg>
@@ -139,4 +139,30 @@
     <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143"></path>
     <path d="m2 2 20 20"></path>
 </svg>
+{% endmacro %}
+
+{% macro filters_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal h-3.5 w-3.5" aria-hidden="true">
+    <path d="M10 5H3"></path>
+    <path d="M12 19H3"></path>
+    <path d="M14 3v4"></path>
+    <path d="M16 17v4"></path>
+    <path d="M21 12h-9"></path>
+    <path d="M21 19h-5"></path>
+    <path d="M21 5h-7"></path>
+    <path d="M8 10v4"></path>
+    <path d="M8 12H3"></path>
+</svg>
+{% endmacro %}
+
+{% macro box_checked() %}
+<span class="checkbox checkbox-checked grid h-3.5 w-3.5 shrink-0 place-content-center rounded border border-primary bg-primary text-primary-foreground">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-2.5 w-2.5" aria-hidden="true">
+    <path d="M20 6 9 17l-5-5"></path>
+</svg>
+</span>
+{% endmacro %}
+
+{% macro box_unchecked() %}
+<span class="checkbox checkbox-unchecked grid h-3.5 w-3.5 shrink-0 place-content-center rounded border border-input bg-background"></span>
 {% endmacro %}
