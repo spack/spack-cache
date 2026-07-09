@@ -120,26 +120,6 @@ def get_data(release, stack, package):
                                 variants.append(f'{key}={v}')
                         else:
                             variants.append(f'{key}={value}')
-                    dependencies = []
-                    for dep in spec.get('dependencies', []):
-                        dep_string = ''
-                        link = None
-                        # only include dependencies where 'link' or 'run' in deptypes
-                        deptypes = dep['parameters']['deptypes']
-                        if not ('link' in deptypes or 'run' in deptypes):
-                            continue
-                        virtuals = dep['parameters']['virtuals']
-                        if len(virtuals):
-                            dep_string += f'%{",".join(virtuals)}='
-                        dep_string += dep['name']
-                        if dep['hash'] in installs:
-                            version = installs[dep['hash']]['spec']['version']
-                            dep_string += f'@{version}'
-                            link = '/package/' + dep['name']
-                        dependencies.append(dict(
-                            label=dep_string,
-                            link=link,
-                        ))
                     specs[spec_hash] = dict(
                         hash=spec_hash,
                         version=spec['version'],
@@ -147,7 +127,7 @@ def get_data(release, stack, package):
                         platform=arch['platform'],
                         os=arch['platform_os'],
                         target=target,
-                        dependencies=dependencies,
+                        dependencies=spec.get('dependencies', []),
                         stacks=set(),
                         releases=set(),
                     )
