@@ -192,8 +192,8 @@ input:checked+.slider:before {
 
 #filters-menu {
   position: absolute;
-  width: 250px;
-  right: -250px;
+  width: 350px;
+  right: -350px;
   top: 60px;
 }
 
