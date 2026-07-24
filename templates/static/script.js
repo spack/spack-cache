@@ -554,7 +554,10 @@ function toggleSidebarFilter(key, value, button) {
 function clearAllSidebarFilters() {
     sidebarFilters = {};
     const menuContent = document.getElementById('filters-menu-content');
-    $(menuContent).find('button.checked').each((index, button) => { toggleCheckbox(button) });
+    $(menuContent).find('button.checked').each((index, button) => { 
+        button.classList.remove('checked');
+        toggleCheckbox(button);
+    });
     const filtersList = document.getElementById('filters-list');
     filtersList.replaceChildren(filtersList.children[0]);
     sidebarFiltersUpdated();
