@@ -409,14 +409,15 @@ function createSidebarItem(pkg, releaseName) {
     item.onclick = (e) => {
         e.stopPropagation();
         closeAllMenus();
-        let newUrl = basePath + `?package=${pkg.uid}`;
-        if (releaseName) newUrl += `&release=${releaseName}`;
+        const newUrl = new URL(basePath, window.location.origin);
+        newUrl.searchParams.append('package', pkg.uid);
+        if (releaseName) newUrl.searchParams.append('release', releaseName);
         for (const key in sidebarFilters) {
             for (const value of sidebarFilters[key]) {
-                newUrl += `&${key}=${value}`;
+                newUrl.searchParams.append(key, value);
             }
         }
-        window.history.pushState(null, '', newUrl);
+        window.history.pushState(null, '', newUrl.toString());
     }
     item.package = pkg.uid;
     if (releaseName) item.release = releaseName;
