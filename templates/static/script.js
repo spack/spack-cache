@@ -316,14 +316,14 @@ function filterSidebar() {
             for (const key in sidebarFilters) {
                 const valueSpecs = attrValueSpecs[key] || attrValueSpecs[key + 's'];
                 for (value of sidebarFilters[key]) {
-                    matchComplete &= !!valueSpecs[value];
+                    matchComplete &&= !!valueSpecs[value];
                     if (valueSpecs[value]) {
                         if (!matchingSpecs) matchingSpecs = new Set(valueSpecs[value]);
                         else matchingSpecs = matchingSpecs.intersection(valueSpecs[value]);
                     }
                 }
             }
-            match &= matchComplete && matchingSpecs && matchingSpecs.size > 0;
+            match &&= matchComplete && matchingSpecs && matchingSpecs.size > 0;
             specCount.innerHTML = matchComplete && matchingSpecs ? matchingSpecs.size : 0
         } else {
             specCount.innerHTML = packageData[item.package].specs.length;
