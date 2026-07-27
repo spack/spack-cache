@@ -27,12 +27,12 @@
 </head>
 
 <body>
-    {% from 'macros.html' import menu_icon, search_icon, mini_search_icon, builds_icon, packages_icon, releases_icon, left_arrow_icon, right_chevron_icon, down_chevron_icon, tag_icon, copy_icon, copy_command_button, install_icon, close_icon, plus_icon, cols_icon, eye_icon, eye_off_icon %}
+    {% from 'macros.html' import menu_icon, search_icon, mini_search_icon, builds_icon, packages_icon, releases_icon, left_arrow_icon, right_chevron_icon, down_chevron_icon, tag_icon, copy_icon, copy_command_button, install_icon, close_icon, plus_icon, cols_icon, eye_icon, eye_off_icon, filters_icon, box_checked, box_unchecked %}
     {% include "sidebar.html" %}
     {% include "install_dialog.html" %}
 
     <!-- Main content -->
-    <div class="container" id="content-container" onclick="setColumnsMenuVisible(false); setBadgeOptionsMenuVisible(false)">
+    <div class="container" id="content-container" onclick="closeAllMenus()">
         <div id="loading-content" class="py-8 pb-24">
             <h1 style="width: 100%; text-align: center;">Loading...</h1>
         </div>
@@ -59,6 +59,8 @@
         {{ tag_icon() }}
         {{ eye_icon() }}
         {{ eye_off_icon() }}
+        {{ box_checked() }}
+        {{ box_unchecked() }}
     </div>
 </body>
 
