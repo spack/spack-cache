@@ -698,6 +698,7 @@ function toggleDepTreeDialogShown(hash) {
 }
 
 function createDepNode(dep, flat=false) {
+    if (!dep.hash) return;
     const spec = specData[dep.hash];
     const li = document.createElement('li');
     const hideBuildControl = $('#hide-build-control');
@@ -775,10 +776,12 @@ function createDepNode(dep, flat=false) {
 
 function flattenDepTree(deps, flat) {
     for (const dep of deps) {
-        if (!flat[dep.hash]) flat[dep.hash] = dep;
-        const spec = specData[dep.hash];
-        if (spec.dependencies.length) {
-            flat = flattenDepTree(spec.dependencies, flat);
+        if (dep.hash && !flat[dep.hash]) {
+            flat[dep.hash] = dep;
+            const spec = specData[dep.hash];
+            if (spec.dependencies.length) {
+                flat = flattenDepTree(spec.dependencies, flat);
+            }
         }
     }
     return flat;
