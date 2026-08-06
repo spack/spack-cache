@@ -700,6 +700,7 @@ function toggleDepTreeDialogShown(hash) {
 function createDepNode(dep, flat=false) {
     if (!dep.hash) return;
     const spec = specData[dep.hash];
+    if (!spec) return;
     const li = document.createElement('li');
     const hideBuildControl = $('#hide-build-control');
     if (dep.parameters.deptypes?.includes('build')) {
@@ -779,6 +780,7 @@ function flattenDepTree(deps, flat) {
         if (dep.hash && !flat[dep.hash]) {
             flat[dep.hash] = dep;
             const spec = specData[dep.hash];
+            if (!spec) continue; 
             if (spec.dependencies.length) {
                 flat = flattenDepTree(spec.dependencies, flat);
             }
