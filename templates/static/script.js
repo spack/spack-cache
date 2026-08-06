@@ -9,6 +9,7 @@ let sidebarMaxWidth = 800;
 let sidebarFilters = {}
 let badgeOptions = {};
 let badgeFilters = {
+    hash: [],
     version: [],
     variant: [],
     platform: [],
@@ -22,6 +23,7 @@ const pluralColumns = {
     release: 'releases',
     stack: 'stacks',
 }
+const shortHashLength = 7;
 const maxBadges = 3;
 let tableInitialized = false;
 let expandedCells = [];
@@ -181,19 +183,21 @@ function getUniqueAttributeValues(specs) {
     if (!specs) return;
     const uniqueValues = {};
     for (const column in badgeFilters) {
-        uniqueValues[column] = [];
-        const pluralColumn = pluralColumns[column] || column;
-        for (const spec of specs) {
-            const value = spec[pluralColumn];
-            if (Array.isArray(value)) {
-                for (const v of value) {
-                    if (!uniqueValues[column].includes(v)) {
-                        uniqueValues[column].push(v)
+        if (column !== 'hash') {
+            uniqueValues[column] = [];
+            const pluralColumn = pluralColumns[column] || column;
+            for (const spec of specs) {
+                const value = spec[pluralColumn];
+                if (Array.isArray(value)) {
+                    for (const v of value) {
+                        if (!uniqueValues[column].includes(v)) {
+                            uniqueValues[column].push(v)
+                        }
                     }
-                }
-            } else {
-                if (!uniqueValues[column].includes(value)) {
-                    uniqueValues[column].push(value)
+                } else {
+                    if (!uniqueValues[column].includes(value)) {
+                        uniqueValues[column].push(value)
+                    }
                 }
             }
         }
@@ -683,6 +687,198 @@ function toggleInstallDialogExpandedSection() {
     }
 }
 
+// Dependency Tree Dialog
+function toggleDepTreeDialogShown(hash) {
+    const dialog = document.getElementById('deptree-dialog');
+    if (dialog.classList.contains('hidden')) {
+        dialog.classList.remove('hidden');
+    } else {
+        dialog.classList.add('hidden');
+    }
+}
+
+function createDepNode(dep, flat=false) {
+    if (!dep.hash) return;
+    const spec = specData[dep.hash];
+    if (!spec) return;
+    const li = document.createElement('li');
+    const hideBuildControl = $('#hide-build-control');
+    if (dep.parameters.deptypes?.includes('build')) {
+        li.classList.add('build-dep');
+        if ($(hideBuildControl).find('input').get(0).checked) {
+            li.classList.add('hidden');
+        }
+    }
+    const title = document.createElement('div');
+    title.classList.add('group', 'flex', 'items-center', 'justify-between', 'gap-1', 'rounded', 'px-1', 'py-0.5', 'hover:bg-accent/40');
+    const titleLeft = document.createElement('div');
+    titleLeft.classList.add('group', 'flex', 'items-center')
+    title.appendChild(titleLeft);
+    const titleRight = document.createElement('div');
+    title.appendChild(titleRight);
+
+    const hashLabel = document.createElement('span');
+    hashLabel.classList.add('truncate', 'px-3', 'text-muted-foreground', 'font-mono');
+    hashLabel.innerHTML = dep.hash.slice(0, shortHashLength);
+    const titleLabel = document.createElement('span');
+    titleLabel.classList.add('truncate', 'font-mono');
+    titleLabel.innerHTML = `${dep.name}@${spec.version}`;
+    const openButton = document.createElement('a');
+    openButton.target = '_blank';
+    openButton.href = `/?package=${dep.name}&hash=${dep.hash}`;
+    openButton.onclick = (e) => e.stopPropagation();
+    const openIcon = document.getElementsByClassName('lucide-open')[0].cloneNode(true);
+    openButton.appendChild(openIcon);
+
+    const depTypeChips = document.createElement('div');
+    depTypeChips.classList.add('flex', 'gap-1');
+    for (depType of dep.parameters.deptypes) {
+        const chip = document.createElement('div');
+        chip.classList.add('inline-flex', 'items-center', 'gap-1', 'rounded-md', 'bg-muted', 'px-2', 'py-0.5', 'text-xs');
+        chip.innerHTML = depType;
+        depTypeChips.appendChild(chip);
+    }
+    titleRight.appendChild(depTypeChips);
+
+    if (!flat && spec.dependencies.length) {
+        const rightChevronIcon = document.getElementsByClassName('lucide-chevron-right')[0].cloneNode(true);
+        titleLeft.appendChild(rightChevronIcon);
+        titleLeft.appendChild(openButton);
+        titleLeft.appendChild(hashLabel);
+        titleLeft.appendChild(titleLabel);
+        li.appendChild(title);
+        const subdepGroup = document.createElement('ul');
+        subdepGroup.classList.add('collapsed', 'spec-y-0.5');
+        subdepGroup.style.paddingLeft = '12px';
+        li.appendChild(subdepGroup);
+        title.onclick = () => {
+            if (!subdepGroup.children.length) {
+                for (const subdep of spec.dependencies.toSorted((a, b) => a.name.localeCompare(b.name))) {
+                    const subdepNode = createDepNode(subdep);
+                    if (subdepNode) subdepGroup.appendChild(subdepNode);
+                }
+            }
+            const open = toggleChevron(title);
+            if (open) {
+                subdepGroup.classList.remove('collapsed');
+            } else {
+                subdepGroup.classList.add('collapsed');
+            }
+        }
+    } else {
+        const dotIcon = document.getElementsByClassName('lucide-dot')[0].cloneNode(true);
+        titleLeft.appendChild(dotIcon);
+        titleLeft.appendChild(openButton);
+        titleLeft.appendChild(hashLabel);
+        titleLeft.appendChild(titleLabel);
+        li.appendChild(title);
+    }
+    return li;
+}
+
+function flattenDepTree(deps, flat) {
+    for (const dep of deps) {
+        if (dep.hash && !flat[dep.hash]) {
+            flat[dep.hash] = dep;
+            const spec = specData[dep.hash];
+            if (!spec) continue; 
+            if (spec.dependencies.length) {
+                flat = flattenDepTree(spec.dependencies, flat);
+            }
+        }
+    }
+    return flat;
+}
+
+function createToggleControl(id, label, callback) {
+    const controlLabel = document.createElement('label');
+    controlLabel.id = id;
+    controlLabel.classList.add('flex', 'cursor-pointer', 'items-center', 'gap-2', 'text-xs', 'text-muted-foreground', 'py-2');
+    const controlSwitch = document.createElement('label');
+    controlSwitch.classList.add('switch');
+    const controlCheck = document.createElement('input');
+    controlCheck.type = 'checkbox';
+    controlCheck.onchange = () => {
+        callback(controlCheck.checked);
+    }
+    controlSwitch.appendChild(controlCheck);
+    const controlSlider = document.createElement('span');
+    controlSlider.classList.add('slider');
+    controlSwitch.appendChild(controlSlider);
+    controlLabel.appendChild(controlSwitch);
+    const controlText = document.createElement('span');
+    controlText.innerHTML = label;
+    controlLabel.appendChild(controlText);
+    return controlLabel;
+}
+
+function populateDepTreeDialog(spec, deps) {
+    const dialog = document.getElementById('deptree-dialog');
+    const tree = document.getElementById('deptree');
+    tree.innerHTML = '';
+    const mainTree = document.createElement('div');
+    const flatTree = document.createElement('div');
+    flatTree.classList.add('hidden');
+
+    const treeControls = document.createElement('div');
+    treeControls.classList.add('flex', 'items-center', 'justify-between');
+    const flattenControl = createToggleControl('flatten-control', 'Flatten & Deduplicate', (checked) => {
+        if (checked) {
+            mainTree.classList.add('hidden');
+            flatTree.classList.remove('hidden');
+        } else {
+            mainTree.classList.remove('hidden');
+            flatTree.classList.add('hidden');
+        }
+    });
+    treeControls.appendChild(flattenControl);
+    const hideBuildControl = createToggleControl('hide-build-control', 'Hide Build Deps', (checked) => {
+        const buildDepNodes = $(dialog).find('.build-dep');
+        if (checked) {
+            buildDepNodes.each((i, item) => item.classList.add('hidden'));
+        } else {
+            buildDepNodes.each((i, item) => item.classList.remove('hidden'));
+        }
+    })
+    treeControls.appendChild(hideBuildControl);
+    tree.appendChild(treeControls);
+
+    $(dialog).find('#curr-spec-version').html(spec.version);
+    $(dialog).find('#num-direct-deps').html(deps.length);
+    for (const dep of deps.toSorted((a, b) => a.name.localeCompare(b.name))) {
+        const depNode = createDepNode(dep);
+        if (depNode) mainTree.appendChild(depNode);
+    }
+    const flattened = flattenDepTree(deps, {});
+    $(dialog).find('#num-unique-transitive-deps').html(Object.keys(flattened).length);
+    for (const dep of Object.values(flattened)) {
+        const flatDepNode = createDepNode(dep, flat=true);
+        if (flatDepNode) flatTree.appendChild(flatDepNode);
+    }
+    tree.appendChild(mainTree);
+    tree.appendChild(flatTree);
+}
+
+function createDepTreeDialogButton(spec, deps) {
+    if (!deps.length) return noDiffMessage;
+    const button = document.createElement('button');
+    button.classList.add(
+        'inline-flex', 'items-center', 'gap-1.5', 'rounded-md', 'border', 'px-2', 'py-1',
+        'text-xs', 'transition-colors', 'border-border', 'bg-background', 'text-muted-foreground',
+        'hover:border-primary/40', 'hover:bg-primary/10', 'hover:text-primary',
+    );
+    const depsIcon = document.getElementsByClassName('lucide-git-branch')[0].cloneNode(true);
+    button.appendChild(depsIcon);
+    const depsCountLabel = document.createElement('span');
+    depsCountLabel.innerHTML = deps.length + (deps.length > 1 ? ' deps' : ' dep');
+    button.appendChild(depsCountLabel);
+    button.onclick = () => {
+        populateDepTreeDialog(spec, deps);
+        toggleDepTreeDialogShown();
+    };
+    return button;
+}
+
 // Specs Table
 function toggleDiffMode() {
     diffMode = !diffMode;
@@ -895,7 +1091,7 @@ function displayHash(hash) {
     hashButton.title = hash.toLowerCase();
     const hashLabel = document.createElement('span');
     hashLabel.classList.add('truncate');
-    hashLabel.innerHTML = hash.slice(0, 7);
+    hashLabel.innerHTML = hash.slice(0, shortHashLength);
     hashButton.appendChild(hashLabel);
     const copyIcon = document.getElementsByClassName('lucide-copy')[0].cloneNode(true);
     const checkIcon = document.getElementsByClassName('lucide-check')[0].cloneNode(true);
@@ -1035,7 +1231,7 @@ function setupDataTable() {
                 name: 'dependencies',
                 data: 'dependencies',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'dependency', data, true);
+                    return createDepTreeDialogButton(row, data);
                 },
             },
         ],

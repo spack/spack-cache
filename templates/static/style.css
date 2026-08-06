@@ -197,6 +197,13 @@ input:checked+.slider:before {
   top: 60px;
 }
 
+/* Dependency Tree Dialog */
+
+#deptree-dialog .collapsed {
+  display: none !important;
+}
+
+
 /* Tables */
 .table {
   text-indent: 0;

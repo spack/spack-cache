@@ -1,0 +1,26 @@
+<div id="deptree-dialog" onclick="toggleDepTreeDialogShown(undefined)" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+    <div onclick="event.stopPropagation()" class="w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-card shadow-2xl">
+        <div class="flex items-center justify-between border-b border-border px-5 py-3">
+            <div class="min-w-0">
+                <div class="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                    {{ deps_icon() }}
+                    Dependencies
+                </div>
+                <div class="mt-1 truncate font-mono text-sm font-semibold">
+                    <span class="package-name"></span> @ <span id="curr-spec-version"></span>
+                </div>
+                <div class="mt-0.5 text-xs text-muted-foreground">
+                    <span id="num-direct-deps"></span> direct
+                    {{ dot_icon() }}
+                    <span id="num-unique-transitive-deps"></span> unique transitive
+                </div>
+            </div>
+            <button onclick="toggleDepTreeDialogShown(undefined)" class="rounded p-1 text-muted-foreground hover:bg-muted">
+                {{ close_icon() }}
+            </button>
+        </div>
+        <div class="flex-1 overflow-auto px-3 py-3 text-sm">
+            <ul id="deptree" class="space-y-0.5 overflow-y-auto" style="max-height: 500px; padding-right: 10px"></ul>
+        </div>
+    </div>
+</div>

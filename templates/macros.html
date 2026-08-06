@@ -158,11 +158,33 @@
 {% macro box_checked() %}
 <span class="checkbox checkbox-checked grid h-3.5 w-3.5 shrink-0 place-content-center rounded border border-primary bg-primary text-primary-foreground">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-2.5 w-2.5" aria-hidden="true">
-    <path d="M20 6 9 17l-5-5"></path>
-</svg>
+        <path d="M20 6 9 17l-5-5"></path>
+    </svg>
 </span>
 {% endmacro %}
 
 {% macro box_unchecked() %}
 <span class="checkbox checkbox-unchecked grid h-3.5 w-3.5 shrink-0 place-content-center rounded border border-input bg-background"></span>
+{% endmacro %}
+
+{% macro deps_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-branch h-3 w-3" aria-hidden="true">
+    <path d="M15 6a9 9 0 0 0-9 9V3"></path>
+    <circle cx="18" cy="6" r="3"></circle>
+    <circle cx="6" cy="18" r="3"></circle>
+</svg>
+{% endmacro %}
+
+{% macro dot_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dot h-3 w-3" aria-hidden="true" style="display: inline">
+    <circle cx="12.1" cy="12.1" r="1"></circle>
+</svg>
+{% endmacro %}
+
+{% macro open_icon() %}
+<svg xmlns="http://www.w3.org" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-open h-3.5 w-3.5 ml-2" aria-hidden="true">
+  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+  <polyline points="15 3 21 3 21 9"></polyline>
+  <line x1="10" y1="14" x2="21" y2="3"></line>
+</svg>
 {% endmacro %}
