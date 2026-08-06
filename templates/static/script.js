@@ -342,11 +342,12 @@ function filterSidebar() {
         }
     })
     Array.from(document.getElementsByClassName('sidebar-group')).forEach((group) => {
-        const childContainer = $(group).find('ul').get(0);
-        const childCounter = $(group).find('.child-counter').get(0);
-        const matchedChildren = Array.from(childContainer.children).filter((child) => !child.classList.contains('hidden'));
-        childCounter.innerHTML = matchedChildren.length.toLocaleString();
-        if (matchedChildren.length && (showDevs || !group.release.includes('develop'))) {
+        const specCounts = $(group).find('ul').children().not('.hidden').find('.spec-counter').map(
+            (_, item) => parseInt($(item).text())
+        ).get()
+        const specSum = specCounts.reduce((acc, curr) => acc + curr, 0);
+        $(group).find('.child-counter').text(specSum);
+        if (specCounts.length && (showDevs || !group.release.includes('develop'))) {
             group.classList.remove('hidden');
             if (emphasisString.length > 0) group.classList.remove('collapsed');
         } else {
@@ -406,9 +407,8 @@ function createSidebarItem(pkg, releaseName) {
     nameLabel.innerHTML = pkg.uid;
     item.appendChild(nameLabel);
     const numSpecsLabel = document.createElement('span');
-    numSpecsLabel.classList.add('text-muted-foreground');
+    numSpecsLabel.classList.add('text-muted-foreground', 'spec-counter');
     numSpecsLabel.innerHTML = pkg.specs.length;
-    if (releaseName) numSpecsLabel.classList.add('hidden');
     item.appendChild(numSpecsLabel);
     item.onclick = (e) => {
         e.stopPropagation();
@@ -451,9 +451,9 @@ function createSidebarGroup(groupName) {
     groupNameLabel.classList.add('truncate', 'font-medium', 'text-sm');
     groupNameLabel.innerHTML = groupName;
     groupButton.appendChild(groupNameLabel);
-    const groupPackageCountLabel = document.createElement('span');
-    groupPackageCountLabel.classList.add('ml-auto', 'text-xs', 'text-muted-foreground', 'child-counter');
-    groupButton.appendChild(groupPackageCountLabel);
+    const groupSpecCountLabel = document.createElement('span');
+    groupSpecCountLabel.classList.add('ml-auto', 'text-xs', 'text-muted-foreground', 'child-counter');
+    groupButton.appendChild(groupSpecCountLabel);
     groupContainer.appendChild(groupButton);
     group.appendChild(groupContainer);
     const childrenContainer = document.createElement('ul');
