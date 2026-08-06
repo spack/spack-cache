@@ -754,7 +754,8 @@ function createDepNode(dep, flat=false) {
         title.onclick = () => {
             if (!subdepGroup.children.length) {
                 for (const subdep of spec.dependencies.toSorted((a, b) => a.name.localeCompare(b.name))) {
-                    subdepGroup.appendChild(createDepNode(subdep));
+                    const subdepNode = createDepNode(subdep);
+                    if (subdepNode) subdepGroup.appendChild(subdepNode);
                 }
             }
             const open = toggleChevron(title);
@@ -845,12 +846,14 @@ function populateDepTreeDialog(spec, deps) {
     $(dialog).find('#curr-spec-version').html(spec.version);
     $(dialog).find('#num-direct-deps').html(deps.length);
     for (const dep of deps.toSorted((a, b) => a.name.localeCompare(b.name))) {
-        mainTree.appendChild(createDepNode(dep));
+        const depNode = createDepNode(dep);
+        if (depNode) mainTree.appendChild(depNode);
     }
     const flattened = flattenDepTree(deps, {});
     $(dialog).find('#num-unique-transitive-deps').html(Object.keys(flattened).length);
     for (const dep of Object.values(flattened)) {
-        flatTree.appendChild(createDepNode(dep, flat=true));
+        const flatDepNode = createDepNode(dep, flat=true);
+        if (flatDepNode) flatTree.appendChild(flatDepNode);
     }
     tree.appendChild(mainTree);
     tree.appendChild(flatTree);
