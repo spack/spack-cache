@@ -100,7 +100,8 @@ def get_data(release, stack, package):
                         specs={},
                     )
                 packages[package_name]['releases'].add(release_name)
-                packages[package_name]['specs'][release_name] = set()
+                if release_name not in packages[package_name]['specs']:
+                    packages[package_name]['specs'][release_name] = set()
 
                 spec_hash = spec['hash']
                 packages[package_name]['specs'][release_name].add(spec_hash)
