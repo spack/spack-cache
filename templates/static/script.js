@@ -104,7 +104,8 @@ function showContent(content_id) {
 function setPackageName(name) {
     setTextByClassName('package-name', name)
     if (specData) {
-        currentSpecs = packageData[packageName].specs.map((hash) => specData[hash]);
+        const allSpecHashes = Object.values(packageData[name].specs).flat();
+        currentSpecs = allSpecHashes.map((hash) => specData[hash]);
         setTextByClassName('num-specs', currentSpecs.length.toLocaleString())
         updateBadgeOptions();
     }
@@ -130,7 +131,8 @@ function computePackageAttrValueSpecs() {
     packageAttrValueSpecs = {};
     for (const pName in packageData) {
         packageAttrValueSpecs[pName] = {};
-        for (const specHash of packageData[pName].specs) {
+        const allSpecHashes = Object.values(packageData[pName].specs).flat();
+        for (const specHash of allSpecHashes) {
             for (const key in specData[specHash]) {
                 if (!packageAttrValueSpecs[pName][key]) packageAttrValueSpecs[pName][key] = {};
                 let values = specData[specHash][key];
@@ -330,7 +332,12 @@ function filterSidebar() {
             match &&= matchComplete && matchingSpecs && matchingSpecs.size > 0;
             specCount.innerHTML = matchComplete && matchingSpecs ? matchingSpecs.size : 0
         } else {
-            specCount.innerHTML = packageData[item.package].specs.length;
+            if (item.release) {
+                specCount.innerHTML = packageData[item.package].specs[item.release].length;
+            } else {
+                const allSpecHashes = Object.values(packageData[item.package].specs).flat();
+                specCount.innerHTML = allSpecHashes.length;
+            }
         }
         if (match) {
             resultsFound = true;
@@ -408,7 +415,12 @@ function createSidebarItem(pkg, releaseName) {
     item.appendChild(nameLabel);
     const numSpecsLabel = document.createElement('span');
     numSpecsLabel.classList.add('text-muted-foreground', 'spec-counter');
-    numSpecsLabel.innerHTML = pkg.specs.length;
+    if (releaseName) {
+        numSpecsLabel.innerHTML = pkg.specs[releaseName].length;
+    } else {
+        const allSpecHashes = Object.values(pkg.specs).flat();
+        numSpecsLabel.innerHTML = allSpecHashes.length;
+    }
     item.appendChild(numSpecsLabel);
     item.onclick = (e) => {
         e.stopPropagation();
