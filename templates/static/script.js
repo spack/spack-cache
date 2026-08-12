@@ -104,7 +104,8 @@ function showContent(content_id) {
 function setPackageName(name) {
     setTextByClassName('package-name', name)
     if (specData) {
-        currentSpecs = packageData[packageName].specs.map((hash) => specData[hash]);
+        const allSpecHashes = Object.values(packageData[name].specs).flat();
+        currentSpecs = allSpecHashes.map((hash) => specData[hash]);
         setTextByClassName('num-specs', currentSpecs.length.toLocaleString())
         updateBadgeOptions();
     }
@@ -130,7 +131,8 @@ function computePackageAttrValueSpecs() {
     packageAttrValueSpecs = {};
     for (const pName in packageData) {
         packageAttrValueSpecs[pName] = {};
-        for (const specHash of packageData[pName].specs) {
+        const allSpecHashes = Object.values(packageData[pName].specs).flat();
+        for (const specHash of allSpecHashes) {
             for (const key in specData[specHash]) {
                 if (!packageAttrValueSpecs[pName][key]) packageAttrValueSpecs[pName][key] = {};
                 let values = specData[specHash][key];
@@ -330,7 +332,12 @@ function filterSidebar() {
             match &&= matchComplete && matchingSpecs && matchingSpecs.size > 0;
             specCount.innerHTML = matchComplete && matchingSpecs ? matchingSpecs.size : 0
         } else {
-            specCount.innerHTML = packageData[item.package].specs.length;
+            if (item.release) {
+                specCount.innerHTML = packageData[item.package].specs[item.release].length;
+            } else {
+                const allSpecHashes = Object.values(packageData[item.package].specs).flat();
+                specCount.innerHTML = allSpecHashes.length;
+            }
         }
         if (match) {
             resultsFound = true;
@@ -342,11 +349,12 @@ function filterSidebar() {
         }
     })
     Array.from(document.getElementsByClassName('sidebar-group')).forEach((group) => {
-        const childContainer = $(group).find('ul').get(0);
-        const childCounter = $(group).find('.child-counter').get(0);
-        const matchedChildren = Array.from(childContainer.children).filter((child) => !child.classList.contains('hidden'));
-        childCounter.innerHTML = matchedChildren.length.toLocaleString();
-        if (matchedChildren.length && (showDevs || !group.release.includes('develop'))) {
+        const specCounts = $(group).find('ul').children().not('.hidden').find('.spec-counter').map(
+            (_, item) => parseInt($(item).text())
+        ).get()
+        const specSum = specCounts.reduce((acc, curr) => acc + curr, 0);
+        $(group).find('.child-counter').text(specSum);
+        if (specCounts.length && (showDevs || !group.release.includes('develop'))) {
             group.classList.remove('hidden');
             if (emphasisString.length > 0) group.classList.remove('collapsed');
         } else {
@@ -406,9 +414,13 @@ function createSidebarItem(pkg, releaseName) {
     nameLabel.innerHTML = pkg.uid;
     item.appendChild(nameLabel);
     const numSpecsLabel = document.createElement('span');
-    numSpecsLabel.classList.add('text-muted-foreground');
-    numSpecsLabel.innerHTML = pkg.specs.length;
-    if (releaseName) numSpecsLabel.classList.add('hidden');
+    numSpecsLabel.classList.add('text-muted-foreground', 'spec-counter');
+    if (releaseName) {
+        numSpecsLabel.innerHTML = pkg.specs[releaseName].length;
+    } else {
+        const allSpecHashes = Object.values(pkg.specs).flat();
+        numSpecsLabel.innerHTML = allSpecHashes.length;
+    }
     item.appendChild(numSpecsLabel);
     item.onclick = (e) => {
         e.stopPropagation();
@@ -451,9 +463,9 @@ function createSidebarGroup(groupName) {
     groupNameLabel.classList.add('truncate', 'font-medium', 'text-sm');
     groupNameLabel.innerHTML = groupName;
     groupButton.appendChild(groupNameLabel);
-    const groupPackageCountLabel = document.createElement('span');
-    groupPackageCountLabel.classList.add('ml-auto', 'text-xs', 'text-muted-foreground', 'child-counter');
-    groupButton.appendChild(groupPackageCountLabel);
+    const groupSpecCountLabel = document.createElement('span');
+    groupSpecCountLabel.classList.add('ml-auto', 'text-xs', 'text-muted-foreground', 'child-counter');
+    groupButton.appendChild(groupSpecCountLabel);
     groupContainer.appendChild(groupButton);
     group.appendChild(groupContainer);
     const childrenContainer = document.createElement('ul');

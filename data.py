@@ -97,12 +97,14 @@ def get_data(release, stack, package):
                         uid=package_name,
                         url=f'https://packages.spack.io/package.html?name={package_name}',
                         releases=set(),
-                        specs=set(),
+                        specs={},
                     )
                 packages[package_name]['releases'].add(release_name)
+                if release_name not in packages[package_name]['specs']:
+                    packages[package_name]['specs'][release_name] = set()
 
                 spec_hash = spec['hash']
-                packages[package_name]['specs'].add(spec_hash)
+                packages[package_name]['specs'][release_name].add(spec_hash)
                 if spec_hash not in specs:
                     arch = spec['arch']
                     target = arch['target']
