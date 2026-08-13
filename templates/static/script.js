@@ -187,12 +187,12 @@ function toggleCheckbox(container, checked = undefined) {
     }
 }
 
-function debounce(func, timeout = 300){
-  let timer;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => { func.apply(this, args); }, timeout);
-  };
+function debounce(func, timeout = 300) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
 }
 
 // Sidebar
@@ -365,9 +365,9 @@ function createSidebarItem(pkg, releaseName) {
     }).attr({
         package: pkg.uid,
         release: releaseName,
-    }).append($('<code>', {text: pkg.uid})).append(
+    }).append($('<code>', { text: pkg.uid })).append(
         $('<span>', {
-            'class': 'text-muted-foreground spec-counter', 
+            'class': 'text-muted-foreground spec-counter',
             text: releaseName ? pkg.specs[releaseName].length : getAllSpecHashesForPackage(pkg.uid).length,
         })
     );
@@ -378,22 +378,22 @@ function createSidebarGroup(groupName) {
     const downChevronIcon = $('.lucide-chevron-down').first().clone();
     const tagIcon = $('.lucide-tag').first().clone();
     $(tagIcon).removeClass('h-5 w-5').addClass('h-3.5 w-3.5 text-primary');
-    
-    const group = $('<li>', {'class': 'sidebar-group'}).attr({
+
+    const group = $('<li>', { 'class': 'sidebar-group' }).attr({
         release: groupName
     })
-    const groupTitle = $('<div>', {'class': 'flex items-center'}).append(
+    const groupTitle = $('<div>', { 'class': 'flex items-center' }).append(
         $('<button>', {
             'class': 'flex flex-1 items-center gap-1 rounded px-1.5 py-1.5 text-left hover:bg-accent hover:text-accent-foreground',
             click: () => { toggleSidebarGroup(group) },
         }).append(downChevronIcon).append(tagIcon).append(
-            $('<span>', {'class': 'truncate font-medium text-sm', text: groupName})
+            $('<span>', { 'class': 'truncate font-medium text-sm', text: groupName })
         ).append(
-            $('<span>', {'class': 'ml-auto text-xs text-muted-foreground child-counter'})
+            $('<span>', { 'class': 'ml-auto text-xs text-muted-foreground child-counter' })
         )
     )
     group.append(groupTitle).append(
-        $('<ul>', {'class': 'nested border-l border-border pl-1'})
+        $('<ul>', { 'class': 'nested border-l border-border pl-1' })
     );
     return group;
 }
@@ -503,33 +503,33 @@ function populateFiltersMenu() {
     for (const key in uniqueValues) {
         // Exclude release from filters menu; "by release" tab should be used instead
         if (key !== 'release') {
-            const keyGroup = $('<div>', {'class': 'rounded filter-group', key}).append(
+            const keyGroup = $('<div>', { 'class': 'rounded filter-group', key }).append(
                 $('<button>', {
                     'class': 'flex w-full items-center gap-1.5 rounded px-2 py-1.5 text-left text-sm hover:bg-accent',
                     click: () => setFiltersMenuGroupOpen(keyGroup),
                 }).append(
                     $('.lucide-chevron-right').first().clone()
                 ).append(
-                    $('<span>', {'class': 'flex-1', text: key[0].toLocaleUpperCase() + key.slice(1)})
+                    $('<span>', { 'class': 'flex-1', text: key[0].toLocaleUpperCase() + key.slice(1) })
                 ).append(
-                    $('<span>', {'class': 'text-[10px] text-muted-foreground tabular-nums', text: uniqueValues[key].length})
+                    $('<span>', { 'class': 'text-[10px] text-muted-foreground tabular-nums', text: uniqueValues[key].length })
                 )
             );
             const groupItems = $('<div>', {
                 'class': 'hidden group-items mb-1 border-l border-border pl-1',
-                css: {'margin-left': '14px'},
+                css: { 'margin-left': '14px' },
             });
-            const groupItemsList = $('<ul>', {'class': 'overflow-y-auto', css: {'max-height': '250px'}});
+            const groupItemsList = $('<ul>', { 'class': 'overflow-y-auto', css: { 'max-height': '250px' } });
             if (uniqueValues[key].length > 10) {
                 // Only add a search box if more than 10 values exist
                 groupItems.append(
-                    $('<div>', {'class': 'relative my-1 mr-1'}).append(
+                    $('<div>', { 'class': 'relative my-1 mr-1' }).append(
                         $('.lucide-search-mini').first().clone()
                     ).append(
                         $('<input>', {
                             'class': 'w-full rounded border border-input bg-background py-1 text-xs outline-none focus:ring-1 focus:ring-ring',
-                            css: {'padding-left': '24px'},
-                            type: 'search', 
+                            css: { 'padding-left': '24px' },
+                            type: 'search',
                             placeholder: 'Search ' + key,
                         }).on('input', (e) => searchFilterGroup(e, groupItemsList))
                     )
@@ -541,10 +541,10 @@ function populateFiltersMenu() {
                 }).append(
                     $('.checkbox-unchecked').first().clone()
                 ).append(
-                    $('<span>', {'class': 'truncate font-mono', text: value})
+                    $('<span>', { 'class': 'truncate font-mono', text: value })
                 )
                 itemButton.on('click', () => toggleSidebarFilter(key, value, itemButton));
-                const item = $('<li>').attr({searchContent: value}).append(itemButton);
+                const item = $('<li>').attr({ searchContent: value }).append(itemButton);
                 groupItemsList.append(item);
             }
             groupItems.append(groupItemsList);
@@ -593,22 +593,22 @@ function createDepNode(dep, flat = false) {
     if (!spec) return;
     const isBuild = dep.parameters.deptypes?.includes('build');
     const isHidden = $('#hide-build-control').find('input').prop('checked');
-    const li = $('<li>', {'class': isBuild ? (isHidden ? 'hidden build-dep' : 'build-dep') : ''});
-    const title = $('<div>', {'class': 'group flex items-center justify-between gap-1 rounded px-1 py-0.5 hover:bg-accent/40'})
-    const titleLeft = $('<div>', {'class': 'group flex items-center'});
+    const li = $('<li>', { 'class': isBuild ? (isHidden ? 'hidden build-dep' : 'build-dep') : '' });
+    const title = $('<div>', { 'class': 'group flex items-center justify-between gap-1 rounded px-1 py-0.5 hover:bg-accent/40' })
+    const titleLeft = $('<div>', { 'class': 'group flex items-center' });
     const titleRight = $('<div>');
-    const hashLabel = $('<span>', {'class': 'truncate px-3 text-muted-foreground font-mono', text: dep.hash.slice(0, shortHashLength)});
-    const titleLabel = $('<span>', {'class': 'truncate font-mono', text: dep.name + '@' + spec.version});
+    const hashLabel = $('<span>', { 'class': 'truncate px-3 text-muted-foreground font-mono', text: dep.hash.slice(0, shortHashLength) });
+    const titleLabel = $('<span>', { 'class': 'truncate font-mono', text: dep.name + '@' + spec.version });
     const openButton = $('<a>', {
-        target: '_blank', 
+        target: '_blank',
         href: '/?package=' + dep.name + '&hash=' + dep.hash,
         click: (e) => e.stopPropagation(),
     }).append(
         $('.lucide-open').first().clone()
     );
-    const depTypeChips = $('<div>', {'class': 'flex gap-1'});
+    const depTypeChips = $('<div>', { 'class': 'flex gap-1' });
     for (depType of dep.parameters.deptypes) {
-        depTypeChips.append($('<div>', {'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs', text: depType}));
+        depTypeChips.append($('<div>', { 'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs', text: depType }));
     }
     titleRight.append(depTypeChips);
     title.append(titleLeft).append(titleRight);
@@ -616,7 +616,7 @@ function createDepNode(dep, flat = false) {
     if (!flat && spec.dependencies.length) {
         titleLeft.append($('.lucide-chevron-right').first().clone()).append(openButton).append(hashLabel).append(titleLabel);
         li.append(title);
-        const subdepGroup = $('<ul>', {'class': 'collapsed spec-y-0.5', css: {'padding-left': '12px'}});
+        const subdepGroup = $('<ul>', { 'class': 'collapsed spec-y-0.5', css: { 'padding-left': '12px' } });
         li.append(subdepGroup);
         title.on('click', () => {
             if (!subdepGroup.children().length) {
@@ -650,16 +650,16 @@ function flattenDepTree(deps, flat) {
 }
 
 function createToggleControl(id, label, callback) {
-    const controlCheck = $('<input>', {type: 'checkbox'});
+    const controlCheck = $('<input>', { type: 'checkbox' });
     controlCheck.on('change', () => {
         callback($(controlCheck).prop('checked'));
     });
-    return $('<label>', {id, 'class': 'flex cursor-pointer items-center gap-2 text-xs text-muted-foreground py-2'}).append(
-        $('<label>', {'class': 'switch'}).append(controlCheck).append(
-            $('<span>', {'class': 'slider'})
+    return $('<label>', { id, 'class': 'flex cursor-pointer items-center gap-2 text-xs text-muted-foreground py-2' }).append(
+        $('<label>', { 'class': 'switch' }).append(controlCheck).append(
+            $('<span>', { 'class': 'slider' })
         )
     ).append(
-        $('<span>', {text: label})
+        $('<span>', { text: label })
     );
 }
 
@@ -667,8 +667,8 @@ function populateDepTreeDialog(spec, deps) {
     const dialog = $('#deptree-dialog');
     const tree = $('#deptree').empty();
     const mainTree = $('<div>');
-    const flatTree = $('<div>', {'class': 'hidden'});
-    const treeControls = $('<div>', {'class': 'flex items-center justify-between'});
+    const flatTree = $('<div>', { 'class': 'hidden' });
+    const treeControls = $('<div>', { 'class': 'flex items-center justify-between' });
     treeControls.append(createToggleControl('flatten-control', 'Flatten & Deduplicate', (checked) => {
         mainTree.toggleClass('hidden', checked);
         flatTree.toggleClass('hidden', !checked);
@@ -705,7 +705,7 @@ function createDepTreeDialogButton(spec, deps) {
     }).append(
         $('.lucide-git-branch').first().clone()
     ).append(
-        $('<span>', {text: deps.length + (deps.length > 1 ? ' deps' : ' dep')})
+        $('<span>', { text: deps.length + (deps.length > 1 ? ' deps' : ' dep') })
     );
 }
 
@@ -728,9 +728,9 @@ function toggleDiffMode() {
 }
 
 function createFilterBadge(key, value, remove) {
-    const badge = $('<div>', {'class': 'group inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary hover:bg-primary/20'}).append(
-        $('<label>', {'class': 'text-primary/70', css: {'text-transform': 'capitalize'}, text: key + ': '})
-    ).append($('<label>', {text: value}));
+    const badge = $('<div>', { 'class': 'group inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary hover:bg-primary/20' }).append(
+        $('<label>', { 'class': 'text-primary/70', css: { 'text-transform': 'capitalize' }, text: key + ': ' })
+    ).append($('<label>', { text: value }));
     if (remove) badge.append($('.lucide-close').first().clone().removeClass('h-4 w-4').addClass('h-3 w-3'));
     return badge;
 }
@@ -747,7 +747,7 @@ function updateBadgeOptions() {
         container.append($('<div>', {
             'class': 'sticky top-0 bg-surface-elevated px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground',
             text: key,
-        }).attr({searchContent: badgeOptions[key].join(',')}));
+        }).attr({ searchContent: badgeOptions[key].join(',') }));
         for (value of badgeOptions[key]) {
             // Copy key and value for click function
             const [k, v] = [key, value];
@@ -755,7 +755,7 @@ function updateBadgeOptions() {
                 text: value,
                 'class': 'flex w-full items-baseline gap-2 px-3 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground',
                 click: () => { addBadgeFilter(k, v) }
-            }).attr({searchContent: value}));
+            }).attr({ searchContent: value }));
         }
     }
     filterBadgeOptions();
@@ -797,20 +797,20 @@ function filterBadgeOptions() {
 
 function groupBadges(rowId, column, data, link = false) {
     const id = `row-${rowId}-${column}`;
-    const container = $('<div>', {id, css: {display: 'flex', 'flex-wrap': 'wrap'}});
+    const container = $('<div>', { id, css: { display: 'flex', 'flex-wrap': 'wrap' } });
     const expand = expandedCells.includes(container.id);
     data.forEach((d, i) => {
         let badge = null
         if (d === noDiffMessage) {
-            badge = $('<div>', {text: d});
+            badge = $('<div>', { text: d });
         } else if (link) {
-            badge = $('<a>', {href: d.link, text: d.label, css: {'text-decoration': 'underline'}, 'class': 'pl-2'});
+            badge = $('<a>', { href: d.link, text: d.label, css: { 'text-decoration': 'underline' }, 'class': 'pl-2' });
         } else {
             badge = $('<button>', {
                 'class': (
                     badgeFilters[column].includes(d)
-                    ? 'group inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary hover:bg-primary/20'
-                    : 'inline-flex max-w-full items-center rounded text-left text-xs transition-colors border border-transparent px-1.5 py-0.5 underline decoration-dashed decoration-primary/40 underline-offset-[3px] hover:border-pill-border hover:bg-pill-bg hover:text-foreground hover:no-underline'
+                        ? 'group inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary hover:bg-primary/20'
+                        : 'inline-flex max-w-full items-center rounded text-left text-xs transition-colors border border-transparent px-1.5 py-0.5 underline decoration-dashed decoration-primary/40 underline-offset-[3px] hover:border-pill-border hover:bg-pill-bg hover:text-foreground hover:no-underline'
                 ),
                 click: () => addBadgeFilter(column, d),
                 text: d,
@@ -818,14 +818,14 @@ function groupBadges(rowId, column, data, link = false) {
         }
         if (i >= maxBadges) {
             badge.addClass('hidden');
-            if (expand) badge.css({display: 'inline-block'})
+            if (expand) badge.css({ display: 'inline-block' })
         }
         container.append(badge);
     });
     if (data.length > maxBadges) {
         container.append($('<button>', {
             'class': 'toggle text-xs pl-2',
-            text: expand ? 'Show Less' : '... Show ' + (data.length - maxBadges) +' More',
+            text: expand ? 'Show Less' : '... Show ' + (data.length - maxBadges) + ' More',
             click: (e) => showMoreBadges(e, data.length - maxBadges, container.id),
         }));
     }
@@ -845,15 +845,15 @@ function showMoreBadges(e, n, id) {
 function displayHash(hash) {
     const copyIcon = $('.lucide-copy').first().clone();
     const checkIcon = $('.lucide-check').first().clone();
-    return $('<div>', {css: {display: 'contents'}}).append(
+    return $('<div>', { css: { display: 'contents' } }).append(
         $('<button>', {
             'class': 'inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground',
-            css: {'margin-right': '22px'},
+            css: { 'margin-right': '22px' },
             click: () => toggleInstallDialogShown(hash),
         }).append(
             $('.lucide-download').first().clone()
         ).append(
-            $('<span>', {text: 'Install'})
+            $('<span>', { text: 'Install' })
         )
     ).append(
         $('<button>', {
@@ -867,7 +867,7 @@ function displayHash(hash) {
                 }, 3000);
             }
         }).append(
-            $('<span>', {'class': 'truncate', text: hash.slice(0, shortHashLength)})
+            $('<span>', { 'class': 'truncate', text: hash.slice(0, shortHashLength) })
         ).append(copyIcon)
     );
 }
@@ -879,8 +879,8 @@ function setupColumnVisibilityOptions(columns) {
         const visible = columns[col];
         const colIndex = table.columns().names().indexOf(col);
         table.column(colIndex).visible(visible);
-        const item = $('<label>', {'class':  'flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs hover:bg-accent'}).append(
-            $('<input>', {type: 'checkbox', checked: visible, 'class': 'h-3.5 w-3.5 accent-primary'}).on('input', () => {
+        const item = $('<label>', { 'class': 'flex cursor-pointer items-center gap-2 px-3 py-1.5 text-xs hover:bg-accent' }).append(
+            $('<input>', { type: 'checkbox', checked: visible, 'class': 'h-3.5 w-3.5 accent-primary' }).on('input', () => {
                 const currentVisibility = table.column(colIndex).visible();
                 if (currentVisibility) {
                     table.column(colIndex).visible(false);
@@ -891,7 +891,7 @@ function setupColumnVisibilityOptions(columns) {
                 }
                 updateCommonValues(undefined);
             })
-        ).append($('<span>', {text: col}));
+        ).append($('<span>', { text: col }));
         container.append(item);
     }
 }
@@ -990,8 +990,8 @@ function setupDataTable() {
                     let container = $('<div>');
                     for (const column of columns) {
                         if (column.hidden) {
-                            const row = $('<div>', {'class': 'flex'}).append(
-                                $('<div>', {text: column.title, 'class': 'table-responsive-column-label'})
+                            const row = $('<div>', { 'class': 'flex' }).append(
+                                $('<div>', { text: column.title, 'class': 'table-responsive-column-label' })
                             ).append(column.data);
                             container.append(row);
                         }
