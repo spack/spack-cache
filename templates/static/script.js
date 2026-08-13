@@ -1,7 +1,7 @@
 let basePath = undefined;
 let packageData = undefined;
 let specData = undefined;
-let packageAttrValueSpecs = undefined;
+let uniqueAttrValues = undefined;
 let packageName = undefined;
 let currentSpecs = undefined;
 let sidebarMinWidth = 250;
@@ -73,9 +73,19 @@ function applyRoute(params) {
             }
         }
     }
-    if (packageData && specData && !packageAttrValueSpecs) {
-        computePackageAttrValueSpecs();
-        populateFiltersMenu();
+    if (packageData && specData && !uniqueAttrValues) {
+        const worker = new Worker('/static/computeUnique.js');
+        worker.postMessage([packageData, specData]);
+        worker.onmessage = (e) => {
+            uniqueAttrValues = Object.fromEntries(Object.entries(e.data).map(([key, value]) => {
+                for (col in pluralColumns) {
+                    if (pluralColumns[col] === key) return [col, value];
+                }
+                return [key, value];
+            }));
+            populateFiltersMenu();
+            updateBadgeOptions();
+        };
     }
     applySidebarHighlights();
     showContent(contentToShow);
@@ -99,36 +109,16 @@ function showContent(content_id) {
     }
 }
 
+function getAllSpecHashesForPackage(name) {
+    return [...new Set(Object.values(packageData[name].specs).flat())]
+}
+
 function setPackageName(name) {
     $('.package-name').text(name);
     if (specData) {
-        const allSpecHashes = Object.values(packageData[name].specs).flat();
-        currentSpecs = allSpecHashes.map((hash) => specData[hash]);
+        currentSpecs = getAllSpecHashesForPackage(name).map((hash) => specData[hash]);
         $('.num-specs').text(currentSpecs.length.toLocaleString());
         updateBadgeOptions();
-    }
-}
-
-function computePackageAttrValueSpecs() {
-    packageAttrValueSpecs = {};
-    for (const pName in packageData) {
-        packageAttrValueSpecs[pName] = {};
-        const allSpecHashes = Object.values(packageData[pName].specs).flat();
-        for (const specHash of allSpecHashes) {
-            for (const key in specData[specHash]) {
-                if (!packageAttrValueSpecs[pName][key]) packageAttrValueSpecs[pName][key] = {};
-                let values = specData[specHash][key];
-                if (Array.isArray(values)) {
-                    values = values.map((v) => v.label ? v.label : v);
-                } else {
-                    values = [values];
-                }
-                for (val of values) {
-                    if (!packageAttrValueSpecs[pName][key][val]) packageAttrValueSpecs[pName][key][val] = new Set();
-                    packageAttrValueSpecs[pName][key][val].add(specHash);
-                }
-            }
-        }
     }
 }
 
@@ -163,32 +153,6 @@ function setupHomepage() {
     }
 }
 
-function getUniqueAttributeValues(specs) {
-    if (!specs) return;
-    const uniqueValues = {};
-    for (const column in badgeFilters) {
-        if (column !== 'hash') {
-            uniqueValues[column] = [];
-            const pluralColumn = pluralColumns[column] || column;
-            for (const spec of specs) {
-                const value = spec[pluralColumn];
-                if (Array.isArray(value)) {
-                    for (const v of value) {
-                        if (!uniqueValues[column].includes(v)) {
-                            uniqueValues[column].push(v);
-                        }
-                    }
-                } else {
-                    if (!uniqueValues[column].includes(value)) {
-                        uniqueValues[column].push(value);
-                    }
-                }
-            }
-        }
-    }
-    return uniqueValues;
-}
-
 function closeAllMenus() {
     setColumnsMenuVisible(false);
     setBadgeOptionsMenuVisible(false);
@@ -221,6 +185,14 @@ function toggleCheckbox(container, checked = undefined) {
         currentCheckbox.replaceWith(uncheckedIcon);
         return false;
     }
+}
+
+function debounce(func, timeout = 300){
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { func.apply(this, args); }, timeout);
+  };
 }
 
 // Sidebar
@@ -277,37 +249,43 @@ function filterSidebar() {
     let resultsFound = false;
     const filterString = ($('#sidebar-search').val() || '').toLowerCase();
     const emphasisString = filterString.replace('$', '');
+    let filterMatchSpecs = {};
+    const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
+    if (totalFilters > 0 && uniqueAttrValues) {
+        for (key in sidebarFilters) {
+            for (value of sidebarFilters[key]) {
+                const packageSpecHashes = uniqueAttrValues[pluralColumns[key] || key][value];
+                for (pName in packageData) {
+                    if (pName in packageSpecHashes) {
+                        const specHashes = new Set(packageSpecHashes[pName]);
+                        if (!filterMatchSpecs[pName]) filterMatchSpecs[pName] = specHashes;
+                        else filterMatchSpecs[pName] = filterMatchSpecs[pName].intersection(specHashes);
+                    } else {
+                        filterMatchSpecs[pName] = new Set();
+                    }
+                }
+            }
+        }
+    }
     $('.sidebar-item').each((_, item) => {
         const itemPackage = $(item).attr('package').toLowerCase();
         const itemRelease = $(item).attr('release');
         let match = filterString.endsWith('$') ? itemPackage.endsWith(filterString.slice(0, -1)) : itemPackage.includes(filterString);
         const [label, specCount] = item.children;
-        const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
-        if (totalFilters && packageAttrValueSpecs && packageAttrValueSpecs[itemPackage]) {
-            const attrValueSpecs = packageAttrValueSpecs[itemPackage];
-            let matchingSpecs = undefined;
-            let matchComplete = true;
-            for (const key in sidebarFilters) {
-                const valueSpecs = attrValueSpecs[key] || attrValueSpecs[key + 's'];
-                for (const value of sidebarFilters[key]) {
-                    matchComplete &&= !!valueSpecs?.[value];
-                    if (valueSpecs?.[value]) {
-                        if (!matchingSpecs) matchingSpecs = new Set(valueSpecs[value]);
-                        else matchingSpecs = matchingSpecs.intersection(valueSpecs[value]);
-                    }
-                }
+        if (totalFilters > 0) {
+            const matchedSpecs = filterMatchSpecs[itemPackage];
+            match &&= matchedSpecs?.size;
+            if (matchedSpecs) {
+                if (itemRelease) $(specCount).text(
+                    matchedSpecs.intersection(new Set(packageData[itemPackage].specs[itemRelease])).size
+                );
+                else $(specCount).text(matchedSpecs.size);
             }
-            match &&= matchComplete && matchingSpecs && matchingSpecs.size > 0;
-            specCount.innerHTML = matchComplete && matchingSpecs ? matchingSpecs.size : 0;
         } else {
-            if (itemRelease) {
-                specCount.innerHTML = packageData[itemPackage].specs[itemRelease].length;
-            } else {
-                const allSpecHashes = Object.values(packageData[itemPackage].specs).flat();
-                specCount.innerHTML = allSpecHashes.length;
-            }
+            if (itemRelease) $(specCount).text(packageData[itemPackage].specs[itemRelease].length);
+            else $(specCount).text(getAllSpecHashesForPackage(itemPackage).length);
         }
-        if (match) {
+        if (match && $(specCount).text() > 0) {
             resultsFound = true;
             $(item).removeClass('hidden');
             label.innerHTML = emphasisString.length > 0 ? itemPackage.replace(emphasisString, `<span class='font-bold text-foreground'>${emphasisString}</span>`) : itemPackage;
@@ -333,6 +311,8 @@ function filterSidebar() {
     $('#all-packages-nodata').css('display', resultsFound ? 'none' : 'block');
     $('#by-release-nodata').css('display', resultsFound ? 'none' : 'block');
 }
+
+const debouncedFilterSidebar = debounce((event) => filterSidebar(event))
 
 function selectSidebarTab(tab) {
     ['#sidebar-tabs', '#sidebar-tab-contents'].forEach((setName) => {
@@ -388,7 +368,7 @@ function createSidebarItem(pkg, releaseName) {
     }).append($('<code>', {text: pkg.uid})).append(
         $('<span>', {
             'class': 'text-muted-foreground spec-counter', 
-            text: releaseName ? pkg.specs[releaseName].length : Object.values(pkg.specs).flat().length,
+            text: releaseName ? pkg.specs[releaseName].length : getAllSpecHashesForPackage(pkg.uid).length,
         })
     );
 }
@@ -492,7 +472,8 @@ function clearAllSidebarFilters() {
         toggleCheckbox(button);
     });
     const filtersList = $('#filters-list');
-    filtersList.empty().append(filtersList.children().first());
+    const clearAllButton = filtersList.children().eq(0);
+    filtersList.empty().append(clearAllButton);
     sidebarFiltersUpdated();
 }
 
@@ -515,7 +496,9 @@ function sidebarFiltersUpdated() {
 }
 
 function populateFiltersMenu() {
-    const uniqueValues = getUniqueAttributeValues(Object.values(specData));
+    const uniqueValues = Object.fromEntries(Object.entries(uniqueAttrValues).map(([key, valuesMap]) => {
+        return [key, Object.keys(valuesMap)]
+    }));
     const content = $('#filters-menu-content').empty();
     for (const key in uniqueValues) {
         // Exclude release from filters menu; "by release" tab should be used instead
@@ -753,7 +736,12 @@ function createFilterBadge(key, value, remove) {
 }
 
 function updateBadgeOptions() {
-    badgeOptions = getUniqueAttributeValues(currentSpecs);
+    if (!uniqueAttrValues || !packageName) return;
+    const badgeOptions = Object.fromEntries(Object.entries(uniqueAttrValues).map(([key, valueMap]) => {
+        return [key, Object.entries(valueMap).filter(([value, packageMap]) => {
+            return packageMap[packageName]?.length
+        }).map(([value]) => value)];
+    }));
     const container = $('#badge-options-list').empty();
     for (const key in badgeOptions) {
         container.append($('<div>', {
