@@ -74,7 +74,7 @@ function applyRoute(params) {
         }
     }
     if (packageData && specData && !uniqueAttrValues) {
-        const worker = new Worker('/static/computeUnique.js');
+        const worker = new Worker(basePath + '/static/computeUnique.js');
         worker.postMessage([packageData, specData]);
         worker.onmessage = (e) => {
             uniqueAttrValues = Object.fromEntries(Object.entries(e.data).map(([key, value]) => {
