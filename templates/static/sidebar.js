@@ -54,10 +54,10 @@ function filterSidebar() {
     let filterMatchSpecs = {};
     const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
     if (totalFilters > 0 && uniqueAttrValues) {
-        for (key in sidebarFilters) {
-            for (value of sidebarFilters[key]) {
+        for (const key in sidebarFilters) {
+            for (const value of sidebarFilters[key]) {
                 const packageSpecHashes = uniqueAttrValues[key][value];
-                for (pName in packageData) {
+                for (const pName in packageData) {
                     if (pName in packageSpecHashes) {
                         const specHashes = new Set(packageSpecHashes[pName]);
                         if (!filterMatchSpecs[pName]) filterMatchSpecs[pName] = specHashes;

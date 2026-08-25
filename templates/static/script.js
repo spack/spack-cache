@@ -80,7 +80,7 @@ function applyRoute(params) {
         worker.postMessage([packageData, specData]);
         worker.onmessage = (e) => {
             uniqueAttrValues = Object.fromEntries(Object.entries(e.data).map(([key, value]) => {
-                for (col in pluralColumns) {
+                for (const col in pluralColumns) {
                     if (pluralColumns[col] === key) return [col, value];
                 }
                 return [key, value];
