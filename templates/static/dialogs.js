@@ -139,7 +139,7 @@ function populateDepTreeDialog(spec, deps) {
 }
 
 function createDepTreeDialogButton(spec, deps) {
-    if (!deps.length) return noDiffMessage;
+    if (!deps.length) return $('<span>', { text: noDiffMessage });
     return $('<button>', {
         'class': 'inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs transition-colors border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-primary/10 hover:text-primary',
         click: () => {
