@@ -2,6 +2,7 @@ let basePath = undefined;
 let packageData = undefined;
 let specData = undefined;
 let uniqueAttrValues = undefined;
+let uniqueAttrValuesPending = false;
 let packageName = undefined;
 let currentSpecs = undefined;
 let sidebarMinWidth = 250;
@@ -73,7 +74,8 @@ function applyRoute(params) {
             }
         }
     }
-    if (packageData && specData && !uniqueAttrValues) {
+    if (packageData && specData && !uniqueAttrValues && !uniqueAttrValuesPending) {
+        uniqueAttrValuesPending = true;
         const worker = new Worker(basePath + '/static/computeUnique.js');
         worker.postMessage([packageData, specData]);
         worker.onmessage = (e) => {
@@ -85,6 +87,10 @@ function applyRoute(params) {
             }));
             populateFiltersMenu();
             updateBadgeOptions();
+        };
+        worker.onerror = (e) => {
+            console.error('Failed to compute unique attribute values:', e.message);
+            uniqueAttrValuesPending = false;
         };
     }
     applySidebarHighlights();
