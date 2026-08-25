@@ -47,13 +47,19 @@ function applySidebarHighlights() {
     }
 }
 
+let filterMatchSpecsCache = null;
+
+function invalidateFilterMatchSpecsCache() {
+    filterMatchSpecsCache = null;
+}
+
 function filterSidebar() {
     let resultsFound = false;
     const filterString = ($('#sidebar-search').val() || '').toLowerCase();
     const emphasisString = filterString.replace('$', '');
-    let filterMatchSpecs = {};
     const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
-    if (totalFilters > 0 && uniqueAttrValues) {
+    if (totalFilters > 0 && uniqueAttrValues && !filterMatchSpecsCache) {
+        const filterMatchSpecs = {};
         for (const key in sidebarFilters) {
             for (const value of sidebarFilters[key]) {
                 const packageSpecHashes = uniqueAttrValues[key][value];
@@ -68,7 +74,9 @@ function filterSidebar() {
                 }
             }
         }
+        filterMatchSpecsCache = filterMatchSpecs;
     }
+    const filterMatchSpecs = filterMatchSpecsCache || {};
     $('.sidebar-item').each((_, item) => {
         const itemPackage = $(item).attr('package');
         const itemPackageLower = itemPackage.toLowerCase();
@@ -284,6 +292,7 @@ function clearAllSidebarFilters() {
 }
 
 function sidebarFiltersUpdated() {
+    invalidateFilterMatchSpecsCache();
     const totalFilters = Object.values(sidebarFilters).reduce((sum, list) => sum + list.length, 0);
     const menuButton = $('#filters-menu-button');
     const filtersList = $('#filters-list');
