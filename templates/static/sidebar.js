@@ -231,7 +231,7 @@ function toggleShowDevs() {
 }
 
 function setFiltersMenuVisible(visible) {
-    $('#filters-menu').toggleClass('hidden', !visible);
+    setElementVisible('#filters-menu', visible);
 }
 
 function setFiltersMenuGroupOpen(group, open = undefined) {

@@ -159,6 +159,10 @@ function setupHomepage() {
     }
 }
 
+function setElementVisible(selector, visible) {
+    $(selector).toggleClass('hidden', !visible);
+}
+
 function closeAllMenus() {
     setColumnsMenuVisible(false);
     setBadgeOptionsMenuVisible(false);

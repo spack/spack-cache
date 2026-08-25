@@ -50,7 +50,7 @@ function updateBadgeOptions() {
 }
 
 function setBadgeOptionsMenuVisible(visible) {
-    $('#badge-options-menu').toggleClass('hidden', !visible);
+    setElementVisible('#badge-options-menu', visible);
 }
 
 function addBadgeFilter(column, label) {
@@ -185,7 +185,7 @@ function setupColumnVisibilityOptions(columns) {
 }
 
 function setColumnsMenuVisible(visible) {
-    $('#columns-menu-wrapper').toggleClass('hidden', !visible);
+    setElementVisible('#columns-menu-wrapper', visible);
 }
 
 function setupDataTable() {
