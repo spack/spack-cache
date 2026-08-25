@@ -70,9 +70,10 @@ function filterSidebar() {
         }
     }
     $('.sidebar-item').each((_, item) => {
-        const itemPackage = $(item).attr('package').toLowerCase();
+        const itemPackage = $(item).attr('package');
+        const itemPackageLower = itemPackage.toLowerCase();
         const itemRelease = $(item).attr('release');
-        let match = filterString.endsWith('$') ? itemPackage.endsWith(filterString.slice(0, -1)) : itemPackage.includes(filterString);
+        let match = filterString.endsWith('$') ? itemPackageLower.endsWith(filterString.slice(0, -1)) : itemPackageLower.includes(filterString);
         const [label, specCount] = item.children;
         if (totalFilters > 0) {
             const matchedSpecs = filterMatchSpecs[itemPackage];
@@ -90,7 +91,10 @@ function filterSidebar() {
         if (match && $(specCount).text() > 0) {
             resultsFound = true;
             $(item).removeClass('hidden');
-            label.innerHTML = emphasisString.length > 0 ? itemPackage.replace(emphasisString, `<span class='font-bold text-foreground'>${emphasisString}</span>`) : itemPackage;
+            const matchIndex = emphasisString.length > 0 ? itemPackageLower.indexOf(emphasisString) : -1;
+            label.innerHTML = matchIndex !== -1
+                ? itemPackage.slice(0, matchIndex) + `<span class='font-bold text-foreground'>${itemPackage.slice(matchIndex, matchIndex + emphasisString.length)}</span>` + itemPackage.slice(matchIndex + emphasisString.length)
+                : itemPackage;
         } else {
             $(item).addClass('hidden');
             label.innerHTML = itemPackage;
