@@ -86,7 +86,7 @@ function filterBadgeOptions() {
 function groupBadges(rowId, column, data, link = false) {
     const id = `row-${rowId}-${column}`;
     const container = $('<div>', { id, css: { display: 'flex', 'flex-wrap': 'wrap' } });
-    const expand = expandedCells.includes(container.id);
+    const expand = expandedCells.includes(id);
     data.forEach((d, i) => {
         let badge = null
         if (d === noDiffMessage) {
@@ -114,7 +114,7 @@ function groupBadges(rowId, column, data, link = false) {
         container.append($('<button>', {
             'class': 'toggle text-xs pl-2',
             text: expand ? 'Show Less' : '... Show ' + (data.length - maxBadges) + ' More',
-            click: (e) => showMoreBadges(e, data.length - maxBadges, container.id),
+            click: (e) => showMoreBadges(e, data.length - maxBadges, id),
         }));
     }
     return container;
