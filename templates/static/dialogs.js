@@ -31,12 +31,11 @@ function toggleDepTreeDialogShown(hash) {
     $('#deptree-dialog').toggleClass('hidden');
 }
 
-function createDepNode(dep, flat = false) {
+function createDepNode(dep, flat = false, isHidden = undefined) {
     if (!dep.hash) return;
     const spec = specData[dep.hash];
     if (!spec) return;
     const isBuild = dep.parameters.deptypes?.includes('build');
-    const isHidden = $('#hide-build-control').find('input').prop('checked');
     const li = $('<li>', { 'class': isBuild ? (isHidden ? 'hidden build-dep' : 'build-dep') : '' });
     const title = $('<div>', { 'class': 'group flex items-center justify-between gap-1 rounded px-1 py-0.5 hover:bg-accent/40' })
     const titleLeft = $('<div>', { 'class': 'group flex items-center' });
@@ -64,8 +63,9 @@ function createDepNode(dep, flat = false) {
         li.append(subdepGroup);
         title.on('click', () => {
             if (!subdepGroup.children().length) {
+                const subIsHidden = $('#hide-build-control').find('input').prop('checked');
                 for (const subdep of spec.dependencies.toSorted((a, b) => a.name.localeCompare(b.name))) {
-                    const subdepNode = createDepNode(subdep);
+                    const subdepNode = createDepNode(subdep, false, subIsHidden);
                     if (subdepNode) subdepGroup.append(subdepNode);
                 }
             }
@@ -123,16 +123,17 @@ function populateDepTreeDialog(spec, deps) {
     }));
     tree.append(treeControls);
 
+    const isHidden = $('#hide-build-control').find('input').prop('checked');
     $(dialog).find('#curr-spec-version').html(spec.version);
     $(dialog).find('#num-direct-deps').html(deps.length);
     for (const dep of deps.toSorted((a, b) => a.name.localeCompare(b.name))) {
-        const depNode = createDepNode(dep);
+        const depNode = createDepNode(dep, false, isHidden);
         if (depNode) $(mainTree).append(depNode);
     }
     const flattened = flattenDepTree(deps, {});
     dialog.find('#num-unique-transitive-deps').html(Object.keys(flattened).length);
     for (const dep of Object.values(flattened)) {
-        const flatDepNode = createDepNode(dep, flat = true);
+        const flatDepNode = createDepNode(dep, flat = true, isHidden);
         if (flatDepNode) $(flatTree).append(flatDepNode);
     }
     tree.append(mainTree, flatTree);
