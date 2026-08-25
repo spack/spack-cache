@@ -188,6 +188,10 @@ function setColumnsMenuVisible(visible) {
     setElementVisible('#columns-menu-wrapper', visible);
 }
 
+function asNode(jqElement) {
+    return jqElement.get(0);
+}
+
 function setupDataTable() {
     $('#cache').DataTable({
         ordering: false,
@@ -211,7 +215,7 @@ function setupDataTable() {
                 data: 'hash',
                 className: 'nowrap',
                 render: function (data, type, row, info) {
-                    return displayHash(data).get(0);
+                    return asNode(displayHash(data));
                 },
             },
             {
@@ -219,56 +223,56 @@ function setupDataTable() {
                 data: 'version',
                 className: 'dt-left',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'version', [data]).get(0);
+                    return asNode(groupBadges(info.row, 'version', [data]));
                 }
             },
             {
                 name: 'releases',
                 data: 'releases',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'release', data).get(0);
+                    return asNode(groupBadges(info.row, 'release', data));
                 },
             },
             {
                 name: 'stacks',
                 data: 'stacks',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'stack', data).get(0);
+                    return asNode(groupBadges(info.row, 'stack', data));
                 },
             },
             {
                 name: 'variants',
                 data: 'variants',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'variant', data).get(0);
+                    return asNode(groupBadges(info.row, 'variant', data));
                 },
             },
             {
                 name: 'platform',
                 data: 'platform',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'platform', [data]).get(0);
+                    return asNode(groupBadges(info.row, 'platform', [data]));
                 },
             },
             {
                 name: 'os',
                 data: 'os',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'os', [data]).get(0);
+                    return asNode(groupBadges(info.row, 'os', [data]));
                 },
             },
             {
                 name: 'target',
                 data: 'target',
                 render: function (data, type, row, info) {
-                    return groupBadges(info.row, 'target', [data]).get(0);
+                    return asNode(groupBadges(info.row, 'target', [data]));
                 },
             },
             {
                 name: 'dependencies',
                 data: 'dependencies',
                 render: function (data, type, row, info) {
-                    return createDepTreeDialogButton(row, data).get(0);
+                    return asNode(createDepTreeDialogButton(row, data));
                 },
             },
         ],
