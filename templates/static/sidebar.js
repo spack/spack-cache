@@ -56,7 +56,7 @@ function filterSidebar() {
     if (totalFilters > 0 && uniqueAttrValues) {
         for (key in sidebarFilters) {
             for (value of sidebarFilters[key]) {
-                const packageSpecHashes = uniqueAttrValues[pluralColumns[key] || key][value];
+                const packageSpecHashes = uniqueAttrValues[key][value];
                 for (pName in packageData) {
                     if (pName in packageSpecHashes) {
                         const specHashes = new Set(packageSpecHashes[pName]);
