@@ -164,9 +164,9 @@ function setElementVisible(selector, visible) {
 }
 
 function closeAllMenus() {
-    setColumnsMenuVisible(false);
-    setBadgeOptionsMenuVisible(false);
-    setFiltersMenuVisible(false);
+    setElementVisible('#columns-menu-wrapper', false);
+    setElementVisible('#badge-options-menu', false);
+    setElementVisible('#filters-menu', false);
 }
 
 function toggleChevron(container, open = undefined) {

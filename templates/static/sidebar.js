@@ -230,10 +230,6 @@ function toggleShowDevs() {
     filterSidebar();
 }
 
-function setFiltersMenuVisible(visible) {
-    setElementVisible('#filters-menu', visible);
-}
-
 function setFiltersMenuGroupOpen(group, open = undefined) {
     open = toggleChevron(group, open);
     const items = $(group).find('.group-items');

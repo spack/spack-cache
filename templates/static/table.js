@@ -49,10 +49,6 @@ function updateBadgeOptions() {
     filterBadgeOptions();
 }
 
-function setBadgeOptionsMenuVisible(visible) {
-    setElementVisible('#badge-options-menu', visible);
-}
-
 function addBadgeFilter(column, label) {
     if (!badgeFilters[column].includes(label)) {
         badgeFilters[column].push(label);
@@ -182,10 +178,6 @@ function setupColumnVisibilityOptions(columns) {
         ).append($('<span>', { text: col }));
         container.append(item);
     }
-}
-
-function setColumnsMenuVisible(visible) {
-    setElementVisible('#columns-menu-wrapper', visible);
 }
 
 function asNode(jqElement) {

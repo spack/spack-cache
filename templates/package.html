@@ -18,7 +18,7 @@
             Filters:
         </span>
         <div class="relative" onclick="event.stopPropagation()">
-            <button onclick="setBadgeOptionsMenuVisible(true)" class="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground">
+            <button onclick="setElementVisible('#badge-options-menu', true);" class="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground">
                 {{ plus_icon() }}
                 Add filter
             </button>
@@ -35,7 +35,7 @@
         <div id="badge-filters" class="inline-flex flex-wrap items-center gap-1.5"></div>
         <div class="ml-auto flex items-center gap-1.5">
             <div class="relative" onclick="event.stopPropagation()">
-                <button onclick="setColumnsMenuVisible(true)" class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors border-border bg-background text-muted-foreground hover:text-foreground">
+                <button onclick="setElementVisible('#columns-menu-wrapper', true);" class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors border-border bg-background text-muted-foreground hover:text-foreground">
                     {{ cols_icon() }}
                     Columns
                 </button>
