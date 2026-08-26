@@ -153,7 +153,7 @@ function populateSidebarTabs() {
         });
     });
     byReleaseList.empty().append(...Object.keys(releases).toSorted(
-        (a, b) => a.localeCompare(b)
+        (a, b) => b.localeCompare(a)
     ).map((key) => releases[key]));
     $('#all-packages-loading, #by-release-loading').hide();
     $('#show-devs-toggle').prop('checked', showDevs);
