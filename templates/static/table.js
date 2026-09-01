@@ -290,11 +290,11 @@ function setupDataTable() {
         version: true,
         releases: true,
         stacks: true,
-        variants: false,
+        variants: true,
         platform: true,
         os: true,
         target: true,
-        dependencies: false,
+        dependencies: true,
     });
     tableInitialized = true;
 }
