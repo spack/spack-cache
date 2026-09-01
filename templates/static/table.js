@@ -129,15 +129,13 @@ function showMoreBadges(e, n, id) {
 function displayHash(hash) {
     const copyIcon = $('.lucide-copy').first().clone();
     const checkIcon = $('.lucide-check').first().clone();
-    return $('<div>', { css: { display: 'contents' } }).append(
+    return $('<div>', { css: {'width': '200px', 'display': 'inline-block' } }).append(
         $('<button>', {
             'class': 'inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground',
             css: { 'margin-right': '22px' },
             click: () => toggleInstallDialogShown(hash),
         }).append(
-            $('.lucide-download').first().clone()
-        ).append(
-            $('<span>', { text: 'Install' })
+            $('<span>', { text: 'How to Install' })
         )
     ).append(
         $('<button>', {
@@ -199,7 +197,7 @@ function setupDataTable() {
         },
         pageLength: 25,
         columnDefs: [
-            { targets: 0, width: '200px' },
+            { targets: 0, width: '250px' },
         ],
         columns: [
             {
