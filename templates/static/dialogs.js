@@ -40,10 +40,10 @@ function createDepNode(dep, flat = false, isHidden = undefined, depth = 1) {
     const title = $('<div>', { 'class': 'group flex items-center justify-between gap-1 rounded px-1 py-0.5 hover:bg-accent/40' })
     const titleLeft = $('<div>', { 'class': 'group flex items-center' });
     const titleRight = $('<div>');
-    const hashLabel = $('<span>', { 
-        'class': 'truncate px-3 text-muted-foreground font-mono', 
+    const hashLabel = $('<span>', {
+        'class': 'truncate px-3 text-muted-foreground font-mono',
         text: dep.hash.slice(0, shortHashLength),
-        css: {'margin-right': depth * 12 + 'px'}
+        css: { 'margin-right': depth * 12 + 'px' }
     });
     const titleLabel = $('<span>', { 'class': 'truncate font-mono', text: dep.name + '@' + spec.version });
     const openButton = $('<a>', {
@@ -53,9 +53,13 @@ function createDepNode(dep, flat = false, isHidden = undefined, depth = 1) {
     }).append(
         $('.lucide-open').first().clone()
     );
-    const depTypeChips = $('<div>', { 'class': 'flex gap-1', css: {'min-width': '60px'} });
+    const depTypeChips = $('<div>', { 'class': 'flex gap-1', css: { 'min-width': '60px' } });
     for (depType of dep.parameters.deptypes) {
-        depTypeChips.append($('<div>', { 'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs uppercase', text: depType[0] }));
+        depTypeChips.append($('<div>', {
+            'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs uppercase',
+            text: depType[0],
+            title: depType,
+        }));
     }
     titleRight.append(openButton);
     title.append(titleLeft).append(titleRight);
@@ -63,7 +67,7 @@ function createDepNode(dep, flat = false, isHidden = undefined, depth = 1) {
     if (!flat && spec.dependencies.length) {
         titleLeft.append(depTypeChips).append(hashLabel).append($('.lucide-chevron-right').first().clone()).append(titleLabel);
         li.append(title);
-        const subdepGroup = $('<ul>', { 'class': 'collapsed spec-y-0.5'});
+        const subdepGroup = $('<ul>', { 'class': 'collapsed spec-y-0.5' });
         li.append(subdepGroup);
         title.on('click', () => {
             if (!subdepGroup.children().length) {
