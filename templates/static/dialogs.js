@@ -31,16 +31,20 @@ function toggleDepTreeDialogShown(hash) {
     $('#deptree-dialog').toggleClass('hidden');
 }
 
-function createDepNode(dep, flat = false, isHidden = undefined) {
+function createDepNode(dep, flat = false, isHidden = undefined, depth = 1) {
     if (!dep.hash) return;
     const spec = specData[dep.hash];
     if (!spec) return;
-    const isBuild = dep.parameters.deptypes?.includes('build');
+    const isBuild = dep.parameters.deptypes.length === 1 && dep.parameters.deptypes[0] === 'build';
     const li = $('<li>', { 'class': isBuild ? (isHidden ? 'hidden build-dep' : 'build-dep') : '' });
     const title = $('<div>', { 'class': 'group flex items-center justify-between gap-1 rounded px-1 py-0.5 hover:bg-accent/40' })
     const titleLeft = $('<div>', { 'class': 'group flex items-center' });
     const titleRight = $('<div>');
-    const hashLabel = $('<span>', { 'class': 'truncate px-3 text-muted-foreground font-mono', text: dep.hash.slice(0, shortHashLength) });
+    const hashLabel = $('<span>', {
+        'class': 'truncate px-3 text-muted-foreground font-mono',
+        text: dep.hash.slice(0, shortHashLength),
+        css: { 'margin-right': depth * 12 + 'px' }
+    });
     const titleLabel = $('<span>', { 'class': 'truncate font-mono', text: dep.name + '@' + spec.version });
     const openButton = $('<a>', {
         target: '_blank',
@@ -49,23 +53,27 @@ function createDepNode(dep, flat = false, isHidden = undefined) {
     }).append(
         $('.lucide-open').first().clone()
     );
-    const depTypeChips = $('<div>', { 'class': 'flex gap-1' });
+    const depTypeChips = $('<div>', { 'class': 'flex gap-1', css: { 'min-width': '60px' } });
     for (depType of dep.parameters.deptypes) {
-        depTypeChips.append($('<div>', { 'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs', text: depType }));
+        depTypeChips.append($('<div>', {
+            'class': 'inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 text-xs uppercase',
+            text: depType[0],
+            title: depType,
+        }));
     }
-    titleRight.append(depTypeChips);
+    titleRight.append(openButton);
     title.append(titleLeft).append(titleRight);
 
     if (!flat && spec.dependencies.length) {
-        titleLeft.append($('.lucide-chevron-right').first().clone()).append(openButton).append(hashLabel).append(titleLabel);
+        titleLeft.append(depTypeChips).append(hashLabel).append($('.lucide-chevron-right').first().clone()).append(titleLabel);
         li.append(title);
-        const subdepGroup = $('<ul>', { 'class': 'collapsed spec-y-0.5', css: { 'padding-left': '12px' } });
+        const subdepGroup = $('<ul>', { 'class': 'collapsed spec-y-0.5' });
         li.append(subdepGroup);
         title.on('click', () => {
             if (!subdepGroup.children().length) {
                 const subIsHidden = $('#hide-build-control').find('input').prop('checked');
                 for (const subdep of spec.dependencies.toSorted((a, b) => a.name.localeCompare(b.name))) {
-                    const subdepNode = createDepNode(subdep, false, subIsHidden);
+                    const subdepNode = createDepNode(subdep, false, subIsHidden, depth + 1);
                     if (subdepNode) subdepGroup.append(subdepNode);
                 }
             }
@@ -73,7 +81,7 @@ function createDepNode(dep, flat = false, isHidden = undefined) {
         })
     } else {
         const dotIcon = $('.lucide-dot').first().clone();
-        titleLeft.append(dotIcon).append(openButton).append(hashLabel).append(titleLabel);
+        titleLeft.append(depTypeChips).append(hashLabel).append(dotIcon).append(titleLabel);
         li.append(title);
     }
     return li;
@@ -113,13 +121,13 @@ function populateDepTreeDialog(spec, deps) {
     const mainTree = $('<div>');
     const flatTree = $('<div>', { 'class': 'hidden' });
     const treeControls = $('<div>', { 'class': 'flex items-center justify-between' });
+    treeControls.append(createToggleControl('hide-build-control', 'Only Run/Link Deps', (checked) => {
+        const buildDepNodes = $(dialog).find('.build-dep');
+        buildDepNodes.each((i, item) => $(item).toggleClass('hidden', checked));
+    }));
     treeControls.append(createToggleControl('flatten-control', 'Flatten & Deduplicate', (checked) => {
         mainTree.toggleClass('hidden', checked);
         flatTree.toggleClass('hidden', !checked);
-    }));
-    treeControls.append(createToggleControl('hide-build-control', 'Hide Build Deps', (checked) => {
-        const buildDepNodes = $(dialog).find('.build-dep');
-        buildDepNodes.each((i, item) => $(item).toggleClass('hidden', checked));
     }));
     tree.append(treeControls);
 
