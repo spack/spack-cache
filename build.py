@@ -30,11 +30,7 @@ def copy_static():
             shutil.copy(item, dest)
 
 def copy_data():
-    BUILD_DATA_DIR.mkdir(exist_ok=True, parents=True)
-    for item in DATA_DIR.iterdir():
-        if item.is_file():
-            dest = BUILD_DATA_DIR / item.name
-            shutil.copy(item, dest)
+    shutil.copytree(DATA_DIR, BUILD_DATA_DIR, dirs_exist_ok=True)
         
 def get_context_data():
     return dict(
