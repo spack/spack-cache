@@ -1,5 +1,7 @@
 let basePath = undefined;
+let totalBuilds = undefined;
 let packageData = undefined;
+let packageCache = {};
 let specData = undefined;
 let uniqueAttrValues = undefined;
 let uniqueAttrValuesPending = false;
@@ -32,16 +34,37 @@ let showDevs = false;
 let diffMode = false;
 let common = {};
 const noDiffMessage = '-';
+const depTypes = ['build', 'link', 'run', 'test'];
 
 
 // General
-async function fetchGzippedJson(url) {
+async function fetchJson(url) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status} fetching ${url}`);
-    const ds = new DecompressionStream('gzip');
-    const decompressedStream = response.body.pipeThrough(ds);
-    const text = await new Response(decompressedStream).text();
-    return JSON.parse(text);
+    return response.json();
+}
+
+async function loadPackage(name) {
+    if (packageCache[name]) return packageCache[name];
+    const data = await fetchJson(`${basePath}/api/packages/${encodeURIComponent(name)}.json`);
+    // Expand the compact node table into the spec lookup used by the dependency tree dialog
+    const nodes = data.nodes.map(([hash, depName, version]) => ({ hash, name: depName, version, dependencies: [] }));
+    data.nodes.forEach(([, , , edges], i) => {
+        for (let j = 0; j < edges.length; j += 2) {
+            const dep = nodes[edges[j]];
+            nodes[i].dependencies.push({
+                name: dep.name,
+                hash: dep.hash,
+                parameters: { deptypes: depTypes.filter((_, bit) => edges[j + 1] & (1 << bit)) },
+            });
+        }
+    });
+    const specs = data.specs.map(({ node, ...spec }) => ({ ...spec, dependencies: nodes[node].dependencies }));
+    packageCache[name] = {
+        specs,
+        specData: Object.fromEntries(nodes.map((n) => [n.hash, n])),
+    };
+    return packageCache[name];
 }
 
 function navigateToHome() {
@@ -62,7 +85,7 @@ function applyRoute(params) {
                 // https://datatables.net/manual/tech-notes/3
                 setupDataTable();
             }
-            if (specData) {
+            if (currentSpecs) {
                 badgeFilters = Object.fromEntries(
                     Object.keys(badgeFilters).map((key) => [key, urlParams.getAll(key)])
                 );
@@ -70,28 +93,15 @@ function applyRoute(params) {
                 updateTable();
             } else {
                 // Set table empty message
+                $('#cache').DataTable().clear().draw();
                 $('.dt-empty').text('Loading data...');
+                const name = packageName;
+                loadPackage(name).then(() => {
+                    // Skip if the user navigated elsewhere in the meantime
+                    if (packageName === name) applyRoute(window.location.search);
+                }).catch((err) => console.error(`Failed to load data for ${name}:`, err));
             }
         }
-    }
-    if (packageData && specData && !uniqueAttrValues && !uniqueAttrValuesPending) {
-        uniqueAttrValuesPending = true;
-        const worker = new Worker(basePath + '/static/computeUnique.js');
-        worker.postMessage([packageData, specData]);
-        worker.onmessage = (e) => {
-            uniqueAttrValues = Object.fromEntries(Object.entries(e.data).map(([key, value]) => {
-                for (const col in pluralColumns) {
-                    if (pluralColumns[col] === key) return [col, value];
-                }
-                return [key, value];
-            }));
-            populateFiltersMenu();
-            updateBadgeOptions();
-        };
-        worker.onerror = (e) => {
-            console.error('Failed to compute unique attribute values:', e.message);
-            uniqueAttrValuesPending = false;
-        };
     }
     applySidebarHighlights();
     showContent(contentToShow);
@@ -115,17 +125,12 @@ function showContent(content_id) {
     }
 }
 
-function getAllSpecHashesForPackage(name) {
-    return [...new Set(Object.values(packageData[name].specs).flat())]
-}
-
 function setPackageName(name) {
     $('.package-name').text(name);
-    if (specData) {
-        currentSpecs = getAllSpecHashesForPackage(name).map((hash) => specData[hash]);
-        $('.num-specs').text(currentSpecs.length.toLocaleString());
-        updateBadgeOptions();
-    }
+    $('.num-specs').text(packageData[name].count.toLocaleString());
+    currentSpecs = packageCache[name]?.specs;
+    specData = packageCache[name]?.specData;
+    if (currentSpecs) updateBadgeOptions();
 }
 
 function copyCommand(e) {
@@ -148,9 +153,9 @@ function releaseNameToDate(releaseName) {
 }
 
 function setupHomepage() {
-    if (!specData || !packageData) return;
-    const releases = [...new Set(Object.values(packageData).map((p) => p.releases).flat())];
-    $('.total-builds-stat').text(Object.keys(specData).length.toLocaleString());
+    if (!packageData) return;
+    const releases = [...new Set(Object.values(packageData).map((p) => Object.keys(p.releases)).flat())];
+    $('.total-builds-stat').text(totalBuilds.toLocaleString());
     $('.total-packages-stat').text(Object.keys(packageData).length.toLocaleString());
     $('.total-releases-stat').text(releases.length.toLocaleString());
     const orderedReleases = releases.filter((r) => r[0] === 'v').toSorted((a, b) => releaseNameToDate(a) - releaseNameToDate(b)).reverse();
@@ -208,15 +213,12 @@ function debounce(func, timeout = 300) {
 // Ready
 $(document).ready(async function () {
     basePath = $('#base-path').text();
-    fetchGzippedJson(`${basePath}/api/package_data.json.gz`).then((data) => {
-        packageData = data;
+    fetchJson(`${basePath}/api/index.json`).then((data) => {
+        totalBuilds = data.builds;
+        packageData = data.packages;
         populateSidebarTabs();
         applyRoute(window.location.search);
-    }).catch((err) => console.error('Failed to load package data:', err));
-    fetchGzippedJson(`${basePath}/api/specs_data.json.gz`).then((data) => {
-        specData = data;
-        applyRoute(window.location.search);
-    }).catch((err) => console.error('Failed to load spec data:', err));
+    }).catch((err) => console.error('Failed to load package index:', err));
 
     window.navigation.addEventListener('navigate', (e) => {
         const dest = e.destination.url;

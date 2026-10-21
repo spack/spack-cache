@@ -24,13 +24,15 @@ function setSidebarOpen(open) {
     $('#sidebar-shadow').toggleClass('visible', open);
 }
 
+function highlightSidebarItems() {
+    for (const item of sidebarItems) {
+        const isActive = item.package === packageName && (!item.release || badgeFilters.release.includes(item.release));
+        item.element.classList.toggle('active', isActive);
+    }
+}
+
 function applySidebarHighlights() {
-    $('.sidebar-item').each((_, item) => {
-        const itemPackage = $(item).attr('package');
-        const itemRelease = $(item).attr('release');
-        const isActive = itemPackage === packageName && (!itemRelease || badgeFilters.release.includes(itemRelease));
-        $(item).toggleClass('active', isActive);
-    });
+    highlightSidebarItems();
     if (badgeFilters.release.length) {
         selectSidebarTab('by-release');
         if (!showDevs && badgeFilters.release.some((r) => r.includes('develop'))) {
@@ -48,6 +50,9 @@ function applySidebarHighlights() {
 }
 
 let filterMatchSpecsCache = null;
+// Sidebar items with the state last written to the DOM, so that filtering
+// only touches elements that change, and only those in the visible tab.
+let sidebarItems = [];
 
 function invalidateFilterMatchSpecsCache() {
     filterMatchSpecsCache = null;
@@ -77,45 +82,56 @@ function filterSidebar() {
         filterMatchSpecsCache = filterMatchSpecs;
     }
     const filterMatchSpecs = filterMatchSpecsCache || {};
-    $('.sidebar-item').each((_, item) => {
-        const itemPackage = $(item).attr('package');
-        const itemPackageLower = itemPackage.toLowerCase();
-        const itemRelease = $(item).attr('release');
+    const activeTab = $('#by-release-content').hasClass('active') ? 'by-release' : 'all-packages';
+    const groupCounts = {};
+    for (const item of sidebarItems) {
+        const itemPackageLower = item.packageLower;
         let match = filterString.endsWith('$') ? itemPackageLower.endsWith(filterString.slice(0, -1)) : itemPackageLower.includes(filterString);
-        const [label, specCount] = item.children;
+        let count = 0;
         if (totalFilters > 0) {
-            const matchedSpecs = filterMatchSpecs[itemPackage];
+            const matchedSpecs = filterMatchSpecs[item.package];
             match &&= matchedSpecs?.size;
             if (matchedSpecs) {
-                if (itemRelease) $(specCount).text(
-                    matchedSpecs.intersection(new Set(packageData[itemPackage].specs[itemRelease])).size
-                );
-                else $(specCount).text(matchedSpecs.size);
+                count = item.release
+                    ? matchedSpecs.intersection(new Set(uniqueAttrValues.release[item.release][item.package])).size
+                    : matchedSpecs.size;
             }
         } else {
-            if (itemRelease) $(specCount).text(packageData[itemPackage].specs[itemRelease].length);
-            else $(specCount).text(getAllSpecHashesForPackage(itemPackage).length);
+            count = item.release ? packageData[item.package].releases[item.release] : packageData[item.package].count;
         }
-        if (match && $(specCount).text() > 0) {
+        const visible = Boolean(match && count > 0);
+        if (visible) {
             resultsFound = true;
-            $(item).removeClass('hidden');
-            const matchIndex = emphasisString.length > 0 ? itemPackageLower.indexOf(emphasisString) : -1;
-            label.innerHTML = matchIndex !== -1
-                ? itemPackage.slice(0, matchIndex) + `<span class='font-bold text-foreground'>${itemPackage.slice(matchIndex, matchIndex + emphasisString.length)}</span>` + itemPackage.slice(matchIndex + emphasisString.length)
-                : itemPackage;
-        } else {
-            $(item).addClass('hidden');
-            label.innerHTML = itemPackage;
+            if (item.release) {
+                if (!groupCounts[item.release]) groupCounts[item.release] = { items: 0, specs: 0 };
+                groupCounts[item.release].items += 1;
+                groupCounts[item.release].specs += count;
+            }
         }
-    });
+        if ((item.release ? 'by-release' : 'all-packages') === activeTab) {
+            const emphasis = visible ? emphasisString : '';
+            if (item.count !== count) {
+                item.counter.textContent = count;
+                item.count = count;
+            }
+            if (item.emphasis !== emphasis) {
+                const matchIndex = emphasis.length > 0 ? itemPackageLower.indexOf(emphasis) : -1;
+                item.label.innerHTML = matchIndex !== -1
+                    ? item.package.slice(0, matchIndex) + `<span class='font-bold text-foreground'>${item.package.slice(matchIndex, matchIndex + emphasis.length)}</span>` + item.package.slice(matchIndex + emphasis.length)
+                    : item.package;
+                item.emphasis = emphasis;
+            }
+            if (item.visible !== visible) {
+                item.element.classList.toggle('hidden', !visible);
+                item.visible = visible;
+            }
+        }
+    }
     $('.sidebar-group').each((_, group) => {
-        const specCounts = $(group).find('ul').children().not('.hidden').find('.spec-counter').map(
-            (_, item) => parseInt($(item).text())
-        ).get();
-        const specSum = specCounts.reduce((acc, curr) => acc + curr, 0);
         const groupRelease = $(group).attr('release');
-        $(group).find('.child-counter').text(specSum);
-        if (specCounts.length && (showDevs || !groupRelease.includes('develop'))) {
+        const { items, specs } = groupCounts[groupRelease] || { items: 0, specs: 0 };
+        $(group).find('.child-counter').text(specs);
+        if (items && (showDevs || !groupRelease.includes('develop'))) {
             $(group).removeClass('hidden');
             if (emphasisString.length > 0) $(group).removeClass('collapsed');
         } else {
@@ -126,7 +142,7 @@ function filterSidebar() {
     $('#by-release-nodata').css('display', resultsFound ? 'none' : 'block');
 }
 
-const debouncedFilterSidebar = debounce((event) => filterSidebar(event))
+const debouncedFilterSidebar = debounce((event) => filterSidebar(event), 50)
 
 function selectSidebarTab(tab) {
     ['#sidebar-tabs', '#sidebar-tab-contents'].forEach((setName) => {
@@ -134,57 +150,86 @@ function selectSidebarTab(tab) {
             $(item).toggleClass('active', item.id.includes(tab));
         });
     });
+    if (tab === 'by-release') populateByReleaseTab();
+    // Items in the previously hidden tab may be out of date
+    if (sidebarItems.length) filterSidebar();
+}
+
+let byReleasePopulated = false;
+
+function sortedPackageNames() {
+    return Object.keys(packageData).toSorted((a, b) => a.localeCompare(b));
 }
 
 function populateSidebarTabs() {
     if (!packageData) return;
-    const allPackagesList = $('#all-packages-list');
-    const byReleaseList = $('#by-release-list');
-    const releases = {};
-    Object.values(packageData).toSorted(
-        (a, b) => a.uid.localeCompare(b.uid)
-    ).forEach((pkg) => {
-        allPackagesList.append(createSidebarItem(pkg, undefined));
-        pkg.releases.forEach((releaseName) => {
-            if (!releases[releaseName]) {
-                releases[releaseName] = createSidebarGroup(releaseName);
+    // Build the items as HTML strings with a single delegated click handler:
+    // creating them one by one with jQuery is slow, and per-item handlers
+    // create a lot of garbage for the browser to collect.
+    $('#all-packages-list').html(sortedPackageNames().map((name) => createSidebarItem(name, undefined)).join(''));
+    $('#all-packages-list, #by-release-list').on('click', '.sidebar-item', (e) => {
+        e.stopPropagation();
+        closeAllMenus();
+        const newUrl = new URL(basePath, window.location.origin);
+        newUrl.searchParams.append('package', e.currentTarget.getAttribute('package'));
+        const releaseName = e.currentTarget.getAttribute('release');
+        if (releaseName) newUrl.searchParams.append('release', releaseName);
+        for (const key in sidebarFilters) {
+            for (const value of sidebarFilters[key]) {
+                newUrl.searchParams.append(key, value);
             }
-            releases[releaseName].children().eq(1).append(createSidebarItem(pkg, releaseName));
-        });
+        }
+        window.history.pushState(null, '', newUrl.toString());
     });
-    byReleaseList.empty().append(...Object.keys(releases).toSorted(
-        (a, b) => b.localeCompare(a)
-    ).map((key) => releases[key]));
+    collectSidebarItems();
     $('#all-packages-loading, #by-release-loading').hide();
     $('#show-devs-toggle').prop('checked', showDevs);
     filterSidebar();
 }
 
-function createSidebarItem(pkg, releaseName) {
-    return $('<li>', {
-        'class': 'sidebar-item flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground',
-        click: (e) => {
-            e.stopPropagation();
-            closeAllMenus();
-            const newUrl = new URL(basePath, window.location.origin);
-            newUrl.searchParams.append('package', pkg.uid);
-            if (releaseName) newUrl.searchParams.append('release', releaseName);
-            for (const key in sidebarFilters) {
-                for (const value of sidebarFilters[key]) {
-                    newUrl.searchParams.append(key, value);
-                }
-            }
-            window.history.pushState(null, '', newUrl.toString());
+function populateByReleaseTab() {
+    // This tab holds ~90% of the sidebar items, which slows down every layout
+    // of the page, so only build it once it is shown.
+    if (byReleasePopulated || !packageData) return;
+    byReleasePopulated = true;
+    const releaseItems = {};
+    for (const name of sortedPackageNames()) {
+        for (const releaseName in packageData[name].releases) {
+            if (!releaseItems[releaseName]) releaseItems[releaseName] = [];
+            releaseItems[releaseName].push(createSidebarItem(name, releaseName));
         }
-    }).attr({
-        package: pkg.uid,
-        release: releaseName,
-    }).append($('<code>', { text: pkg.uid })).append(
-        $('<span>', {
-            'class': 'text-muted-foreground spec-counter',
-            text: releaseName ? pkg.specs[releaseName].length : getAllSpecHashesForPackage(pkg.uid).length,
-        })
-    );
+    }
+    $('#by-release-list').empty().append(...Object.keys(releaseItems).toSorted(
+        (a, b) => b.localeCompare(a)
+    ).map((releaseName) => {
+        const group = createSidebarGroup(releaseName);
+        group.children().eq(1).html(releaseItems[releaseName].join(''));
+        return group;
+    }));
+    collectSidebarItems();
+    highlightSidebarItems();
+}
+
+function collectSidebarItems() {
+    sidebarItems = Array.from(document.querySelectorAll('.sidebar-item'), (element) => ({
+        element,
+        label: element.children[0],
+        counter: element.children[1],
+        package: element.getAttribute('package'),
+        packageLower: element.getAttribute('package').toLowerCase(),
+        release: element.getAttribute('release') || undefined,
+        count: parseInt(element.children[1].textContent),
+        emphasis: '',
+        visible: true,
+    }));
+}
+
+function createSidebarItem(name, releaseName) {
+    const pkg = packageData[name];
+    const count = releaseName ? pkg.releases[releaseName] : pkg.count;
+    const release = releaseName ? ` release="${releaseName}"` : '';
+    return `<li class="sidebar-item flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground" package="${name}"${release}>`
+        + `<code>${name}</code><span class="text-muted-foreground spec-counter">${count}</span></li>`;
 }
 
 function createSidebarGroup(groupName) {
@@ -304,6 +349,18 @@ function sidebarFiltersUpdated() {
         filtersCount.addClass('hidden');
     }
     filterSidebar();
+}
+
+function loadFiltersMenu() {
+    if (uniqueAttrValues || uniqueAttrValuesPending) return;
+    uniqueAttrValuesPending = true;
+    fetchJson(`${basePath}/api/filters.json`).then((data) => {
+        uniqueAttrValues = data;
+        populateFiltersMenu();
+    }).catch((err) => {
+        console.error('Failed to load filter data:', err);
+        uniqueAttrValuesPending = false;
+    });
 }
 
 function populateFiltersMenu() {

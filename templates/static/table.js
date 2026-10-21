@@ -24,12 +24,12 @@ function createFilterBadge(key, value, remove) {
 }
 
 function updateBadgeOptions() {
-    if (!uniqueAttrValues || !packageName) return;
-    const badgeOptions = Object.fromEntries(Object.entries(uniqueAttrValues).map(([key, valueMap]) => {
-        return [key, Object.entries(valueMap).filter(([value, packageMap]) => {
-            return packageMap[packageName]?.length
-        }).map(([value]) => value)];
-    }));
+    if (!currentSpecs) return;
+    const badgeOptions = Object.fromEntries(
+        ['version', 'variant', 'platform', 'os', 'target', 'stack', 'release'].map((key) => {
+            return [key, [...new Set(currentSpecs.flatMap((spec) => spec[pluralColumns[key] || key]))]];
+        })
+    );
     const container = $('#badge-options-list').empty();
     for (const key in badgeOptions) {
         container.append($('<div>', {
@@ -196,6 +196,9 @@ function setupDataTable() {
             search: "Filter: ",
         },
         pageLength: 25,
+        // Rendering builds DOM nodes, so only do that for display (see the
+        // `type !== 'display'` checks below); search is not exposed in the UI.
+        searching: false,
         columnDefs: [
             { targets: 0, width: '250px' },
         ],
@@ -205,6 +208,7 @@ function setupDataTable() {
                 data: 'hash',
                 className: 'nowrap',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(displayHash(data));
                 },
             },
@@ -213,6 +217,7 @@ function setupDataTable() {
                 data: 'version',
                 className: 'dt-left',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'version', [data]));
                 }
             },
@@ -220,6 +225,7 @@ function setupDataTable() {
                 name: 'releases',
                 data: 'releases',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'release', data));
                 },
             },
@@ -227,6 +233,7 @@ function setupDataTable() {
                 name: 'stacks',
                 data: 'stacks',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'stack', data));
                 },
             },
@@ -234,6 +241,7 @@ function setupDataTable() {
                 name: 'variants',
                 data: 'variants',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'variant', data));
                 },
             },
@@ -241,6 +249,7 @@ function setupDataTable() {
                 name: 'platform',
                 data: 'platform',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'platform', [data]));
                 },
             },
@@ -248,6 +257,7 @@ function setupDataTable() {
                 name: 'os',
                 data: 'os',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'os', [data]));
                 },
             },
@@ -255,6 +265,7 @@ function setupDataTable() {
                 name: 'target',
                 data: 'target',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(groupBadges(info.row, 'target', [data]));
                 },
             },
@@ -262,6 +273,7 @@ function setupDataTable() {
                 name: 'dependencies',
                 data: 'dependencies',
                 render: function (data, type, row, info) {
+                    if (type !== 'display') return data;
                     return asNode(createDepTreeDialogButton(row, data));
                 },
             },

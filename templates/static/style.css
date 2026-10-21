@@ -175,6 +175,12 @@ input:checked+.slider:before {
   overflow-y: auto;
 }
 
+.sidebar-item {
+  /* Skip layout of off-screen items: the sidebar lists thousands of them */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 28px;
+}
+
 .sidebar-item:hover {
   background-color: var(--accent);
   color: var(--accent-foreground);
